@@ -18,7 +18,7 @@ class QuestionBrowserController extends Controller
         $user = $request->user();
 
         // Check if user has filter params in URL (not just page)
-        $hasFilterParams = $request->hasAny(['license_type', 'categories', 'show_inactive', 'bookmarked', 'wrong_only', 'unanswered', 'per_page']);
+        $hasFilterParams = $request->hasAny(['license_type', 'categories', 'show_inactive', 'bookmarked', 'wrong_only', 'correct_only', 'unanswered', 'per_page']);
 
         // Load saved preferences if no filter params provided
         $savedPreferences = $user?->question_filter_preferences ?? [];
@@ -36,9 +36,9 @@ class QuestionBrowserController extends Controller
         $showBookmarked = $hasFilterParams
             ? $request->boolean('bookmarked', false)
             : ($savedPreferences['bookmarked'] ?? false);
-        $showWrong = $hasFilterParams
-            ? $request->boolean('wrong_only', false)
-            : ($savedPreferences['wrong_only'] ?? false);
+        // correct_only and wrong_only are session-only filters (not saved to preferences)
+        $showCorrect = $request->boolean('correct_only', false);
+        $showWrong = $request->boolean('wrong_only', false);
         $showUnanswered = $hasFilterParams
             ? $request->boolean('unanswered', false)
             : ($savedPreferences['unanswered'] ?? false);
@@ -46,7 +46,7 @@ class QuestionBrowserController extends Controller
             ? $request->input('per_page', 20)
             : ($savedPreferences['per_page'] ?? 20);
 
-        // Save preferences when user applies filters
+        // Save preferences when user applies filters (excluding session-only filters)
         if ($hasFilterParams && $user) {
             $user->update([
                 'question_filter_preferences' => [
@@ -54,7 +54,6 @@ class QuestionBrowserController extends Controller
                     'categories' => $categoryIds,
                     'show_inactive' => $showInactive,
                     'bookmarked' => $showBookmarked,
-                    'wrong_only' => $showWrong,
                     'unanswered' => $showUnanswered,
                     'per_page' => (int) $perPage,
                 ],
@@ -88,11 +87,14 @@ class QuestionBrowserController extends Controller
             $query->whereIn('question_category_id', $categoryIds);
         }
 
-        // Filter by user progress (bookmarked, wrong, unanswered)
-        if ($user && ($showBookmarked || $showWrong || $showUnanswered)) {
-            $query->where(function ($q) use ($user, $showBookmarked, $showWrong, $showUnanswered) {
+        // Filter by user progress (bookmarked, correct, wrong, unanswered)
+        if ($user && ($showBookmarked || $showCorrect || $showWrong || $showUnanswered)) {
+            $query->where(function ($q) use ($user, $showBookmarked, $showCorrect, $showWrong, $showUnanswered) {
                 if ($showBookmarked) {
                     $q->orWhereHas('userProgress', fn ($uq) => $uq->where('user_id', $user->id)->where('is_bookmarked', true));
+                }
+                if ($showCorrect) {
+                    $q->orWhereHas('userProgress', fn ($uq) => $uq->where('user_id', $user->id)->whereColumn('times_correct', '>', 'times_wrong'));
                 }
                 if ($showWrong) {
                     $q->orWhereHas('userProgress', fn ($uq) => $uq->where('user_id', $user->id)->whereColumn('times_wrong', '>', 'times_correct'));
@@ -156,6 +158,7 @@ class QuestionBrowserController extends Controller
                 'categories' => $categoryIds,
                 'show_inactive' => $showInactive,
                 'bookmarked' => $showBookmarked,
+                'correct_only' => $showCorrect,
                 'wrong_only' => $showWrong,
                 'unanswered' => $showUnanswered,
                 'per_page' => (int) $perPage,

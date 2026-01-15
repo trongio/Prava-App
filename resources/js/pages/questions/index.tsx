@@ -11,6 +11,7 @@ import {
     Shield,
     Tractor,
     TramFront,
+    TriangleAlert,
     Truck,
     X,
 } from 'lucide-react';
@@ -100,6 +101,7 @@ interface Filters {
     show_inactive: boolean;
     bookmarked: boolean;
     wrong_only: boolean;
+    correct_only: boolean;
     unanswered: boolean;
     per_page: number;
 }
@@ -442,6 +444,7 @@ export default function QuestionsIndex({
                 show_inactive: localFilters.show_inactive,
                 bookmarked: localFilters.bookmarked,
                 wrong_only: localFilters.wrong_only,
+                correct_only: localFilters.correct_only,
                 unanswered: localFilters.unanswered,
                 per_page: localFilters.per_page,
             },
@@ -452,6 +455,38 @@ export default function QuestionsIndex({
         );
     }, [localFilters]);
 
+    // Toggle inactive questions filter
+    const toggleInactiveFilter = useCallback(() => {
+        const newShowInactive = !localFilters.show_inactive;
+        setLocalFilters((f) => ({ ...f, show_inactive: newShowInactive }));
+        router.get(
+            '/questions',
+            { ...localFilters, show_inactive: newShowInactive },
+            { preserveState: true, preserveScroll: true },
+        );
+    }, [localFilters]);
+
+    // Toggle answer status filter (correct/wrong) - only one can be active
+    const toggleAnswerFilter = useCallback(
+        (type: 'correct' | 'wrong') => {
+            const isCurrentlyActive =
+                type === 'correct'
+                    ? localFilters.correct_only
+                    : localFilters.wrong_only;
+            const newFilters = {
+                ...localFilters,
+                correct_only: type === 'correct' ? !isCurrentlyActive : false,
+                wrong_only: type === 'wrong' ? !isCurrentlyActive : false,
+            };
+            setLocalFilters(newFilters);
+            router.get('/questions', newFilters, {
+                preserveState: true,
+                preserveScroll: true,
+            });
+        },
+        [localFilters],
+    );
+
     const resetFilters = useCallback(() => {
         const defaultFilters: Filters = {
             license_type: null,
@@ -459,6 +494,7 @@ export default function QuestionsIndex({
             show_inactive: false,
             bookmarked: false,
             wrong_only: false,
+            correct_only: false,
             unanswered: false,
             per_page: 20,
         };
@@ -505,18 +541,48 @@ export default function QuestionsIndex({
 
             {/* Score Bar */}
             <div className="sticky top-0 z-10 flex items-center justify-between gap-2 border-b bg-background px-4 py-2">
-                <div className="flex items-center gap-4 text-sm">
-                    <span className="text-green-600">
-                        <Check className="mr-1 inline h-4 w-4" />
+                <div className="flex items-center gap-2 text-sm">
+                    <button
+                        onClick={() => toggleAnswerFilter('correct')}
+                        className={`flex items-center gap-1 rounded-md px-2 py-1 transition-colors ${
+                            localFilters.correct_only
+                                ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+                                : 'text-green-600 hover:bg-green-50 dark:hover:bg-green-950'
+                        }`}
+                    >
+                        <Check className="h-4 w-4" />
                         {sessionScore.correct}
-                    </span>
-                    <span className="text-red-600">
-                        <X className="mr-1 inline h-4 w-4" />
+                    </button>
+                    <button
+                        onClick={() => toggleAnswerFilter('wrong')}
+                        className={`flex items-center gap-1 rounded-md px-2 py-1 transition-colors ${
+                            localFilters.wrong_only
+                                ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
+                                : 'text-red-600 hover:bg-red-50 dark:hover:bg-red-950'
+                        }`}
+                    >
+                        <X className="h-4 w-4" />
                         {sessionScore.wrong}
-                    </span>
+                    </button>
                 </div>
 
                 <div className="flex items-center gap-2">
+                    {/* Inactive Questions Toggle */}
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={toggleInactiveFilter}
+                    >
+                        <TriangleAlert
+                            className={`h-4 w-4 ${
+                                localFilters.show_inactive
+                                    ? 'text-red-500'
+                                    : 'text-muted-foreground'
+                            }`}
+                        />
+                    </Button>
+
                     {/* License Type Selector */}
                     <Select
                         value={localFilters.license_type?.toString() || 'all'}
@@ -578,81 +644,6 @@ export default function QuestionsIndex({
                             </SheetHeader>
 
                             <div className="space-y-6 px-5 pb-6">
-
-                                {/* Status Filters */}
-                                <div className="space-y-3">
-                                    <Label className="mb-2 block text-base font-semibold">
-                                        სტატუსი
-                                    </Label>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <label className="flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors hover:bg-accent">
-                                            <Checkbox
-                                                checked={
-                                                    localFilters.bookmarked
-                                                }
-                                                onCheckedChange={(c) =>
-                                                    setLocalFilters((f) => ({
-                                                        ...f,
-                                                        bookmarked: c === true,
-                                                    }))
-                                                }
-                                            />
-                                            <span className="text-sm">
-                                                შენახული
-                                            </span>
-                                        </label>
-                                        <label className="flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors hover:bg-accent">
-                                            <Checkbox
-                                                checked={
-                                                    localFilters.wrong_only
-                                                }
-                                                onCheckedChange={(c) =>
-                                                    setLocalFilters((f) => ({
-                                                        ...f,
-                                                        wrong_only: c === true,
-                                                    }))
-                                                }
-                                            />
-                                            <span className="text-sm">
-                                                შეცდომები
-                                            </span>
-                                        </label>
-                                        <label className="flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors hover:bg-accent">
-                                            <Checkbox
-                                                checked={
-                                                    localFilters.unanswered
-                                                }
-                                                onCheckedChange={(c) =>
-                                                    setLocalFilters((f) => ({
-                                                        ...f,
-                                                        unanswered: c === true,
-                                                    }))
-                                                }
-                                            />
-                                            <span className="text-sm">
-                                                უპასუხო
-                                            </span>
-                                        </label>
-                                        <label className="flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors hover:bg-accent">
-                                            <Checkbox
-                                                checked={
-                                                    localFilters.show_inactive
-                                                }
-                                                onCheckedChange={(c) =>
-                                                    setLocalFilters((f) => ({
-                                                        ...f,
-                                                        show_inactive:
-                                                            c === true,
-                                                    }))
-                                                }
-                                            />
-                                            <span className="text-sm">
-                                                ამოღებული
-                                            </span>
-                                        </label>
-                                    </div>
-                                </div>
-
                                 {/* Category Filter */}
                                 <div className="space-y-3">
                                     <div className="mb-2 flex items-center justify-between">
