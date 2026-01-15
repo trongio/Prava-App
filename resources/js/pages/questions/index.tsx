@@ -401,10 +401,10 @@ export default function QuestionsIndex({
                         }}
                     >
                         <SelectTrigger className="h-8 w-auto min-w-[80px] text-sm">
-                            <SelectValue placeholder="ყველა კატეგორია" />
+                            <SelectValue placeholder="ყველა" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="all">ყველა კატეგორია</SelectItem>
+                            <SelectItem value="all">ყველა </SelectItem>
                             {licenseTypes.map((lt) => (
                                 <SelectItem
                                     key={lt.id}
