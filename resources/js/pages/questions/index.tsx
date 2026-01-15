@@ -1,6 +1,5 @@
 import { Head, router } from '@inertiajs/react';
 import {
-    Bike,
     Bus,
     Car,
     Check,
@@ -8,6 +7,7 @@ import {
     ChevronRight,
     Filter,
     Motorbike,
+    Scooter,
     Shield,
     Tractor,
     TramFront,
@@ -134,7 +134,7 @@ const getLicenseTypeIcon = (code: string) => {
 
     // AM - Moped (before A check since AM starts with A)
     if (upperCode === 'AM') {
-        return <Bike className={iconClass} />;
+        return <Scooter className={iconClass} />;
     }
     // A, A1 - Motorcycle
     if (upperCode.startsWith('A')) {
