@@ -167,6 +167,127 @@ const getLicenseTypeIcon = (code: string) => {
     return <Car className={iconClass} />;
 };
 
+// Generate page numbers to display
+function getPageNumbers(currentPage: number, lastPage: number): (number | 'ellipsis')[] {
+    const pages: (number | 'ellipsis')[] = [];
+    const maxVisible = 5; // Max page buttons to show (excluding ellipsis)
+
+    if (lastPage <= maxVisible + 2) {
+        // Show all pages if total is small
+        for (let i = 1; i <= lastPage; i++) {
+            pages.push(i);
+        }
+    } else {
+        // Always show first page
+        pages.push(1);
+
+        if (currentPage <= 3) {
+            // Near start: 1 2 3 4 ... last
+            for (let i = 2; i <= 4; i++) {
+                pages.push(i);
+            }
+            pages.push('ellipsis');
+        } else if (currentPage >= lastPage - 2) {
+            // Near end: 1 ... n-3 n-2 n-1 last
+            pages.push('ellipsis');
+            for (let i = lastPage - 3; i < lastPage; i++) {
+                pages.push(i);
+            }
+        } else {
+            // Middle: 1 ... current-1 current current+1 ... last
+            pages.push('ellipsis');
+            for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+                pages.push(i);
+            }
+            pages.push('ellipsis');
+        }
+
+        // Always show last page
+        pages.push(lastPage);
+    }
+
+    return pages;
+}
+
+// Pagination component
+function Pagination({
+    currentPage,
+    lastPage,
+    perPage,
+    onPageChange,
+    onPerPageChange,
+}: {
+    currentPage: number;
+    lastPage: number;
+    perPage: number;
+    onPageChange: (page: number) => void;
+    onPerPageChange: (perPage: number) => void;
+}) {
+    if (lastPage <= 1) return null;
+
+    const pageNumbers = getPageNumbers(currentPage, lastPage);
+
+    return (
+        <div className="flex items-center justify-between gap-2 border-b bg-background px-4 py-2">
+            <div className="flex items-center gap-1">
+                <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8"
+                    disabled={currentPage === 1}
+                    onClick={() => onPageChange(currentPage - 1)}
+                >
+                    <ChevronLeft className="h-4 w-4" />
+                </Button>
+
+                {pageNumbers.map((page, index) =>
+                    page === 'ellipsis' ? (
+                        <span key={`ellipsis-${index}`} className="px-1 text-muted-foreground">
+                            ...
+                        </span>
+                    ) : (
+                        <Button
+                            key={page}
+                            variant={page === currentPage ? 'default' : 'outline'}
+                            size="icon"
+                            className="h-8 w-8 text-sm"
+                            onClick={() => onPageChange(page)}
+                        >
+                            {page}
+                        </Button>
+                    )
+                )}
+
+                <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8"
+                    disabled={currentPage === lastPage}
+                    onClick={() => onPageChange(currentPage + 1)}
+                >
+                    <ChevronRight className="h-4 w-4" />
+                </Button>
+            </div>
+
+            <Select
+                value={perPage.toString()}
+                onValueChange={(v) => onPerPageChange(parseInt(v))}
+            >
+                <SelectTrigger className="h-8 w-16 text-sm">
+                    <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                    {[10, 20, 50, 100].map((n) => (
+                        <SelectItem key={n} value={n.toString()}>
+                            {n}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        </div>
+    );
+}
+
 export default function QuestionsIndex({
     questions,
     userProgress,
@@ -358,6 +479,26 @@ export default function QuestionsIndex({
         [filters],
     );
 
+    const handlePerPageChange = useCallback(
+        (perPage: number) => {
+            setLocalFilters((f) => ({ ...f, per_page: perPage }));
+            router.get(
+                '/questions',
+                { ...filters, per_page: perPage, page: 1 },
+                {
+                    preserveState: true,
+                    preserveScroll: true,
+                },
+            );
+        },
+        [filters],
+    );
+
+    // Calculate total count for all categories
+    const totalCategoryCount = useMemo(() => {
+        return Object.values(categoryCounts).reduce((sum, count) => sum + count, 0);
+    }, [categoryCounts]);
+
     return (
         <MobileLayout>
             <Head title="ბილეთები" />
@@ -437,35 +578,6 @@ export default function QuestionsIndex({
                             </SheetHeader>
 
                             <div className="space-y-6 px-5 pb-6">
-                                {/* Per Page */}
-                                <div className="space-y-3">
-                                    <Label className="mb-2 block text-base font-semibold">
-                                        გვერდზე
-                                    </Label>
-                                    <Select
-                                        value={localFilters.per_page.toString()}
-                                        onValueChange={(v) =>
-                                            setLocalFilters((f) => ({
-                                                ...f,
-                                                per_page: parseInt(v),
-                                            }))
-                                        }
-                                    >
-                                        <SelectTrigger className="h-12 text-base">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {[10, 20, 50, 100].map((n) => (
-                                                <SelectItem
-                                                    key={n}
-                                                    value={n.toString()}
-                                                >
-                                                    {n} კითხვა
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
 
                                 {/* Status Filters */}
                                 <div className="space-y-3">
@@ -566,7 +678,7 @@ export default function QuestionsIndex({
                                                     }))
                                                 }
                                             >
-                                                ყველა
+                                                ყველა ({totalCategoryCount})
                                             </Button>
                                             <Button
                                                 variant="ghost"
@@ -649,7 +761,7 @@ export default function QuestionsIndex({
                                         className="h-12 flex-1 text-base"
                                         onClick={applyFilters}
                                     >
-                                        გამოყენება
+                                        შენახვა
                                     </Button>
                                 </div>
                             </div>
@@ -657,6 +769,15 @@ export default function QuestionsIndex({
                     </Sheet>
                 </div>
             </div>
+
+            {/* Top Pagination */}
+            <Pagination
+                currentPage={questions.current_page}
+                lastPage={questions.last_page}
+                perPage={localFilters.per_page}
+                onPageChange={goToPage}
+                onPerPageChange={handlePerPageChange}
+            />
 
             {/* Questions List */}
             <div className="space-y-4 p-4">
@@ -681,34 +802,14 @@ export default function QuestionsIndex({
                 ))}
             </div>
 
-            {/* Pagination */}
-            {questions.last_page > 1 && (
-                <div className="flex items-center justify-center gap-2 border-t p-4">
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        disabled={questions.current_page === 1}
-                        onClick={() => goToPage(questions.current_page - 1)}
-                    >
-                        <ChevronLeft className="h-4 w-4" />
-                    </Button>
-
-                    <span className="px-4 text-sm">
-                        გვ. {questions.current_page} / {questions.last_page}
-                    </span>
-
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        disabled={
-                            questions.current_page === questions.last_page
-                        }
-                        onClick={() => goToPage(questions.current_page + 1)}
-                    >
-                        <ChevronRight className="h-4 w-4" />
-                    </Button>
-                </div>
-            )}
+            {/* Bottom Pagination */}
+            <Pagination
+                currentPage={questions.current_page}
+                lastPage={questions.last_page}
+                perPage={localFilters.per_page}
+                onPageChange={goToPage}
+                onPerPageChange={handlePerPageChange}
+            />
 
             {/* Signs Info Modal */}
             <SignsInfoDialog

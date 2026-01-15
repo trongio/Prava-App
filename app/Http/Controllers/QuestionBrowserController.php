@@ -28,7 +28,7 @@ class QuestionBrowserController extends Controller
             ? $request->input('license_type')
             : ($savedPreferences['license_type'] ?? null);
         $categoryIds = $hasFilterParams
-            ? $request->input('categories', [])
+            ? collect($request->input('categories', []))->map(fn ($id) => (int) $id)->toArray()
             : ($savedPreferences['categories'] ?? []);
         $showInactive = $hasFilterParams
             ? $request->boolean('show_inactive', false)
