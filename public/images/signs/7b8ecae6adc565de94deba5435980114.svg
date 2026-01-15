@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1"
+	 id="svg2" sodipodi:docname="3.15.svg" inkscape:version="0.48.4 r9939" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:svg="http://www.w3.org/2000/svg" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:cc="http://creativecommons.org/ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 600 600"
+	 enable-background="new 0 0 600 600" xml:space="preserve">
+<title  id="title3002">3.15 Ограничение длины</title>
+<sodipodi:namedview  id="base" inkscape:window-height="1024" inkscape:window-x="-4" inkscape:pageshadow="2" inkscape:pageopacity="0.0" inkscape:document-units="px" inkscape:window-width="1920" inkscape:current-layer="layer1" inkscape:window-y="-4" showgrid="false" bordercolor="#666666" inkscape:cx="285.9258" borderopacity="1.0" inkscape:zoom="1" inkscape:cy="283.89532" pagecolor="#ffffff" inkscape:window-maximized="1">
+	</sodipodi:namedview>
+<path id="path5334" sodipodi:type="arc" sodipodi:ry="29.465372" sodipodi:cx="-87.720657" sodipodi:cy="432.25998" sodipodi:rx="22.107042" fill="#FFFFFF" d="
+	M600,300c0,165.7-134.3,300-300,300S0,465.7,0,300C0,134.3,134.3,0,300,0S600,134.3,600,300z"/>
+<path id="path3003" sodipodi:type="arc" sodipodi:ry="29.465372" sodipodi:cx="-87.720657" sodipodi:cy="432.25998" sodipodi:rx="22.107042" fill="none" stroke="#000000" stroke-width="2" d="
+	M599,300c0,165.1-133.9,299-299,299S1,465.1,1,300C1,134.9,134.9,1,300,1S599,134.9,599,300z"/>
+<path id="path4775-9" fill="#FF0000" d="M300,10C139.8,10,10,139.8,10,300s129.8,290,290,290s290-129.8,290-290S460.2,10,300,10z
+	 M300,59c133.1,0,241,107.9,241,241S433.1,541,300,541S59,433.1,59,300S166.9,59,300,59z"/>
+<g>
+	<path id="path7834" inkscape:connector-curvature="0" d="M168,237.9c-5.9,0-11.4,2.9-14.7,7.8l-27.9,41.3c-2,2.9-3,6.4-3,9.9v54.6
+		c0,9.8,8,17.8,17.8,17.8h16c0.9-19.8,17.2-35.5,37.3-35.5s36.3,15.8,37.3,35.5h138.7c0.7-14.2,9.2-26.3,21.4-32H236v-81.7
+		c0-9.8-8-17.8-17.8-17.8L168,237.9L168,237.9z M168.9,248.6h40.5c4.9,0,8.9,4,8.9,8.9v24.9c0,4.9-4,8.9-8.9,8.9h-57.3
+		c-4.9,0-8.9-4-8.9-8.9c0-1.8,0.5-3.5,1.5-5l16.8-24.9C163.2,250,166,248.6,168.9,248.6L168.9,248.6z"/>
+	<path id="path7836" inkscape:connector-curvature="0" d="M264.5,184.6c-9.8,0-17.8,7.9-17.8,17.8v10.5v25.8v88.1h231v-88.1v-25.8
+		v-10.5c0-9.8-7.9-17.8-17.8-17.8H264.5L264.5,184.6z"/>
+	<path id="path7838" inkscape:connector-curvature="0" d="M406.6,341c-16.7,0-30.2,13.5-30.2,30.2c0,16.7,13.5,30.2,30.2,30.2
+		s30.2-13.5,30.2-30.2C436.8,354.5,423.3,341,406.6,341z M406.6,355.2c8.8,0,16,7.2,16,16c0,8.8-7.2,16-16,16c-8.8,0-16-7.2-16-16
+		C390.6,362.3,397.8,355.2,406.6,355.2z"/>
+	<path id="path7840" inkscape:connector-curvature="0" sodipodi:nodetypes="ccccc" d="M443.9,369.4c-0.7-14.2-9.2-26.3-21.4-32h55.2
+		v32H443.9z"/>
+	<path id="path7842" inkscape:connector-curvature="0" d="M193.4,341c-16.7,0-30.2,13.5-30.2,30.2c0,16.7,13.5,30.2,30.2,30.2
+		s30.2-13.5,30.2-30.2C223.6,354.5,210.1,341,193.4,341z M193.4,355.2c8.8,0,16,7.2,16,16c0,8.8-7.2,16-16,16s-16-7.2-16-16
+		C177.4,362.3,184.6,355.2,193.4,355.2z"/>
+</g>
+</svg>
+
+<!-- file from teoria.on.ge -->

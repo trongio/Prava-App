@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 960 430" enable-background="new 0 0 960 430" xml:space="preserve">
+<g id="Layer_2">
+	<defs>
+		<rect id="MASK" y="0" width="960" height="430"/>
+	</defs>
+	<clipPath id="MASK_1_">
+		<use xlink:href="#MASK"  overflow="visible"/>
+	</clipPath>
+	<rect id="ROAD_BG" x="0.1" y="0" clip-path="url(#MASK_1_)" fill="#B0BAC5" width="960" height="430.1"/>
+	<path clip-path="url(#MASK_1_)" fill="#6DB26D" stroke="#465B60" stroke-width="5" stroke-miterlimit="10" d="M-43.6,380h1024
+		v187.1H-61.3V397.7C-61.3,387.9-53.4,380-43.6,380z"/>
+	<path clip-path="url(#MASK_1_)" fill="#6DB26D" stroke="#465B60" stroke-width="5" stroke-miterlimit="10" d="M-29.6-137.1h1024V50
+		H-47.3v-169.4C-47.3-129.2-39.4-137.1-29.6-137.1z"/>
+	<g id="bord" display="none" clip-path="url(#MASK_1_)">
+		<rect y="52.2" display="inline" fill="#F2F2F2" width="960" height="8"/>
+		<rect y="369.2" display="inline" fill="#F2F2F2" width="960" height="8"/>
+	</g>
+	<g clip-path="url(#MASK_1_)">
+		<path d="M488.6,304.3L488.6,304.3l-4.4,2.2l-0.8-3.3l5.7-2.8h3.7v23.4h-4.3V304.3z"/>
+		<path d="M501.2,321.2c0-1.7,1.2-2.8,2.7-2.8c1.6,0,2.7,1.2,2.7,2.8c0,1.6-1.1,2.8-2.7,2.8C502.3,324.1,501.2,322.8,501.2,321.2z"
+			/>
+		<path d="M519.2,323.7v-5.9h-10.6v-2.9l9.5-14.6h5.2v14.1h3v3.3h-3v5.9H519.2z M519.2,314.4V308c0-1.3,0-2.7,0.1-4.1h-0.1
+			c-0.7,1.5-1.3,2.7-2.1,4l-4.3,6.4l0,0.1H519.2z"/>
+		<path d="M529,321.2c0-1.7,1.2-2.8,2.7-2.8c1.6,0,2.7,1.2,2.7,2.8c0,1.6-1.1,2.8-2.7,2.8C530.1,324.1,529,322.8,529,321.2z"/>
+	</g>
+	<polyline clip-path="url(#MASK_1_)" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10" points="473,313.2 
+		424,313.2 424,362.2 	"/>
+	<g clip-path="url(#MASK_1_)">
+		<g>
+			<line fill="none" stroke="#F2F2F2" stroke-width="14" stroke-miterlimit="10" x1="0" y1="162.2" x2="50" y2="162.2"/>
+			
+				<line fill="none" stroke="#F2F2F2" stroke-width="14" stroke-miterlimit="10" stroke-dasharray="96,96" x1="146" y1="162.2" x2="862" y2="162.2"/>
+			<line fill="none" stroke="#F2F2F2" stroke-width="14" stroke-miterlimit="10" x1="910" y1="162.2" x2="960" y2="162.2"/>
+		</g>
+	</g>
+	<g clip-path="url(#MASK_1_)">
+		<g>
+			<line fill="none" stroke="#F2F2F2" stroke-width="14" stroke-miterlimit="10" x1="0" y1="267.2" x2="50" y2="267.2"/>
+			
+				<line fill="none" stroke="#F2F2F2" stroke-width="14" stroke-miterlimit="10" stroke-dasharray="96,96" x1="146" y1="267.2" x2="862" y2="267.2"/>
+			<line fill="none" stroke="#F2F2F2" stroke-width="14" stroke-miterlimit="10" x1="910" y1="267.2" x2="960" y2="267.2"/>
+		</g>
+	</g>
+	<polyline clip-path="url(#MASK_1_)" fill="none" stroke="#FCEE21" stroke-width="14" stroke-miterlimit="10" points="312,330.2 
+		312,370.2 607,370.2 607,330.2 	"/>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+</svg>
+
+<!-- file from teoria.on.ge -->

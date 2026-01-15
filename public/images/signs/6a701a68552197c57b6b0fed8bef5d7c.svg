@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="600"
+   height="600"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="3.8.svg">
+  <title
+     id="title3002">3.9 Движение на велосипедах запрещено</title>
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1"
+     inkscape:cx="210.64565"
+     inkscape:cy="316.11586"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1024"
+     inkscape:window-x="-4"
+     inkscape:window-y="-4"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>3.9 Движение на велосипедах запрещено</dc:title>
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/by-sa/3.0/" />
+        <dc:description>ГОСТ Р 52290-2004
+Размеры и пропорции по типоразмеру I</dc:description>
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/by-sa/3.0/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Notice" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Attribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#ShareAlike" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-452.36218)">
+    <path
+       sodipodi:type="arc"
+       style="opacity:1;color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       id="path5334"
+       sodipodi:cx="-87.720657"
+       sodipodi:cy="432.25998"
+       sodipodi:rx="22.107042"
+       sodipodi:ry="29.465372"
+       d="m -65.613615,432.25998 c 0,16.27327 -9.89766,29.46537 -22.107042,29.46537 -12.209383,0 -22.107043,-13.1921 -22.107043,-29.46537 0,-16.27328 9.89766,-29.46537 22.107043,-29.46537 12.209382,0 22.107042,13.19209 22.107042,29.46537 z"
+       transform="matrix(13.570336,0,0,10.181443,1490.3988,-3648.6681)" />
+    <path
+       transform="matrix(13.525102,0,0,10.147505,1486.4308,-3633.998)"
+       d="m -65.613615,432.25998 c 0,16.27327 -9.89766,29.46537 -22.107042,29.46537 -12.209383,0 -22.107043,-13.1921 -22.107043,-29.46537 0,-16.27328 9.89766,-29.46537 22.107043,-29.46537 12.209382,0 22.107042,13.19209 22.107042,29.46537 z"
+       sodipodi:ry="29.465372"
+       sodipodi:rx="22.107042"
+       sodipodi:cy="432.25998"
+       sodipodi:cx="-87.720657"
+       id="path3003"
+       style="color:#000000;fill:none;stroke:#000000;stroke-width:0.17071831000000001;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;opacity:1"
+       sodipodi:type="arc" />
+    <path
+       style="opacity:1;color:#000000;fill:#ff0000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       d="M 300 10 C 139.83742 10 10 139.83742 10 300 C 10 460.16258 139.83742 590 300 590 C 460.16258 590 590 460.16258 590 300 C 590 139.83742 460.16258 10 300 10 z M 300 59.03125 C 433.0828 59.03125 540.96875 166.91719 540.96875 300 C 540.96875 433.08281 433.0828 540.96875 300 540.96875 C 166.9172 540.96875 59.03125 433.08281 59.03125 300 C 59.03125 166.91719 166.9172 59.03125 300 59.03125 z "
+       transform="translate(0,452.36218)"
+       id="path4775-9" />
+    <path
+       inkscape:connector-curvature="0"
+       style="opacity:1;color:#000000;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       d="m 233.36163,627.06489 c -13.59617,0 -24.618,11.02181 -24.618,24.61799 0,9.78242 6.2163,18.48853 15.4658,21.67334 3.76833,1.29754 6.28717,4.84847 6.28717,8.83387 0,1.36359 -0.29922,2.71689 -0.87545,3.95263 l -0.95502,2.0427 -20.45306,43.85076 c -9.96833,-5.74567 -21.51765,-9.04601 -33.84974,-9.04601 -37.50661,0 -67.91171,30.4051 -67.91171,67.91172 0,37.50662 30.4051,67.91171 67.91171,67.91171 37.50654,0 67.91172,-30.40509 67.91172,-67.91171 0,-20.20314 -8.83872,-38.33464 -22.84066,-50.77462 l 5.38522,-11.56621 93.75,71.67869 39.79202,0 c 4.55025,33.08803 32.93641,58.57385 67.27504,58.57385 37.50653,0 67.91172,-30.40509 67.91172,-67.91171 0,-37.50662 -30.40519,-67.91172 -67.91172,-67.91172 -10.52784,0 -20.49967,2.38278 -29.39304,6.65849 l -25.54652,-36.44949 6.12801,-14.3516 3.82004,0 c 5.62599,0 10.18676,-4.56079 10.18676,-10.18677 0,-5.62597 -4.56077,-10.18675 -10.18676,-10.18675 l -46.6893,0 c -5.62605,0 -10.18676,4.56078 -10.18676,10.18675 0,5.62598 4.56071,10.18677 10.18676,10.18677 l 29.9236,0 -3.9792,9.33785 -116.61715,0 c 0.52683,-1.9449 0.79584,-3.96783 0.79584,-5.99533 0,-9.78243 -6.21638,-18.48854 -15.46587,-21.67343 -3.76825,-1.29746 -6.2871,-4.84838 -6.2871,-8.83378 0,-6.09482 4.94083,-11.03566 11.03565,-11.03566 l 32.68252,0 c 3.75059,0 6.79116,-3.04049 6.79116,-6.79117 0,-3.75067 -3.04057,-6.79116 -6.79116,-6.79116 l -32.68252,0 z m 5.04032,76.40067 114.9989,0 -33.50484,78.49635 -88.44439,-67.61986 6.95033,-10.87649 z m 127.52013,9.55009 17.37588,24.83021 c -14.12461,11.28506 -23.6832,28.05688 -25.33429,47.11376 l -22.70798,0 30.66639,-71.94397 z m -191.55875,20.16129 c 10.79737,0 20.88252,2.98463 29.52564,8.14406 l -14.27208,30.61331 c -0.95712,2.05255 -2.52189,3.77539 -4.48319,4.90773 l -14.16595,8.17064 c -3.24822,1.87529 -4.36902,6.03666 -2.49364,9.28479 1.8753,3.24813 6.03659,4.36894 9.28481,2.49364 l 14.16596,-8.1972 c 4.37521,-2.52598 7.86587,-6.32419 10.00101,-10.90298 l 12.99873,-27.88097 c 10.60195,10.46638 17.16367,25.01705 17.16367,41.09193 0,31.88064 -25.84439,57.72495 -57.72496,57.72495 -31.88065,0 -57.72495,-25.84431 -57.72495,-57.72495 0,-31.88065 25.8443,-57.72495 57.72495,-57.72495 z m 251.27334,0 c 31.88057,0 57.72496,25.8443 57.72496,57.72495 0,31.88064 -25.84439,57.72495 -57.72496,57.72495 -28.69761,0 -52.48803,-20.9522 -56.95567,-48.38709 l 59.02486,0 c 1.9163,0 3.78887,-0.59864 5.35866,-1.69779 4.22444,-2.95807 5.26595,-8.77428 2.30789,-12.99873 L 402.1859,738.16419 c 7.16877,-3.19303 15.09644,-4.98725 23.45077,-4.98725 z m -36.50255,12.99872 27.16469,38.78396 -48.09533,0 c 1.59873,-15.60119 9.42063,-29.37852 20.93064,-38.78396 z"
+       id="path12204" />
+  </g>
+</svg>
+
+<!-- file from teoria.on.ge -->

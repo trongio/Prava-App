@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 960 430" enable-background="new 0 0 960 430" xml:space="preserve">
+<g id="Layer_2">
+	<defs>
+		<rect id="MASK" y="0" width="960" height="430"/>
+	</defs>
+	<clipPath id="MASK_1_">
+		<use xlink:href="#MASK"  overflow="visible"/>
+	</clipPath>
+	<rect id="ROAD_BG" x="0.1" y="0" clip-path="url(#MASK_1_)" fill="#B0BAC5" width="960" height="430.1"/>
+	<path clip-path="url(#MASK_1_)" fill="#6DB26D" stroke="#465B60" stroke-width="5" stroke-miterlimit="10" d="M-296.2,138.6H707
+		c5.7,0,10.4,4.7,10.4,10.4v17.7c0,5.7-4.7,10.4-10.4,10.4H-313.9c-5.7,0-10.4-4.7-10.4-10.4v0
+		C-324.3,151.1-311.7,138.6-296.2,138.6z"/>
+	<path clip-path="url(#MASK_1_)" fill="#6DB26D" stroke="#465B60" stroke-width="5" stroke-miterlimit="10" d="M-289.4-137.1h989.6
+		c9.5,0,17.2,7.7,17.2,17.2V32.8c0,9.5-7.7,17.2-17.2,17.2H-307.1c-9.5,0-17.2-7.7-17.2-17.2v-135
+		C-324.3-121.5-308.7-137.1-289.4-137.1z"/>
+	<g id="bord" display="none" clip-path="url(#MASK_1_)">
+		<rect y="52.2" display="inline" fill="#F2F2F2" width="960" height="8"/>
+		<rect y="369.2" display="inline" fill="#F2F2F2" width="960" height="8"/>
+	</g>
+	<path clip-path="url(#MASK_1_)" fill="#6DB26D" stroke="#465B60" stroke-width="5" stroke-miterlimit="10" d="M-128.9,478h988.7
+		c9.7,0,17.7,7.9,17.7,17.7v151.8c0,9.7-7.9,17.7-17.7,17.7H-146.6c-9.7,0-17.7-7.9-17.7-17.7V513.4
+		C-164.3,493.8-148.4,478-128.9,478z"/>
+	<path clip-path="url(#MASK_1_)" fill="#6DB26D" stroke="#465B60" stroke-width="5" stroke-miterlimit="10" d="M-289.4,384.4h989.6
+		c9.5,0,17.2,7.7,17.2,17.2v152.8c0,9.5-7.7,17.2-17.2,17.2H-307.1c-9.5,0-17.2-7.7-17.2-17.2v-135
+		C-324.3,400.1-308.7,384.4-289.4,384.4z"/>
+	<path clip-path="url(#MASK_1_)" fill="#6DB26D" stroke="#465B60" stroke-width="5" stroke-miterlimit="10" d="M1897.6,136.6H894.4
+		c-5.7,0-10.4,4.7-10.4,10.4v17.7c0,5.7,4.7,10.4,10.4,10.4h1020.9c5.7,0,10.4-4.7,10.4-10.4v0
+		C1925.7,149.1,1913.1,136.6,1897.6,136.6z"/>
+	<path clip-path="url(#MASK_1_)" fill="#6DB26D" stroke="#465B60" stroke-width="5" stroke-miterlimit="10" d="M1890.8-139.1H901.2
+		c-9.5,0-17.2,7.7-17.2,17.2V30.8c0,9.5,7.7,17.2,17.2,17.2h1007.3c9.5,0,17.2-7.7,17.2-17.2v-135
+		C1925.7-123.5,1910.1-139.1,1890.8-139.1z"/>
+	<path clip-path="url(#MASK_1_)" fill="#6DB26D" stroke="#465B60" stroke-width="5" stroke-miterlimit="10" d="M1890.8,382.4H901.2
+		c-9.5,0-17.2,7.7-17.2,17.2v152.8c0,9.5,7.7,17.2,17.2,17.2h1007.3c9.5,0,17.2-7.7,17.2-17.2v-135
+		C1925.7,398.1,1910.1,382.4,1890.8,382.4z"/>
+	<g clip-path="url(#MASK_1_)">
+		<line fill="none" stroke="#F2F2F2" stroke-width="10" stroke-miterlimit="10" x1="-243" y1="287.2" x2="717" y2="287.2"/>
+		<line fill="none" stroke="#F2F2F2" stroke-width="10" stroke-miterlimit="10" x1="-244" y1="268.2" x2="716" y2="268.2"/>
+	</g>
+	<g clip-path="url(#MASK_1_)">
+		<g>
+			<line fill="none" stroke="#F2F2F2" stroke-width="10" stroke-miterlimit="10" x1="-243" y1="218.2" x2="-213" y2="218.2"/>
+			
+				<line fill="none" stroke="#F2F2F2" stroke-width="10" stroke-miterlimit="10" stroke-dasharray="60,60" x1="-153" y1="218.2" x2="657" y2="218.2"/>
+			<line fill="none" stroke="#F2F2F2" stroke-width="10" stroke-miterlimit="10" x1="687" y1="218.2" x2="717" y2="218.2"/>
+		</g>
+	</g>
+	
+		<line clip-path="url(#MASK_1_)" fill="none" stroke="#F2F2F2" stroke-width="10" stroke-miterlimit="10" stroke-dasharray="80,20" x1="717" y1="334.2" x2="1" y2="334.2"/>
+	
+		<line clip-path="url(#MASK_1_)" fill="none" stroke="#F2F2F2" stroke-width="10" stroke-miterlimit="10" stroke-dasharray="80,20" x1="717" y1="92.2" x2="1" y2="92.2"/>
+	<g clip-path="url(#MASK_1_)">
+		<path d="M332.6,280.3L332.6,280.3l-4.4,2.2l-0.8-3.3l5.7-2.8h3.7v23.4h-4.3V280.3z"/>
+		<path d="M345.2,297.2c0-1.7,1.2-2.8,2.7-2.8c1.6,0,2.7,1.2,2.7,2.8c0,1.6-1.1,2.8-2.7,2.8C346.3,300.1,345.2,298.8,345.2,297.2z"
+			/>
+		<path d="M367.7,279.4c-0.6,0-1.4,0-2.3,0.1c-4.9,0.6-7.3,3.6-7.8,6.8h0.1c1.2-1.3,2.9-2.3,5.3-2.3c4,0,7.2,2.9,7.2,7.6
+			c0,4.5-3.3,8.4-8.2,8.4c-5.7,0-8.8-4.3-8.8-10.1c0-4.5,1.6-8.2,4.1-10.5c2.2-2,5-3.2,8.3-3.5c1-0.1,1.7-0.1,2.2-0.1L367.7,279.4z
+			 M365.6,292c0-2.7-1.5-4.6-4.1-4.6c-1.7,0-3.1,1-3.8,2.4c-0.2,0.4-0.3,0.8-0.3,1.4c0.1,3.1,1.5,5.6,4.4,5.6
+			C364.1,296.8,365.6,294.8,365.6,292z"/>
+		<path d="M373,297.2c0-1.7,1.2-2.8,2.7-2.8c1.6,0,2.7,1.2,2.7,2.8c0,1.6-1.1,2.8-2.7,2.8C374.1,300.1,373,298.8,373,297.2z"/>
+	</g>
+	<polyline clip-path="url(#MASK_1_)" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10" points="317,289.2 
+		268,289.2 268,334.2 	"/>
+	<g clip-path="url(#MASK_1_)">
+		<path d="M322.6,66.3L322.6,66.3l-4.4,2.2l-0.8-3.3l5.7-2.8h3.7v23.4h-4.3V66.3z"/>
+		<path d="M335.2,83.2c0-1.7,1.2-2.8,2.7-2.8c1.6,0,2.7,1.2,2.7,2.8c0,1.6-1.1,2.8-2.7,2.8C336.3,86.1,335.2,84.8,335.2,83.2z"/>
+		<path d="M357.7,65.4c-0.6,0-1.4,0-2.3,0.1c-4.9,0.6-7.3,3.6-7.8,6.8h0.1c1.2-1.3,2.9-2.3,5.3-2.3c4,0,7.2,2.9,7.2,7.6
+			c0,4.5-3.3,8.4-8.2,8.4c-5.7,0-8.8-4.3-8.8-10.1c0-4.5,1.6-8.2,4.1-10.5c2.2-2,5-3.2,8.3-3.5c1-0.1,1.7-0.1,2.2-0.1L357.7,65.4z
+			 M355.6,78c0-2.7-1.5-4.6-4.1-4.6c-1.7,0-3.1,1-3.8,2.4c-0.2,0.4-0.3,0.8-0.3,1.4c0.1,3.1,1.5,5.6,4.4,5.6
+			C354.1,82.8,355.6,80.8,355.6,78z"/>
+		<path d="M363,83.2c0-1.7,1.2-2.8,2.7-2.8c1.6,0,2.7,1.2,2.7,2.8c0,1.6-1.1,2.8-2.7,2.8C364.1,86.1,363,84.8,363,83.2z"/>
+	</g>
+	<polyline clip-path="url(#MASK_1_)" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10" points="313,69.2 
+		264,69.2 264,91.2 	"/>
+	<g clip-path="url(#MASK_1_)">
+		<line fill="none" stroke="#F2F2F2" stroke-width="10" stroke-miterlimit="10" x1="885" y1="287.2" x2="1845" y2="287.2"/>
+		<line fill="none" stroke="#F2F2F2" stroke-width="10" stroke-miterlimit="10" x1="884" y1="268.2" x2="1844" y2="268.2"/>
+	</g>
+	<g clip-path="url(#MASK_1_)">
+		<g>
+			<line fill="none" stroke="#F2F2F2" stroke-width="10" stroke-miterlimit="10" x1="884" y1="218.2" x2="914" y2="218.2"/>
+			
+				<line fill="none" stroke="#F2F2F2" stroke-width="10" stroke-miterlimit="10" stroke-dasharray="60,60" x1="974" y1="218.2" x2="1784" y2="218.2"/>
+			<line fill="none" stroke="#F2F2F2" stroke-width="10" stroke-miterlimit="10" x1="1814" y1="218.2" x2="1844" y2="218.2"/>
+		</g>
+	</g>
+	
+		<line clip-path="url(#MASK_1_)" fill="none" stroke="#F2F2F2" stroke-width="10" stroke-miterlimit="10" stroke-dasharray="80,20" x1="884" y1="334.2" x2="1600" y2="334.2"/>
+	
+		<line clip-path="url(#MASK_1_)" fill="none" stroke="#F2F2F2" stroke-width="10" stroke-miterlimit="10" stroke-dasharray="80,20" x1="884" y1="92.2" x2="1600" y2="92.2"/>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+</svg>
+
+<!-- file from teoria.on.ge -->

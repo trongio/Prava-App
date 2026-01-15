@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1"
+	 id="svg2" inkscape:version="0.48.4 r9939" sodipodi:docname="6.2014_02_16_18_28_07.2.svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:svg="http://www.w3.org/2000/svg" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="75.3 299.7 448.7 229.3"
+	 enable-background="new 75.3 299.7 448.7 229.3" xml:space="preserve">
+<path fill="#FFFFFF" stroke="#000000" stroke-width="8" stroke-miterlimit="10" d="M499.7,525H99.6c-11.2,0-20.3-9.2-20.3-20.3V324
+	c0-11.2,9.2-20.3,20.3-20.3h400.2c11.2,0,20.3,9.2,20.3,20.3v180.7C520,515.9,510.8,525,499.7,525z"/>
+<path d="M320,525H99.6c-11.2,0-20.3-9.2-20.3-20.3V324c0-11.2,9.2-20.3,20.3-20.3H320C320,322.2,320,488.8,320,525z"/>
+<g>
+	<path fill="#FFFFFF" stroke="#000000" stroke-width="4.5" stroke-miterlimit="10" d="M120.3,446.1v-68.3c0-2.4,1.7-4.5,4.1-5
+		l18.4-3.4c0.3-0.1,0.6-0.1,0.9-0.1H244c0.1,0,0.2,0,0.3,0l62,3.9c2.7,0.2,4.7,2.4,4.7,5v67.2c0,2.7-2.1,4.9-4.7,5l-62,3.9
+		c-0.1,0-0.2,0-0.3,0H143.8c-0.3,0-0.6,0-0.9-0.1l-18.4-3.4C122,450.7,120.3,448.6,120.3,446.1z"/>
+	<path fill="none" stroke="#000000" stroke-width="4.5" stroke-miterlimit="10" d="M145.6,381.4h79.6c2.6,0,4.7,2.1,4.7,4.7v51.7
+		c0,2.6-2.1,4.7-4.7,4.7h-79.6c-2.6,0-4.7-2.1-4.7-4.7v-51.7C140.9,383.5,143,381.4,145.6,381.4z"/>
+	<line fill="none" stroke="#000000" stroke-width="4.5" stroke-miterlimit="10" x1="121.1" y1="374" x2="142.2" y2="383.9"/>
+	<line fill="none" stroke="#000000" stroke-width="4.5" stroke-miterlimit="10" x1="244.2" y1="369.4" x2="229" y2="381.4"/>
+	<line fill="none" stroke="#000000" stroke-width="4.5" stroke-miterlimit="10" x1="244.2" y1="454.5" x2="226.7" y2="442.3"/>
+	<line fill="none" stroke="#000000" stroke-width="4.5" stroke-miterlimit="10" x1="121.1" y1="450" x2="141.8" y2="440.6"/>
+	<line fill="none" stroke="#000000" stroke-width="4.5" stroke-miterlimit="10" x1="252.9" y1="454.5" x2="252.9" y2="371.7"/>
+</g>
+</svg>

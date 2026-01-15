@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1"
+	 id="svg2" sodipodi:docname="4.1.1.svg" inkscape:version="0.48.4 r9939" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:svg="http://www.w3.org/2000/svg" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:cc="http://creativecommons.org/ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 600 600"
+	 enable-background="new 0 0 600 600" xml:space="preserve">
+<title  id="title3002">4.1.1 Движение прямо</title>
+<sodipodi:namedview  inkscape:snap-intersection-paths="true" id="base" inkscape:window-height="1024" inkscape:window-x="-4" inkscape:pageshadow="2" inkscape:pageopacity="0.0" inkscape:document-units="px" inkscape:window-width="1920" inkscape:current-layer="layer1" inkscape:window-y="-4" showgrid="false" bordercolor="#666666" inkscape:cx="465.2826" borderopacity="1.0" inkscape:zoom="1" inkscape:cy="323.8889" pagecolor="#ffffff" inkscape:object-paths="true" inkscape:window-maximized="1" inkscape:object-nodes="true" inkscape:snap-smooth-nodes="true">
+	</sodipodi:namedview>
+<path id="path7369" sodipodi:type="arc" sodipodi:ry="93.338097" sodipodi:cx="-321.58774" sodipodi:cy="803.42432" sodipodi:rx="122.47533" fill="#FFFFFF" stroke="#000000" stroke-width="2" stroke-miterlimit="10" d="
+	M600,300c0,165.7-134.3,300-300,300S0,465.7,0,300S134.3,0,300,0S600,134.3,600,300z"/>
+<path id="path3003" sodipodi:type="arc" sodipodi:ry="29.465372" sodipodi:cx="-87.720657" sodipodi:cy="432.25998" sodipodi:rx="22.107042" fill="none" stroke="#000000" stroke-width="0.1707" d="
+	M599,300c0,165.1-133.9,299-299,299S1,465.1,1,300C1,134.9,134.9,1,300,1S599,134.9,599,300z"/>
+<path fill="#0D69E1" d="M300,20C145.4,20,20,145.4,20,300c0,144.8,110,264,251,278.5v-27.2c0,0-0.1,0-0.1-0.1V373.8
+	c0-1.7,0-3.3,0.1-5V212.9l-49.2,0L300,77.4l78.2,135.5l-49.2,0V285c11.8-5.1,24.9-8,38.6-8H420l0-49.2L555.5,306L420,384.3l0-49.2
+	h-52.4c-20.4,0-37.1,15.8-38.6,35.7v207.7C470,564,580,444.8,580,300C580,145.4,454.6,20,300,20z"/>
+<title  id="title3002">4.1.2 Движение направо</title>
+<sodipodi:namedview  inkscape:snap-intersection-paths="true" id="base" inkscape:window-height="1024" inkscape:window-x="-4" inkscape:pageshadow="2" inkscape:pageopacity="0.0" inkscape:document-units="px" inkscape:window-width="1920" inkscape:current-layer="layer1" inkscape:window-y="-4" showgrid="false" bordercolor="#666666" inkscape:cx="347.55678" borderopacity="1.0" inkscape:zoom="1" inkscape:cy="293.48594" pagecolor="#ffffff" inkscape:object-paths="true" inkscape:window-maximized="1" inkscape:object-nodes="true" inkscape:snap-smooth-nodes="true">
+	</sodipodi:namedview>
+</svg>
+
+<!-- file from teoria.on.ge -->

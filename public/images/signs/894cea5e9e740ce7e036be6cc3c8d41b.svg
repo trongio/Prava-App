@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="811.34003"
+   height="811.34003"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="2.2.svg">
+  <title
+     id="title3002">2.2 Конец главной дороги</title>
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1"
+     inkscape:cx="527.67819"
+     inkscape:cy="407.54522"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1024"
+     inkscape:window-x="-4"
+     inkscape:window-y="-4"
+     inkscape:window-maximized="1"
+     inkscape:snap-bbox="true"
+     inkscape:bbox-paths="true"
+     inkscape:bbox-nodes="true"
+     inkscape:snap-bbox-edge-midpoints="true"
+     inkscape:snap-bbox-midpoints="true"
+     inkscape:object-paths="true"
+     inkscape:snap-intersection-paths="true"
+     inkscape:object-nodes="true"
+     inkscape:snap-smooth-nodes="true" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>2.2 Конец главной дороги</dc:title>
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/by-sa/3.0/" />
+        <dc:description>ГОСТ Р 52290-2004
+Размеры и пропорции по типоразмеру I</dc:description>
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/by-sa/3.0/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Notice" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Attribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#ShareAlike" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-241.022)">
+    <rect
+       ry="45"
+       rx="45"
+       y="444.13232"
+       x="-470.43484"
+       height="600"
+       width="600"
+       id="rect5816"
+       style="color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:3.54299998;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       transform="matrix(0.70710678,-0.70710678,0.70710678,0.70710678,0,0)" />
+    <rect
+       ry="35"
+       rx="35"
+       style="color:#000000;fill:#ffcc00;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:3.54299998;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       id="rect5824"
+       width="365"
+       height="365"
+       x="-352.93484"
+       y="561.63232"
+       transform="matrix(0.70710678,-0.70710678,0.70710678,0.70710678,0,0)" />
+    <path
+       style="color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:3.54299998;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       d="m 20.292269,621.94777 c -13.7107996,13.7108 -13.7107996,35.7866 0,49.4974 l 148.492401,148.4925 7.0711,7.071 7.0711,7.0711 7.071,7.0711 7.0711,7.071 7.0711,7.0711 7.071,7.0711 7.0711,7.071 7.0711,7.0711 7.071,7.0711 148.4925,148.49233 c 13.7108,13.7108 35.7866,13.7108 49.4974,0 l 360.6245,-360.62443 c 13.7108,-13.7108 13.7108,-35.7866 0,-49.4974 l -148.4924,-148.4925 -7.0711,-7.071 -7.0711,-7.0711 -7.071,-7.0711 -7.0711,-7.071 -7.0711,-7.0711 -7.071,-7.0711 -7.0711,-7.071 -7.0711,-7.0711 -7.071,-7.071 -148.4925,-148.4925 c -13.7108,-13.7108 -35.7866,-13.7108 -49.4974,0 L 20.292269,621.94777 z m 7.0711,7.071 360.624401,-360.6244 c 9.7935,-9.7934 25.5619,-9.7934 35.3554,0 l 148.4924,148.4924 -61.8718,61.8718 -72.4785,-72.4784 c -17.6282,-17.6281 -46.0114,-17.6281 -63.6396,0 l -208.5965,208.5965 c -17.6282,17.6282 -17.6282,46.0114 0,63.6396 l 72.4784,72.4784 -61.8718,61.8719 -148.492401,-148.4924 c -9.7934,-9.7935 -9.7934,-25.5619 0,-35.3554 z m 144.956901,-7.071 208.5965,-208.5965 c 13.7108,-13.7108 35.7866,-13.7108 49.4974,0 l 72.4785,72.4784 -258.094,258.094 -72.4784,-72.4785 c -13.7108,-13.7108 -13.7108,-35.7866 0,-49.4974 z m 10.6066,197.9899 61.8718,-61.8719 7.0711,7.0711 -61.8719,61.8718 -7.071,-7.071 z m 68.9429,-68.943 258.094,-258.0939 7.071,7.071 -258.0939,258.094 -7.0711,-7.0711 z m 265.165,-265.165 61.8719,-61.8718 7.071,7.071 -61.8718,61.8719 -7.0711,-7.0711 z m -319.9658,348.2501 61.8719,-61.8718 7.071,7.071 -61.8718,61.8719 -7.0711,-7.0711 z m 68.9429,-68.9429 258.094,-258.094 7.0711,7.0711 -258.094,258.094 -7.0711,-7.0711 z m 265.1651,-265.1651 61.8718,-61.8718 7.0711,7.0711 -61.8719,61.8718 -7.071,-7.0711 z m -319.9659,348.2501 61.8719,-61.8718 7.0711,7.0711 -61.8719,61.8718 -7.0711,-7.0711 z m 68.943,-68.9429 258.0939,-258.094 7.0711,7.0711 -258.094,258.094 -7.071,-7.0711 z m 265.165,-265.165 61.8718,-61.8719 7.0711,7.0711 -61.8718,61.8718 -7.0711,-7.071 z m -319.9658,348.2501 61.8718,-61.8719 7.0711,7.0711 -61.8719,61.8718 -7.071,-7.071 z m 68.9429,-68.9429 258.094,-258.094 7.071,7.071 -258.0939,258.094 -7.0711,-7.071 z m 265.165,-265.1651 61.8719,-61.8718 7.071,7.071 -61.8718,61.8719 -7.0711,-7.0711 z m -319.9658,348.2501 61.8719,-61.8718 72.4784,72.4784 c 17.6282,17.6282 46.0114,17.6282 63.6396,0 l 208.5965,-208.5965 c 17.6282,-17.6282 17.6282,-46.0114 0,-63.6396 l -72.4784,-72.4785 61.8718,-61.8718 148.4924,148.4924 c 9.7935,9.7935 9.7935,25.5619 0,35.3554 l -360.6244,360.62433 c -9.7935,9.7935 -25.5619,9.7935 -35.3554,0 L 239.49537,876.50617 z m 68.9429,-68.9429 258.094,-258.094 72.4784,72.4785 c 13.7108,13.7108 13.7108,35.7866 0,49.4974 l -208.5965,208.5965 c -13.7108,13.7108 -35.7866,13.7108 -49.4974,0 l -72.4785,-72.4784 z"
+       id="rect5818"
+       inkscape:connector-curvature="0" />
+    <rect
+       style="color:#000000;fill:none;stroke:#000000;stroke-width:2;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       id="rect5860"
+       width="598"
+       height="598"
+       x="-469.43484"
+       y="445.13232"
+       rx="44"
+       ry="44"
+       transform="matrix(0.70710678,-0.70710678,0.70710678,0.70710678,0,0)" />
+  </g>
+</svg>
+
+<!-- file from teoria.on.ge -->

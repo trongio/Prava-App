@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1"
+	 id="svg2" sodipodi:docname="5.5.svg" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" inkscape:version="0.48.4 r9939"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 600 600"
+	 enable-background="new 0 0 600 600" xml:space="preserve">
+<path id="rect7101" fill="#FFFFFF" stroke="#000000" stroke-width="2" d="M555,1H45C20.7,1,1,20.7,1,45v510c0,24.3,19.7,44,44,44
+	h510c24.3,0,44-19.7,44-44V45C599,20.7,579.3,1,555,1z"/>
+<path fill="#0D69E1" d="M555,20H45c-13.8,0-25,11.2-25,25v510c0,13.8,11.2,25,25,25h510c13.8,0,25-11.2,25-25V45
+	C580,31.2,568.8,20,555,20z"/>
+<g>
+	<rect x="394.5" y="14" fill="#FFFFFF" width="80" height="572"/>
+	<rect x="125.5" y="14" fill="#FFFFFF" width="80" height="572"/>
+</g>
+<rect x="14.3" y="260" fill="#FFFFFF" width="572.3" height="80"/>
+<g>
+	<g>
+		<path fill="none" stroke="#000000" stroke-width="35" stroke-miterlimit="10" d="M165.5,609.4l-1.3-494.2
+			c0-15.5,12.5-28.1,28.1-28.1h214.1c15.6,0,28.2,12.6,28.2,28.2v156.2c0,15.8-12.8,28.6-28.6,28.6l-335.7,0"/>
+		<g>
+			<polygon points="80.4,265.1 20,300 80.4,334.9 			"/>
+		</g>
+	</g>
+</g>
+<g id="layer1" transform="translate(0,-452.36218)" inkscape:groupmode="layer" inkscape:label="Layer 1">
+	
+		<path id="path5334" sodipodi:rx="22.107042" sodipodi:ry="29.465372" sodipodi:cy="432.25998" sodipodi:cx="-87.720657" sodipodi:type="arc" fill="#FFFFFF" d="
+		M241,915.6c0,41.7-33.8,75.5-75.5,75.5S90,957.3,90,915.6c0-41.7,33.8-75.5,75.5-75.5S241,873.9,241,915.6z"/>
+	<path id="path5327" fill="#FF0000" d="M165.5,843.6c-39.8,0-72,32.2-72,72s32.2,72,72,72s72-32.2,72-72S205.3,843.6,165.5,843.6z
+		 M165.5,855.8c33,0,59.8,26.8,59.8,59.8c0,14.8-5.4,28.3-14.3,38.8L126.7,870C137.2,861.1,150.7,855.8,165.5,855.8z M119.9,876.8
+		l84.3,84.3c-10.4,8.9-24,14.3-38.8,14.3c-33,0-59.8-26.8-59.8-59.8C105.7,900.8,111,887.3,119.9,876.8z"/>
+	<path id="path4896" sodipodi:nodetypes="cccssccsscccccccccc" inkscape:connector-curvature="0" d="M153.5,867.3l-16.5,9.5
+		l17.1,17.1h23.5c5.3,0,9.6,4.3,9.6,9.6V927l14.4,14.4v-37.9c0-13.3-10.8-24-24-24h-24V867.3z M124,884.3l-4.2,2.4l15.7,9.1
+		L124,884.3z M187.1,947.4v13.8H201L187.1,947.4z"/>
+</g>
+</svg>
+
+<!-- file from teoria.on.ge -->

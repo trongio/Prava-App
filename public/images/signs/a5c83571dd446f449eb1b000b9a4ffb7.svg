@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="700"
+   height="700"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="4.6.svg">
+  <title
+     id="title3002">4.6 Ограничение минимальной скорости</title>
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1"
+     inkscape:cx="386.86343"
+     inkscape:cy="350.68767"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1024"
+     inkscape:window-x="-4"
+     inkscape:window-y="-4"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>4.6 Ограничение минимальной скорости</dc:title>
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/by-sa/3.0/" />
+        <dc:description>ГОСТ Р 52290-2004
+Размеры и пропорции по типоразмеру II</dc:description>
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/by-sa/3.0/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Notice" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Attribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#ShareAlike" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-352.36218)">
+    <path
+       transform="matrix(15.832059,0,0,11.87835,1738.7986,-4432.173)"
+       d="m -65.613615,432.25998 c 0,16.27327 -9.89766,29.46537 -22.107042,29.46537 -12.209383,0 -22.107043,-13.1921 -22.107043,-29.46537 0,-16.27328 9.89766,-29.46537 22.107043,-29.46537 12.209382,0 22.107042,13.19209 22.107042,29.46537 z"
+       sodipodi:ry="29.465372"
+       sodipodi:rx="22.107042"
+       sodipodi:cy="432.25998"
+       sodipodi:cx="-87.720657"
+       id="path6124"
+       style="opacity:1;color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       sodipodi:type="arc" />
+    <path
+       sodipodi:type="arc"
+       style="opacity:1;color:#000000;fill:none;stroke:#000000;stroke-width:0.14626010000000000;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;fill-opacity:1"
+       id="path6162"
+       sodipodi:cx="-87.720657"
+       sodipodi:cy="432.25998"
+       sodipodi:rx="22.107042"
+       sodipodi:ry="29.465372"
+       d="m -65.613615,432.25998 c 0,16.27327 -9.89766,29.46537 -22.107042,29.46537 -12.209383,0 -22.107043,-13.1921 -22.107043,-29.46537 0,-16.27328 9.89766,-29.46537 22.107043,-29.46537 12.209382,0 22.107042,13.19209 22.107042,29.46537 z"
+       transform="matrix(15.786825,0,0,11.844412,1734.8306,-4417.503)" />
+    <path
+       style="color:#000000;fill:#0d69e1;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       d="M 350 20 C 167.74603 20 20 167.74604 20 350 C 20 532.25396 167.74603 680 350 680 C 532.25397 680 680 532.25396 680 350 C 680 167.74604 532.25397 20 350 20 z M 451.75 222.6875 C 476.97658 223.58409 497.14507 236.00117 512.28125 259.90625 C 527.41711 283.81177 535.1742 313.84184 535.5625 350 C 535.1742 387.90483 527.41711 418.43695 512.28125 441.59375 C 497.14507 464.7506 476.97658 476.66566 451.75 477.3125 C 426.52319 476.66565 406.32348 464.75059 391.1875 441.59375 C 376.05144 418.43696 368.29432 387.90484 367.90625 350 C 368.29432 312.09538 376.05144 281.56328 391.1875 258.40625 C 406.32348 235.24966 426.52319 223.33459 451.75 222.6875 z M 180.65625 225.8125 L 323.46875 225.8125 L 311.0625 266.15625 L 221 266.15625 L 221 325.15625 C 225.86969 319.07612 232.0102 314.94941 239.375 312.75 C 246.73963 310.55091 254.06562 309.49579 261.375 309.625 C 279.42167 309.75452 296.10725 316.48777 311.4375 329.8125 C 326.7674 343.13751 334.90455 362.28213 335.875 387.25 C 335.55139 412.7355 326.88668 433.95909 309.875 450.90625 C 292.86299 467.85345 269.44415 476.66566 239.625 477.3125 C 224.94167 476.79502 211.62271 474.71604 199.65625 471.09375 C 187.68968 467.47146 181.36774 465.39247 180.65625 464.875 L 174.4375 424.53125 C 182.21802 429.51195 191.38474 432.85303 201.9375 434.5625 C 212.49015 436.27204 222.99559 437.05766 233.4375 436.9375 C 246.63291 436.93753 259.04428 433.04336 270.6875 425.28125 C 282.33046 417.51924 288.53615 405.89921 289.3125 390.375 C 289.24767 378.92605 285.501 368.44614 278.0625 358.9375 C 270.62373 349.4291 259.88005 344.36354 245.84375 343.78125 C 236.52918 344.36353 228.77208 347.08634 222.5625 351.9375 C 216.35277 356.78891 211.6985 360.27179 208.59375 362.40625 L 180.65625 346.90625 L 180.65625 225.8125 z M 451.75 261.28125 C 439.58933 261.09663 429.84397 268.11349 422.5625 282.34375 C 415.28086 296.57439 411.55974 319.13668 411.375 350 C 411.55974 380.86354 415.28086 403.42585 422.5625 417.65625 C 429.84397 431.88675 439.58932 438.9036 451.75 438.71875 C 463.91045 438.90359 473.62456 431.88674 480.90625 417.65625 C 488.18766 403.42587 491.90877 380.86354 492.09375 350 C 491.90879 319.13667 488.18766 296.57438 480.90625 282.34375 C 473.62455 268.11351 463.91045 261.09665 451.75 261.28125 z "
+       transform="translate(0,352.36218)"
+       id="path16334" />
+  </g>
+</svg>
+
+<!-- file from teoria.on.ge -->

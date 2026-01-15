@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="700"
+   height="700"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="4.4.svg">
+  <title
+     id="title3002">4.4 Велосипедная дорожка</title>
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1"
+     inkscape:cx="329.44722"
+     inkscape:cy="346.96753"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1024"
+     inkscape:window-x="-4"
+     inkscape:window-y="-4"
+     inkscape:window-maximized="1"
+     showguides="true"
+     inkscape:guide-bbox="true" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>4.4 Велосипедная дорожка</dc:title>
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/by-sa/3.0/" />
+        <dc:description>ГОСТ Р 52290-2004
+Размеры и пропорции по типоразмеру II</dc:description>
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/by-sa/3.0/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Notice" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Attribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#ShareAlike" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-352.36218)">
+    <path
+       sodipodi:type="arc"
+       style="opacity:1;color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       id="path9141"
+       sodipodi:cx="-87.720657"
+       sodipodi:cy="432.25998"
+       sodipodi:rx="22.107042"
+       sodipodi:ry="29.465372"
+       d="m -65.613615,432.25998 a 22.107042,29.465372 0 1 1 -44.214085,0 22.107042,29.465372 0 1 1 44.214085,0 z"
+       transform="matrix(15.832059,0,0,11.87835,1738.7986,-4432.173)" />
+    <path
+       style="opacity:1;color:#000000;fill:#0d69e1;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       d="M 350 20 C 167.74603 20 20 167.74602 20 350 C 20 532.25398 167.74603 680 350 680 C 532.25397 680 680 532.25398 680 350 C 680 167.74602 532.25397 20 350 20 z M 261.375 188.5625 L 304.84375 188.5625 C 309.83204 188.5625 313.875 192.60535 313.875 197.59375 C 313.875 202.58216 309.83204 206.625 304.84375 206.625 L 261.375 206.625 C 253.26888 206.625 246.6875 213.17514 246.6875 221.28125 C 246.6875 226.58183 250.05073 231.30563 255.0625 233.03125 C 267.36433 237.26715 275.625 248.86437 275.625 261.875 C 275.625 264.57158 275.26318 267.25702 274.5625 269.84375 L 429.65625 269.84375 L 434.96875 257.40625 L 395.15625 257.40625 C 387.67359 257.40625 381.625 251.35754 381.625 243.875 C 381.625 236.39245 387.67359 230.3125 395.15625 230.3125 L 457.25 230.3125 C 464.73255 230.3125 470.8125 236.39245 470.8125 243.875 C 470.8125 251.35754 464.73255 257.40625 457.25 257.40625 L 452.1875 257.40625 L 444.03125 276.5 L 478 325 C 489.82819 319.31329 503.09172 316.125 517.09375 316.125 C 566.97744 316.125 607.40625 356.55369 607.40625 406.4375 C 607.40625 456.32131 566.97744 496.78125 517.09375 496.78125 C 471.42338 496.78125 433.67684 462.88208 427.625 418.875 L 374.6875 418.875 L 250 323.53125 L 242.84375 338.90625 C 261.46635 355.45143 273.21875 379.56732 273.21875 406.4375 C 273.21875 456.32131 232.78995 496.78125 182.90625 496.78125 C 133.02245 496.78125 92.59375 456.32131 92.59375 406.4375 C 92.59375 356.55369 133.02245 316.125 182.90625 316.125 C 199.30793 316.125 214.67961 320.51451 227.9375 328.15625 L 255.125 269.84375 L 256.40625 267.125 C 257.17264 265.48146 257.5625 263.68856 257.5625 261.875 C 257.5625 256.57442 254.19939 251.85072 249.1875 250.125 C 236.88568 245.88921 228.625 234.29188 228.625 221.28125 C 228.625 203.19833 243.29208 188.5625 261.375 188.5625 z M 268.0625 290.15625 L 258.84375 304.625 L 376.46875 394.5625 L 421.03125 290.15625 L 268.0625 290.15625 z M 437.6875 302.875 L 396.875 398.5625 L 427.09375 398.5625 C 429.28972 373.21686 441.9955 350.88413 460.78125 335.875 L 437.6875 302.875 z M 180.90625 329.6875 C 139.42082 330.73854 106.125 364.69876 106.125 406.4375 C 106.125 448.83876 140.505 483.21875 182.90625 483.21875 C 225.3074 483.21875 259.6875 448.83876 259.6875 406.4375 C 259.6875 385.05792 250.94435 365.73279 236.84375 351.8125 L 219.5625 388.875 C 216.72276 394.96477 212.06903 400.01545 206.25 403.375 L 187.40625 414.28125 C 183.08612 416.7754 177.55665 415.28876 175.0625 410.96875 C 172.56824 406.64873 174.05487 401.11914 178.375 398.625 L 197.21875 387.75 C 199.82727 386.24399 201.91451 383.94864 203.1875 381.21875 L 222.1875 340.5 C 210.69215 333.63797 197.26675 329.6875 182.90625 329.6875 C 182.24373 329.6875 181.56475 329.67082 180.90625 329.6875 z M 517.09375 329.6875 C 505.98249 329.6875 495.44071 332.06576 485.90625 336.3125 L 530.03125 399.3125 C 533.96548 404.93102 532.58727 412.69077 526.96875 416.625 C 524.88095 418.08687 522.39242 418.875 519.84375 418.875 L 441.34375 418.875 C 447.28573 455.36341 478.92591 483.21875 517.09375 483.21875 C 559.4949 483.21875 593.875 448.83876 593.875 406.4375 C 593.875 364.03624 559.4949 329.6875 517.09375 329.6875 z M 468.5625 346.96875 C 453.25418 359.47798 442.84505 377.81292 440.71875 398.5625 L 504.6875 398.5625 L 468.5625 346.96875 z "
+       transform="translate(0,352.36218)"
+       id="path5817" />
+    <path
+       sodipodi:type="arc"
+       style="color:#000000;fill:none;stroke:#000000;stroke-width:0.61271476999999996;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;opacity:1"
+       id="path12442"
+       sodipodi:cx="-321.58774"
+       sodipodi:cy="803.42432"
+       sodipodi:rx="122.47533"
+       sodipodi:ry="93.338097"
+       d="m -199.11241,803.42432 c 0,51.5492 -54.83407,93.33809 -122.47533,93.33809 -67.64125,0 -122.47532,-41.78889 -122.47532,-93.33809 0,-51.54921 54.83407,-93.3381 122.47532,-93.3381 67.64126,0 122.47533,41.78889 122.47533,93.3381 z"
+       transform="matrix(2.8495535,0,0,3.7390949,1266.3815,-2301.7176)" />
+  </g>
+</svg>
+
+<!-- file from teoria.on.ge -->

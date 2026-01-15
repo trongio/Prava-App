@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 960 430" enable-background="new 0 0 960 430" xml:space="preserve">
+<g id="Layer_2">
+	<defs>
+		<rect id="MASK" y="0" width="960" height="430"/>
+	</defs>
+	<clipPath id="MASK_1_">
+		<use xlink:href="#MASK"  overflow="visible"/>
+	</clipPath>
+	<rect id="ROAD_BG" x="0.1" y="0" clip-path="url(#MASK_1_)" fill="#B0BAC5" width="960" height="430.1"/>
+	<rect y="52.2" clip-path="url(#MASK_1_)" fill="#F2F2F2" width="960" height="8"/>
+	<rect y="369.2" clip-path="url(#MASK_1_)" fill="#F2F2F2" width="960" height="8"/>
+	<g clip-path="url(#MASK_1_)">
+		<path d="M463.5,271.3L463.5,271.3l-4.4,2.2l-0.8-3.3l5.7-2.8h3.7v23.4h-4.3V271.3z"/>
+		<path d="M476.1,288.2c0-1.7,1.2-2.8,2.7-2.8c1.6,0,2.7,1.2,2.7,2.8c0,1.6-1.1,2.8-2.7,2.8C477.2,291.1,476.1,289.8,476.1,288.2z"
+			/>
+		<path d="M491.3,271.3L491.3,271.3l-4.4,2.2l-0.8-3.3l5.7-2.8h3.7v23.4h-4.3V271.3z"/>
+		<path d="M505.4,287.5c0.7,0.1,1.4,0,2.4-0.1c1.7-0.1,3.5-0.8,4.8-1.8c1.5-1.2,2.6-3,3-5.2l-0.1,0c-1.2,1.3-2.8,2.1-5.1,2.1
+			c-4.1,0-7.1-3-7.1-7.3c0-4.5,3.5-8.4,8.5-8.4c5.4,0,8.4,4.3,8.4,10c0,5-1.7,8.6-4.1,10.9c-2.1,1.9-4.9,3-8,3.2
+			c-1,0.1-2,0.1-2.7,0.1V287.5z M507.7,275c0,2.4,1.4,4.3,3.9,4.3c1.8,0,3.1-0.8,3.8-1.9c0.1-0.3,0.3-0.6,0.3-1.3
+			c0-3.2-1.2-5.9-4-5.9C509.4,270.2,507.7,272.1,507.7,275z"/>
+		<path d="M523.2,288.2c0-1.7,1.2-2.8,2.7-2.8c1.6,0,2.7,1.2,2.7,2.8c0,1.6-1.1,2.8-2.7,2.8C524.3,291.1,523.2,289.8,523.2,288.2z"
+			/>
+	</g>
+	<path clip-path="url(#MASK_1_)" fill="#6DB26D" stroke="#465B60" stroke-width="5" stroke-miterlimit="10" d="M-549.4-137.1H977.8
+		c9.5,0,17.2,7.7,17.2,17.2V32.8c0,9.5-7.7,17.2-17.2,17.2H-567.1c-9.5,0-17.2-7.7-17.2-17.2v-135
+		C-584.3-121.5-568.7-137.1-549.4-137.1z"/>
+	<path clip-path="url(#MASK_1_)" fill="#6DB26D" stroke="#465B60" stroke-width="5" stroke-miterlimit="10" d="M-549.4,377.4h1559.7
+		c9.5,0,17.2,7.7,17.2,17.2v152.8c0,9.5-7.7,17.2-17.2,17.2H-567.1c-9.5,0-17.2-7.7-17.2-17.2v-135
+		C-584.3,393.1-568.7,377.4-549.4,377.4z"/>
+	
+		<path clip-path="url(#MASK_1_)" fill="none" stroke="#F2F2F2" stroke-width="10" stroke-miterlimit="10" stroke-dasharray="20,20" d="
+		M480,378.4"/>
+	
+		<line clip-path="url(#MASK_1_)" fill="none" stroke="#F2F2F2" stroke-width="10" stroke-miterlimit="10" stroke-dasharray="60,60" x1="330" y1="267.2" x2="-1211" y2="267.2"/>
+	<g clip-path="url(#MASK_1_)">
+		<g>
+			<polyline fill="none" stroke="#FFFFFF" stroke-width="16" stroke-miterlimit="10" points="293,210.2 340,210.2 365,229.7 			"/>
+			<g>
+				<polygon fill="#FFFFFF" points="351.4,239.7 383,244.2 371.1,214.6 				"/>
+			</g>
+		</g>
+	</g>
+	<polyline clip-path="url(#MASK_1_)" fill="none" stroke="#F2F2F2" stroke-width="10" stroke-miterlimit="10" points="-118,162.2 
+		405,162.2 582,267.2 1080,267.2 	"/>
+	
+		<line clip-path="url(#MASK_1_)" fill="none" stroke="#F2F2F2" stroke-width="10" stroke-miterlimit="10" stroke-dasharray="60,60" x1="663" y1="162.2" x2="2204" y2="162.2"/>
+	<g clip-path="url(#MASK_1_)">
+		<g>
+			<polyline fill="none" stroke="#FFFFFF" stroke-width="16" stroke-miterlimit="10" points="692,214.2 644.9,214.2 620,194.6 			
+				"/>
+			<g>
+				<polygon fill="#FFFFFF" points="633.6,185 602,180.4 613.8,210.1 				"/>
+			</g>
+		</g>
+	</g>
+	<polyline clip-path="url(#MASK_1_)" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10" points="533,278.2 
+		579.8,278.2 636,210.4 	"/>
+	<polyline clip-path="url(#MASK_1_)" fill="none" stroke="#000000" stroke-width="2" stroke-miterlimit="10" points="450,280.2 
+		342,278.2 342,215.2 	"/>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+<g>
+</g>
+</svg>
+
+<!-- file from teoria.on.ge -->

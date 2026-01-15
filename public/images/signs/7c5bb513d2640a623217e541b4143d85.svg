@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1"
+	 id="svg2" sodipodi:docname="5.5.svg" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" inkscape:version="0.48.4 r9939"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 600 600"
+	 enable-background="new 0 0 600 600" xml:space="preserve">
+<path id="rect7101" fill="#FFFFFF" stroke="#000000" stroke-width="2" d="M555,1H45C20.7,1,1,20.7,1,45v510c0,24.3,19.7,44,44,44
+	h510c24.3,0,44-19.7,44-44V45C599,20.7,579.3,1,555,1z"/>
+<path fill="#0D69E1" d="M555,20H45c-13.8,0-25,11.2-25,25v510c0,13.8,11.2,25,25,25h510c13.8,0,25-11.2,25-25V45
+	C580,31.2,568.8,20,555,20z"/>
+<g>
+	<polygon fill="#FFFFFF" points="472.1,516 472.1,480.7 360.4,480.7 360.4,447.6 248.7,447.6 248.7,410.3 137,410.3 137,373.1 
+		16.7,373.1 16.7,416.8 128.5,416.8 128.5,454 240.2,454 240.2,491.3 351.9,491.3 351.9,524.4 463.6,524.4 463.6,559.7 583.8,559.7 
+		583.8,516 	"/>
+	<path fill="#FFFFFF" d="M334.2,159.8v264.5c0,0-1.2,13-16.1,13c-13.6,0-15.3-13-15.3-13V267.4l-76.8,29.9l-9,91.1
+		c0,0-3.4,11.8-14.6,11c-12-0.9-13.5-11.4-13.5-11.4l7.9-108.8l89.1-42l0-100.3c0,0,4.2-10.4,17.9-15.7c11.2-4.3,30.3,0,30.3,0
+		l70,45.4l9,71.2c0,0,1.6,11.4-9.9,13.3c-12.8,2.1-17.6-7.1-17.6-7.1l-8.4-58.8L334.2,159.8z"/>
+	<path fill="#FFFFFF" d="M274.3,214.2v-33.6l-66.7,30.8c0,0-5.4,12.7,0,19.8c5.6,7.5,12.9,3.8,12.9,3.8L274.3,214.2z"/>
+	
+		<ellipse transform="matrix(0.8673 0.4978 -0.4978 0.8673 76.9763 -136.0551)" fill="#FFFFFF" cx="293.7" cy="76.4" rx="29.6" ry="36.4"/>
+</g>
+</svg>
+
+<!-- file from teoria.on.ge -->

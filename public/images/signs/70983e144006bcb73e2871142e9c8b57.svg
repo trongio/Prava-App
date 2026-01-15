@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="1082.54"
+   height="698.21002"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="1.3.1.svg">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1"
+     inkscape:cx="614.99939"
+     inkscape:cy="346.45358"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1024"
+     inkscape:window-x="-4"
+     inkscape:window-y="-4"
+     inkscape:window-maximized="1"
+     inkscape:snap-bbox="true"
+     inkscape:bbox-paths="true"
+     inkscape:bbox-nodes="true"
+     inkscape:snap-bbox-edge-midpoints="true"
+     inkscape:snap-bbox-midpoints="true"
+     inkscape:object-paths="true"
+     inkscape:snap-intersection-paths="true"
+     inkscape:object-nodes="true"
+     inkscape:snap-smooth-nodes="true"
+     inkscape:snap-midpoints="true"
+     inkscape:snap-object-midpoints="true"
+     inkscape:snap-center="true" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/by-sa/3.0/" />
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/by-sa/3.0/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Notice" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Attribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#ShareAlike" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-354.15212)">
+    <path
+       sodipodi:nodetypes="ccccccccccccccccc"
+       inkscape:connector-curvature="0"
+       id="path5740"
+       d="M 36.60255,527.36216 1e-5,390.75962 136.60256,354.15709 541.26589,587.78955 945.92919,354.15706 1082.5318,390.75966 1045.9293,527.3621 741.26589,703.2596 1045.9292,879.15702 1082.5318,1015.7596 945.92919,1052.3621 541.26589,818.72967 136.60255,1052.3621 0,1015.7596 36.60255,879.15702 341.26589,703.2596 z"
+       style="fill:#ffffff;fill-opacity:1;stroke:none;opacity:1" />
+    <path
+       style="fill:#ff0000;fill-opacity:1;stroke:none;opacity:1"
+       d="M 135.1875,-126.25 12.25,-93.3125 45.1875,29.65625 361.28125,212.125 45.1875,394.625 12.25,517.5625 135.1875,550.5 541.28125,316.0625 947.34375,550.5 1070.2812,517.5625 1037.3438,394.625 721.28125,212.125 1037.3438,29.65625 1070.2812,-93.3125 947.34375,-126.25 541.28125,108.21875 135.1875,-126.25 z m -5.65625,42.9375 411.75,237.71875 L 953,-83.3125 1021.2812,-65.03125 1003,3.28125 641.28125,212.125 1003,420.96875 1021.2812,489.28125 953,507.5625 541.28125,269.875 129.53125,507.5625 61.25,489.28125 79.53125,420.96875 441.28125,212.125 79.53125,3.28125 61.25,-65.03125 129.53125,-83.3125 z"
+       transform="translate(0,491.13214)"
+       id="path5744"
+       inkscape:connector-curvature="0" />
+    <path
+       style="opacity:1;fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       d="M 1.2247647,1015.0525 136.46127,1051.289 541.2659,817.57493 946.07053,1051.289 1081.3071,1015.0525 1045.0705,879.81599 739.26596,703.25961 1045.0706,526.70321 1081.3071,391.46678 946.07042,355.23022 541.26585,588.94425 136.46127,355.23023 1.2247647,391.46674 37.461265,526.70325 343.26587,703.25959 37.461265,879.81595 z"
+       id="path3799"
+       inkscape:connector-curvature="0" />
+  </g>
+</svg>
+
+<!-- file from teoria.on.ge -->

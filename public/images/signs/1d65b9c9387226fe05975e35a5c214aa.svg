@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="634.14001"
+   height="561.22998"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="2.4.svg">
+  <title
+     id="title3002">2.4 Уступите дорогу</title>
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1"
+     inkscape:cx="383.08331"
+     inkscape:cy="313.21802"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1024"
+     inkscape:window-x="-4"
+     inkscape:window-y="-4"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>2.4 Уступите дорогу</dc:title>
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/by-sa/3.0/" />
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/by-sa/3.0/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Notice" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Attribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#ShareAlike" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-491.13214)">
+    <path
+       sodipodi:nodetypes="sccsccsccs"
+       inkscape:connector-curvature="0"
+       d="m 339.5653,1046.3258 c -21.52318,12.4264 -49.04474,5.052 -61.47116,-16.4712 L 6.0363759,558.63646 c -12.42641,-21.5231 -5.05204003,-49.0447 16.4711301,-61.4711 6.84086,-3.9496 14.60084,-6.0289 22.5,-6.0289 l 544.115644,10e-5 c 7.89916,0 15.65914,2.0793 22.5,6.0289 21.52317,12.4264 28.89754,39.948 16.47113,61.4711 L 356.03644,1029.8546 c -3.94957,6.8409 -9.63028,12.5216 -16.47114,16.4712 z"
+       style="opacity:1;color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       id="path5838" />
+    <path
+       inkscape:connector-curvature="0"
+       style="fill:#ff0000;fill-opacity:1;stroke:none;opacity:1"
+       d="m 316.32768,1042.3629 c -11.81848,-0.2648 -23.21986,-6.5142 -29.5625,-17.5 L 14.702679,553.64421 c -9.6649801,-16.74035 -3.92774,-38.14765 12.8125,-47.81265 5.32067,-3.0719 11.35622,-4.6874 17.5,-4.6874 l 544.093701,0 c 6.1439,0 12.1794,1.6156 17.5,4.6874 16.7403,9.665 22.4775,31.0723 12.8126,47.81265 l -272.0313,471.21869 c -3.0719,5.3207 -7.4918,9.7406 -12.8125,12.8125 -5.7545,3.3223 -12.0594,4.8262 -18.25,4.6875 z m 0.0312,-60.24999 c 1.92128,0.1357 3.92516,-0.2769 5.7188,-1.3125 1.5202,-0.8776 2.7785,-2.1658 3.6562,-3.6875 l 241.5313,-418.375 c 2.7609,-4.7805 1.1266,-10.8948 -3.6564,-13.6563 -1.5201,-0.8776 -3.2446,-1.3124 -5,-1.3124 l -483.093651,0 c -5.52281,0 -10,4.4771 -10,10 0,1.7554 0.46745,3.4509 1.34375,4.9687 l 241.531251,418.375 c 1.72561,2.9888 4.76662,4.7738 7.96875,5 z"
+       id="path4518" />
+    <path
+       sodipodi:nodetypes="cccscccccc"
+       inkscape:connector-curvature="0"
+       d="m 1.0074159,536.13636 c 5e-5,7.7236 2.03312,15.3112 5.89496,22 L 278.96019,1029.3545 c 12.15026,21.0448 39.06025,28.2554 60.10513,16.1052 6.68883,-3.8618 12.2433,-9.4163 16.10512,-16.1052 L 627.22813,558.13636 c 3.86184,-6.6888 5.89491,-14.2764 5.89497,-22 -7e-5,-24.3005 -19.69961,-43.9999 -44.00009,-44 l -544.115514,0 c -24.30047,10e-5 -44.0000101,19.6995 -44.0000801,44 z"
+       style="opacity:1;fill:none;fill-opacity:1;stroke:#000000;stroke-opacity:1;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none"
+       id="path5840" />
+  </g>
+</svg>
+
+<!-- file from teoria.on.ge -->

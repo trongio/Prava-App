@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1"
+	 id="svg2" sodipodi:docname="3.14.svg" inkscape:version="0.48.4 r9939" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:svg="http://www.w3.org/2000/svg" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:cc="http://creativecommons.org/ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 600 600"
+	 enable-background="new 0 0 600 600" xml:space="preserve">
+<title  id="title3002">3.14 Ограничение ширины</title>
+<sodipodi:namedview  id="base" inkscape:window-height="1024" inkscape:window-x="-4" inkscape:pageshadow="2" inkscape:pageopacity="0.0" inkscape:document-units="px" inkscape:window-width="1920" inkscape:current-layer="layer1" inkscape:window-y="-4" showgrid="false" bordercolor="#666666" inkscape:cx="285.9258" borderopacity="1.0" inkscape:zoom="1" inkscape:cy="283.89532" pagecolor="#ffffff" inkscape:window-maximized="1">
+	</sodipodi:namedview>
+<path id="path5334" sodipodi:type="arc" sodipodi:ry="29.465372" sodipodi:cx="-87.720657" sodipodi:cy="432.25998" sodipodi:rx="22.107042" fill="#FFFFFF" d="
+	M600,300c0,165.7-134.3,300-300,300S0,465.7,0,300C0,134.3,134.3,0,300,0S600,134.3,600,300z"/>
+<path id="path3003" sodipodi:type="arc" sodipodi:ry="29.465372" sodipodi:cx="-87.720657" sodipodi:cy="432.25998" sodipodi:rx="22.107042" fill="none" stroke="#000000" stroke-width="2" d="
+	M599,300c0,165.1-133.9,299-299,299S1,465.1,1,300C1,134.9,134.9,1,300,1S599,134.9,599,300z"/>
+<path id="path4775-9" fill="#FF0000" d="M300,10C139.8,10,10,139.8,10,300s129.8,290,290,290s290-129.8,290-290S460.2,10,300,10z
+	 M300,59c133.1,0,241,107.9,241,241S433.1,541,300,541S59,433.1,59,300S166.9,59,300,59z"/>
+<path id="path7699" inkscape:connector-curvature="0" sodipodi:nodetypes="cccc" d="M77.4,358.1l58.1-58.1l-58.1-58.1V358.1z"/>
+<path id="path7701" inkscape:connector-curvature="0" sodipodi:nodetypes="cccc" d="M522.6,358.1L464.5,300l58.1-58.1V358.1z"/>
+<g id="text14291">
+	<path id="path14672" d="M168.9,206.5l16.5,18.5c5.1-5.4,10.3-10.3,15.7-14.6c5.4-4.3,11.1-6.6,17.2-6.9c7.3,0.3,13.1,2.5,17.3,6.9
+		c4.2,4.3,6.4,9.2,6.5,14.6c-0.1,8-1.7,14.6-4.9,20c-3.2,5.3-7.3,10.8-12.4,16.5c-9.2,10.9-18.7,21.5-28.4,31.7
+		c-9.8,10.2-20.3,20.4-31.5,30.6v24.7h98.7c2.1-5.2,3.6-10.2,4.6-14.9c1-4.7,1.5-8.7,1.5-11.8h-67.9c10.7-11.1,20.6-21.3,29.8-30.6
+		c9.2-9.3,17.1-18,23.6-26.1c5.2-6,8.9-11.7,11.2-17.1c2.2-5.4,3.3-13,3.2-22.8c-0.6-12.6-5.6-22.9-15.2-30.8
+		c-9.6-8-20.3-12.1-32.1-12.3c-12.3,0.1-22.7,2.5-31.4,7.1C182.4,193.4,175,199.3,168.9,206.5L168.9,206.5z"/>
+	<path id="path14674" d="M307.5,314c-5.1,0.1-9.3,1.9-12.7,5.2c-3.4,3.4-5.1,7.6-5.2,12.7c0.1,4.6,1.6,8.6,4.5,11.8
+		c2.9,3.3,6.5,5.2,11,5.9L289,375.2h13.5c2.1-3,5.7-8.8,11-17.5c5.3-8.7,8.6-14.5,10-17.6c0.5-1.3,0.9-2.6,1.3-3.9
+		c0.4-1.3,0.6-2.7,0.6-4.2c-0.1-5.1-1.9-9.3-5.2-12.7C316.8,315.9,312.6,314.2,307.5,314L307.5,314z"/>
+	<path id="path14676" d="M337.1,210.6h76.1c-11.7,18.8-22.7,39.8-33.2,63.2c-10.4,23.4-17.9,47.6-22.4,72.5h30.8
+		c6.3-29.4,14.2-55.4,23.6-77.9c9.4-22.5,19.4-43.8,29.8-64v-20.6h-98.7L337.1,210.6z"/>
+</g>
+<g>
+	<path d="M320.3,426.2c0-8.8-2.4-14.7-7.6-18c-2.2-1.6-5.3-2.4-8.8-2.4c-6.4,0-11.4,2.4-15,7c-3.4,4.3-5.1,10.4-5.1,18.3h-14.6
+		c0-18,6.5-29.3,20.1-33.9c5.5-2.1,10.4-3.1,14.9-3.1c11.4,0,20.4,4.9,26.3,13.7c2.7,4.6,4.6,10.5,4.6,16.9v41.9
+		c0,8-2.1,15.7-6.4,23.6c-4.5,8.3-13.8,12.5-28.2,12.5c-15,0-25.4-5.6-30.9-17.1c-2.5-5.1-3.6-9.8-3.6-14.7
+		c-0.3-18,15.6-32.4,34.2-31.8c7.9,0,14.3,1.9,20.1,6.7V426.2z M290.7,488.4c3.1,1.8,6.4,2.5,9.8,2.5c11-0.1,20.2-9.2,19.8-21
+		c0-5.3-1.8-10.1-5.6-13.8c-3.9-3.7-8.5-5.5-13.8-5.5c-7.6,0-13.2,3.1-17.4,9.7c-1.9,3-2.8,6.7-2.8,10.8
+		C280.6,479.1,284,484.7,290.7,488.4z"/>
+</g>
+</svg>
+
+<!-- file from teoria.on.ge -->

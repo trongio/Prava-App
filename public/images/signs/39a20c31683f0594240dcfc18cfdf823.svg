@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 18.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1"
+	 id="svg2" sodipodi:docname="4.6.svg" inkscape:version="0.48.4 r9939" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:svg="http://www.w3.org/2000/svg" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:cc="http://creativecommons.org/ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 700 700"
+	 enable-background="new 0 0 700 700" xml:space="preserve">
+<title  id="title3002">4.6 Ограничение минимальной скорости</title>
+<sodipodi:namedview  id="base" inkscape:window-height="1024" inkscape:window-x="-4" inkscape:pageshadow="2" inkscape:pageopacity="0.0" inkscape:document-units="px" inkscape:window-width="1920" inkscape:current-layer="layer1" inkscape:window-y="-4" showgrid="false" bordercolor="#666666" inkscape:cx="386.86343" borderopacity="1.0" inkscape:zoom="1" inkscape:cy="350.68767" pagecolor="#ffffff" inkscape:window-maximized="1">
+	</sodipodi:namedview>
+<path id="path6124" sodipodi:type="arc" sodipodi:ry="29.465372" sodipodi:cx="-87.720657" sodipodi:cy="432.25998" sodipodi:rx="22.107042" fill="#FFFFFF" stroke="#000000" stroke-width="2" stroke-miterlimit="10" d="
+	M700,350c0,193.3-156.7,350-350,350S0,543.3,0,350C0,156.7,156.7,0,350,0S700,156.7,700,350z"/>
+<path id="path6162" sodipodi:type="arc" sodipodi:ry="29.465372" sodipodi:cx="-87.720657" sodipodi:cy="432.25998" sodipodi:rx="22.107042" fill="none" stroke="#000000" stroke-width="0.1463" d="
+	M699,350c0,192.7-156.3,349-349,349S1,542.7,1,350C1,157.3,157.3,1,350,1S699,157.3,699,350z"/>
+<path id="path16334" fill="#0D69E1" d="M350,20C167.7,20,20,167.7,20,350s147.7,330,330,330s330-147.7,330-330S532.3,20,350,20z
+	 M451.8,222.7c25.2,0.9,45.4,13.3,60.5,37.2c15.1,23.9,22.9,53.9,23.3,90.1c-0.4,37.9-8.1,68.4-23.3,91.6
+	c-15.1,23.2-35.3,35.1-60.5,35.7c-25.2-0.6-45.4-12.6-60.6-35.7c-15.1-23.2-22.9-53.7-23.3-91.6c0.4-37.9,8.1-68.4,23.3-91.6
+	C406.3,235.2,426.5,223.3,451.8,222.7z M180.7,225.8h142.8l-12.4,40.3H221v59c4.9-6.1,11-10.2,18.4-12.4c7.4-2.2,14.7-3.3,22-3.1
+	c18,0.1,34.7,6.9,50.1,20.2c15.3,13.3,23.5,32.5,24.4,57.4c-0.3,25.5-9,46.7-26,63.7c-17,16.9-40.4,25.8-70.2,26.4
+	c-14.7-0.5-28-2.6-40-6.2c-12-3.6-18.3-5.7-19-6.2l-6.2-40.3c7.8,5,16.9,8.3,27.5,10c10.6,1.7,21.1,2.5,31.5,2.4
+	c13.2,0,25.6-3.9,37.2-11.7c11.6-7.8,17.8-19.4,18.6-34.9c-0.1-11.4-3.8-21.9-11.2-31.4c-7.4-9.5-18.2-14.6-32.2-15.2
+	c-9.3,0.6-17.1,3.3-23.3,8.2c-6.2,4.9-10.9,8.3-14,10.5l-27.9-15.5V225.8z M451.8,261.3c-12.2-0.2-21.9,6.8-29.2,21.1
+	c-7.3,14.2-11,36.8-11.2,67.7c0.2,30.9,3.9,53.4,11.2,67.7c7.3,14.2,17,21.2,29.2,21.1c12.2,0.2,21.9-6.8,29.2-21.1
+	c7.3-14.2,11-36.8,11.2-67.7c-0.2-30.9-3.9-53.4-11.2-67.7C473.6,268.1,463.9,261.1,451.8,261.3z"/>
+<path fill="#FF0000" d="M152.7,85.5c-25.5,19-48.1,41.7-67.2,67.2l461.9,461.9c25.5-19,48.1-41.7,67.2-67.2L152.7,85.5z"/>
+</svg>
+
+<!-- file from teoria.on.ge -->

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="700"
+   height="700"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   sodipodi:docname="3.10.svg">
+  <title
+     id="title3002">3.10 Движение пешеходов запрещено</title>
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1"
+     inkscape:cx="569.81958"
+     inkscape:cy="371.14917"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1024"
+     inkscape:window-x="-4"
+     inkscape:window-y="-4"
+     inkscape:window-maximized="1"
+     showguides="true"
+     inkscape:guide-bbox="true" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>3.10 Движение пешеходов запрещено</dc:title>
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/by-sa/3.0/" />
+        <dc:description>ГОСТ Р 52290-2004
+Размеры и пропорции по типоразмеру II</dc:description>
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/by-sa/3.0/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Notice" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Attribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#ShareAlike" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-352.36218)">
+    <path
+       transform="matrix(2.8577184,0,0,3.7498086,1269.0072,-2310.3252)"
+       d="m -199.11241,803.42432 a 122.47533,93.338097 0 1 1 -244.95065,0 122.47533,93.338097 0 1 1 244.95065,0 z"
+       sodipodi:ry="93.338097"
+       sodipodi:rx="122.47533"
+       sodipodi:cy="803.42432"
+       sodipodi:cx="-321.58774"
+       id="path12388"
+       style="opacity:1;color:#000000;fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       sodipodi:type="arc" />
+    <path
+       sodipodi:nodetypes="ccsscccc"
+       inkscape:connector-curvature="0"
+       id="path12313"
+       d="m 320.66001,720.92301 -92.21445,159.71836 c -3.11783,3.7246 -5.01009,8.5228 -5.01009,13.76 0,11.8474 9.60423,21.4517 21.45162,21.4517 7.99705,0 14.97525,-4.379 18.66437,-10.867 l 0.24692,0.1411 88.26218,-152.80363 z"
+       style="opacity:1;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:3.54299997999999980;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+    <path
+       sodipodi:nodetypes="ccccc"
+       style="opacity:1;fill:#000000;fill-opacity:1;stroke:none"
+       d="m 312.64313,498.67561 c 0,-23.23356 20.67631,-30.48398 33.08065,-30.48398 10.50237,0 51.59677,9.46693 51.59677,42.90334 0,13.59479 -8.77111,35.5644 -27.88709,35.5644 -13.57267,0 -56.79033,-21.2879 -56.79033,-47.98376 z"
+       id="path12315"
+       inkscape:connector-curvature="0" />
+    <path
+       sodipodi:nodetypes="cccsscc"
+       inkscape:connector-curvature="0"
+       id="path12317"
+       d="m 395.85981,630.98408 0,47.9133 39.51613,39.48091 c 3.06487,3.06453 7.28418,4.97474 11.96074,4.97474 9.35324,0 16.93548,-7.58224 16.93548,-16.93549 0,-4.67656 -1.91021,-8.89587 -4.97474,-11.96074 z"
+       style="opacity:1;color:#000000;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+    <path
+       inkscape:connector-curvature="0"
+       style="opacity:1;color:#000000;fill:#000000;fill-opacity:1;stroke:none;stroke-width:2.55223870000000020;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       d="m 337.51007,552.55369 c -3.89855,-1.2e-4 -7.7971,0.9822 -11.29032,2.99899 l -47.63105,27.52016 24.80343,24.80343 8.46774,-4.90424 0,13.37198 71.69355,71.69354 0,-105.88205 c 0,-4.03369 -2.15194,-7.79168 -5.64517,-9.80847 l -29.10786,-16.79435 c -3.49334,-2.01679 -7.39189,-2.99899 -11.29032,-2.99899 z m -94.52117,90.6754 0,52.46471 c 0,9.35325 7.58224,16.93549 16.93549,16.93549 9.35324,0 16.93548,-7.58224 16.93548,-16.93549 l 0,-18.59375 -33.87097,-33.87096 z m 167.2379,167.23788 22.26311,89.123 c 2.87327,11.4936 14.54464,18.5034 26.0383,15.63 11.49378,-2.8734 18.46803,-14.5446 15.59476,-26.0383 l -4.93952,-19.7581 -58.95665,-58.9566 z"
+       id="path12319" />
+    <path
+       style="opacity:1;color:#000000;fill:#ff0000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       d="M 350 10 C 162.22319 10 10 162.22319 10 350 C 10 537.77681 162.22319 690 350 690 C 537.77681 690 690 537.77681 690 350 C 690 162.22319 537.77681 10 350 10 z M 350 68.875 C 505.26328 68.875 631.125 194.73673 631.125 350 C 631.125 419.50244 605.88254 483.08951 564.09375 532.15625 L 167.84375 135.90625 C 216.91049 94.117456 280.49756 68.875 350 68.875 z M 135.90625 167.84375 L 532.15625 564.09375 C 483.08951 605.88254 419.50244 631.125 350 631.125 C 194.73672 631.125 68.875 505.26327 68.875 350 C 68.875 280.49756 94.117457 216.91049 135.90625 167.84375 z "
+       transform="translate(0,352.36218)"
+       id="path12390" />
+    <path
+       sodipodi:type="arc"
+       style="color:#000000;fill:none;stroke:#000000;stroke-width:0.61271477;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       id="path12442"
+       sodipodi:cx="-321.58774"
+       sodipodi:cy="803.42432"
+       sodipodi:rx="122.47533"
+       sodipodi:ry="93.338097"
+       d="m -199.11241,803.42432 a 122.47533,93.338097 0 1 1 -244.95065,0 122.47533,93.338097 0 1 1 244.95065,0 z"
+       transform="matrix(2.8495535,0,0,3.7390949,1266.3815,-2301.7176)" />
+  </g>
+</svg>
+
+<!-- file from teoria.on.ge -->
