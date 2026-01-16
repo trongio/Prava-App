@@ -727,6 +727,7 @@ export default function QuestionsIndex({
                         <SheetContent
                             side="right"
                             className="flex flex-col overflow-hidden"
+                            onOpenAutoFocus={(e) => e.preventDefault()}
                         >
                             <SheetHeader className="px-5">
                                 <SheetTitle className="text-xl">
