@@ -130,6 +130,14 @@ interface Props {
     filters: Filters;
     filterSign: FilterSign | null;
     stats: Stats;
+    debug?: {
+        hasFilterParams: boolean;
+        raw_categories: unknown;
+        query_string: string;
+        savedPreferences: Record<string, unknown>;
+        processedCategoryIds: number[];
+        categoryCount: number;
+    };
 }
 
 interface AnswerState {
@@ -316,7 +324,21 @@ export default function QuestionsIndex({
     categoryCounts,
     filters,
     filterSign,
+    debug,
 }: Props) {
+    // Debug: Log what filters are received from server
+    console.log('=== [SERVER DEBUG] ===');
+    console.log('[SERVER] debug object:', debug);
+    console.log('[SERVER] hasFilterParams:', debug?.hasFilterParams);
+    console.log('[SERVER] raw_categories:', debug?.raw_categories);
+    console.log('[SERVER] query_string:', debug?.query_string);
+    console.log('[SERVER] savedPreferences:', debug?.savedPreferences);
+    console.log('[SERVER] processedCategoryIds:', debug?.processedCategoryIds);
+    console.log('[SERVER] categoryCount:', debug?.categoryCount);
+    console.log('=== [FRONTEND] ===');
+    console.log('[FRONTEND] filters.categories:', filters.categories);
+    console.log('[FRONTEND] Total questions:', questions.total);
+
     const [answerStates, setAnswerStates] = useState<
         Record<number, AnswerState>
     >({});
@@ -691,8 +713,10 @@ export default function QuestionsIndex({
                     <Sheet
                         open={isFilterOpen}
                         onOpenChange={(open) => {
+                            if (!open) {
+                                setCategorySearch('');
+                            }
                             setIsFilterOpen(open);
-                            if (!open) setCategorySearch('');
                         }}
                     >
                         <SheetTrigger asChild>
@@ -750,22 +774,28 @@ export default function QuestionsIndex({
                                                         0) > 0,
                                             )
                                             .map((c) => c.id);
-                                        setLocalFilters((f) => ({
-                                            ...f,
+                                        const newFilters = {
+                                            ...localFilters,
                                             categories: allCategories,
-                                        }));
+                                        };
+                                        setLocalFilters(newFilters);
+                                        // Use comma-separated string for NativePHP compatibility
+                                        const requestParams = {
+                                            ...newFilters,
+                                            categories: allCategories.join(','),
+                                        };
+                                        console.log(
+                                            '[SelectAll] Sending categories as string:',
+                                            requestParams.categories,
+                                        );
                                         router.get(
                                             '/questions',
-                                            {
-                                                ...localFilters,
-                                                categories: allCategories,
-                                            },
+                                            requestParams,
                                             {
                                                 preserveState: true,
                                                 preserveScroll: true,
                                             },
                                         );
-                                        setIsFilterOpen(false);
                                     }}
                                 >
                                     ყველა ({totalCategoryCount})
@@ -775,19 +805,27 @@ export default function QuestionsIndex({
                                     size="sm"
                                     className="flex-1"
                                     onClick={() => {
-                                        setLocalFilters((f) => ({
-                                            ...f,
+                                        const newFilters = {
+                                            ...localFilters,
                                             categories: [],
-                                        }));
+                                        };
+                                        setLocalFilters(newFilters);
+                                        // Use empty string for NativePHP compatibility
+                                        const requestParams = {
+                                            ...newFilters,
+                                            categories: '',
+                                        };
+                                        console.log(
+                                            '[Clear] Sending categories as empty string',
+                                        );
                                         router.get(
                                             '/questions',
-                                            { ...localFilters, categories: [] },
+                                            requestParams,
                                             {
                                                 preserveState: true,
                                                 preserveScroll: true,
                                             },
                                         );
-                                        setIsFilterOpen(false);
                                     }}
                                 >
                                     გასუფთავება
@@ -807,6 +845,20 @@ export default function QuestionsIndex({
                                             key={cat.id}
                                             disabled={count === 0}
                                             onClick={() => {
+                                                console.log(
+                                                    '[CategoryFilter] Click on category:',
+                                                    cat.id,
+                                                    cat.name,
+                                                );
+                                                console.log(
+                                                    '[CategoryFilter] isSelected:',
+                                                    isSelected,
+                                                );
+                                                console.log(
+                                                    '[CategoryFilter] Current localFilters.categories:',
+                                                    localFilters.categories,
+                                                );
+
                                                 const newCategories = isSelected
                                                     ? localFilters.categories.filter(
                                                           (id) => id !== cat.id,
@@ -815,23 +867,37 @@ export default function QuestionsIndex({
                                                           ...localFilters.categories,
                                                           cat.id,
                                                       ];
-                                                setLocalFilters((f) => ({
-                                                    ...f,
+
+                                                console.log(
+                                                    '[CategoryFilter] New categories:',
+                                                    newCategories,
+                                                );
+
+                                                const newFilters = {
+                                                    ...localFilters,
                                                     categories: newCategories,
-                                                }));
+                                                };
+
+                                                setLocalFilters(newFilters);
+                                                // Auto-apply filter on selection
+                                                // Use comma-separated string for NativePHP compatibility
+                                                const requestParams = {
+                                                    ...newFilters,
+                                                    categories:
+                                                        newCategories.join(','),
+                                                };
+                                                console.log(
+                                                    '[CategoryFilter] Sending categories as string:',
+                                                    requestParams.categories,
+                                                );
                                                 router.get(
                                                     '/questions',
-                                                    {
-                                                        ...localFilters,
-                                                        categories:
-                                                            newCategories,
-                                                    },
+                                                    requestParams,
                                                     {
                                                         preserveState: true,
                                                         preserveScroll: true,
                                                     },
                                                 );
-                                                setIsFilterOpen(false);
                                             }}
                                             className={`flex w-full items-center justify-between gap-3 rounded-lg border p-4 text-left transition-colors ${
                                                 count === 0
@@ -893,6 +959,7 @@ export default function QuestionsIndex({
                         className="h-8 w-8 shrink-0"
                         onClick={() => {
                             // Clear sign filter by navigating without sign_id
+                            // eslint-disable-next-line @typescript-eslint/no-unused-vars
                             const { sign_id: _, ...restFilters } = localFilters;
                             router.get('/questions', restFilters, {
                                 preserveState: true,

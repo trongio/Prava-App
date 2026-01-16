@@ -32,9 +32,46 @@ class QuestionBrowserController extends Controller
         $licenseTypeId = $hasFilterParams
             ? $request->input('license_type')
             : ($savedPreferences['license_type'] ?? null);
-        $categoryIds = $hasFilterParams
-            ? collect($request->input('categories', []))->map(fn ($id) => (int) $id)->toArray()
-            : ($savedPreferences['categories'] ?? []);
+
+        // Debug: Collect debug info to send to frontend
+        $debug = [
+            'hasFilterParams' => $hasFilterParams,
+            'raw_categories' => $request->input('categories'),
+            'query_string' => $request->getQueryString(),
+            'savedPreferences' => $savedPreferences,
+        ];
+
+        // Parse categories - support both comma-separated string (NativePHP) and array (web)
+        $rawCategories = $request->input('categories', '');
+        if ($hasFilterParams) {
+            if (is_string($rawCategories)) {
+                // Comma-separated string (NativePHP compatibility)
+                $categoryIds = collect(explode(',', $rawCategories))
+                    ->filter(fn ($id) => $id !== '' && $id !== null)
+                    ->map(fn ($id) => (int) $id)
+                    ->filter(fn ($id) => $id > 0)
+                    ->values()
+                    ->toArray();
+            } else {
+                // Array format (web browser)
+                $categoryIds = collect($rawCategories)
+                    ->filter(fn ($id) => $id !== '' && $id !== null && $id !== 0 && $id !== '0')
+                    ->map(fn ($id) => (int) $id)
+                    ->filter(fn ($id) => $id > 0)
+                    ->values()
+                    ->toArray();
+            }
+        } else {
+            $categoryIds = collect($savedPreferences['categories'] ?? [])
+                ->filter(fn ($id) => $id > 0)
+                ->values()
+                ->toArray();
+        }
+
+        // Add processed categories to debug
+        $debug['processedCategoryIds'] = $categoryIds;
+        $debug['categoryCount'] = count($categoryIds);
+
         $showInactive = $hasFilterParams
             ? $request->boolean('show_inactive', false)
             : ($savedPreferences['show_inactive'] ?? false);
@@ -202,6 +239,8 @@ class QuestionBrowserController extends Controller
                 'answered' => $answeredCount,
                 'filtered' => $questions->total(),
             ],
+            // Debug info - remove after debugging
+            'debug' => $debug,
         ]);
     }
 
