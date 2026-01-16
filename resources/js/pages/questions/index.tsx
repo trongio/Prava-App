@@ -372,23 +372,8 @@ export default function QuestionsIndex({
         return () => window.removeEventListener('popstate', handlePopState);
     }, [isFilterOpen]);
 
-    // Shuffle answers once per page load while preserving correct answer tracking
-    const shuffledAnswers = useMemo(() => {
-        const shuffleArray = <T,>(array: T[]): T[] => {
-            const shuffled = [...array];
-            for (let i = shuffled.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-            }
-            return shuffled;
-        };
-
-        const map: Record<number, Answer[]> = {};
-        questions.data.forEach((question) => {
-            map[question.id] = shuffleArray(question.answers);
-        });
-        return map;
-    }, [questions.data]);
+    // Seed for deterministic answer shuffling (generated once per page load)
+    const [shuffleSeed] = useState(() => Math.random());
 
     const handleAnswer = useCallback(
         async (question: Question, answerId: number) => {
@@ -925,9 +910,7 @@ export default function QuestionsIndex({
                             index +
                             1
                         }
-                        shuffledAnswers={
-                            shuffledAnswers[question.id] || question.answers
-                        }
+                        shuffleSeed={shuffleSeed}
                         answerState={answerStates[question.id]}
                         isBookmarked={bookmarkedQuestions[question.id] || false}
                         isSubmitting={submittingQuestions.has(question.id)}

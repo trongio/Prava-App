@@ -1,4 +1,5 @@
 import { Bookmark, Check, Info, TriangleAlert, X } from 'lucide-react';
+import { useMemo } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -47,7 +48,7 @@ interface AnswerState {
 interface QuestionCardProps {
     question: Question;
     questionNumber: number;
-    shuffledAnswers: Answer[];
+    shuffleSeed: number;
     answerState?: AnswerState;
     isBookmarked: boolean;
     isSubmitting?: boolean;
@@ -59,7 +60,7 @@ interface QuestionCardProps {
 export function QuestionCard({
     question,
     questionNumber,
-    shuffledAnswers,
+    shuffleSeed = 0.5,
     answerState,
     isBookmarked,
     isSubmitting = false,
@@ -67,6 +68,24 @@ export function QuestionCard({
     onBookmark,
     onInfoClick,
 }: QuestionCardProps) {
+    // Shuffle answers deterministically based on seed + question.id
+    const shuffledAnswers = useMemo(() => {
+        const seededRandom = (seed: number) => {
+            const x = Math.sin(seed) * 10000;
+            return x - Math.floor(x);
+        };
+
+        const shuffled = [...question.answers];
+        let seed = shuffleSeed * 1000 + question.id;
+
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            seed = seededRandom(seed) * 1000;
+            const j = Math.floor(seededRandom(seed) * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    }, [shuffleSeed, question.id, question.answers]);
+
     const getAnswerClassName = (answer: Answer) => {
         if (!answerState)
             return 'border-border hover:border-primary hover:bg-accent';
