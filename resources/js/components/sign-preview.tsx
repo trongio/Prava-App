@@ -219,29 +219,28 @@ export function SignPreview({
                         </div>
                     )}
 
-                    {/* Related Questions */}
-                    {isLoading ? (
-                        <div className="mt-3 h-10 animate-pulse rounded-lg bg-muted" />
-                    ) : relatedQuestionsCount !== null &&
-                      relatedQuestionsCount > 0 ? (
-                        <Button
-                            asChild
-                            variant="outline"
-                            className="mt-3 w-full"
-                        >
-                            <Link
-                                href={`/questions?sign_id=${sign.id}`}
-                                className="flex items-center gap-2"
+                    {/* Related Questions - only show when loaded and has questions */}
+                    {!isLoading &&
+                        relatedQuestionsCount !== null &&
+                        relatedQuestionsCount > 0 && (
+                            <Button
+                                asChild
+                                variant="outline"
+                                className="mt-3 w-full"
                             >
-                                <BookOpen className="h-4 w-4" />
-                                <span>
-                                    დაკავშირებული კითხვები (
-                                    {relatedQuestionsCount})
-                                </span>
-                                <ExternalLink className="ml-auto h-4 w-4" />
-                            </Link>
-                        </Button>
-                    ) : null}
+                                <Link
+                                    href={`/questions?sign_id=${sign.id}`}
+                                    className="flex items-center gap-2"
+                                >
+                                    <BookOpen className="h-4 w-4" />
+                                    <span>
+                                        დაკავშირებული კითხვები (
+                                        {relatedQuestionsCount})
+                                    </span>
+                                    <ExternalLink className="ml-auto h-4 w-4" />
+                                </Link>
+                            </Button>
+                        )}
                 </div>
             </div>
         </div>
