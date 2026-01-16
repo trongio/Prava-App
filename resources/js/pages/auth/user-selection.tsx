@@ -1,7 +1,14 @@
 import { Head, router, useForm } from '@inertiajs/react';
-import { useRef, useState, type FormEvent } from 'react';
+import { ArrowLeft, Camera, Lock, Plus, User } from 'lucide-react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 
-interface User {
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+
+interface UserData {
     id: number;
     name: string;
     profile_image_url: string | null;
@@ -9,11 +16,37 @@ interface User {
 }
 
 interface Props {
-    users: User[];
+    users: UserData[];
+}
+
+// Color palette based on name for avatar backgrounds
+const avatarColors = [
+    'bg-blue-500',
+    'bg-green-500',
+    'bg-purple-500',
+    'bg-pink-500',
+    'bg-indigo-500',
+    'bg-teal-500',
+    'bg-orange-500',
+    'bg-cyan-500',
+];
+
+function getAvatarColor(name: string): string {
+    const index = name.charCodeAt(0) % avatarColors.length;
+    return avatarColors[index];
+}
+
+function getInitials(name: string): string {
+    return name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2);
 }
 
 export default function UserSelection({ users }: Props) {
-    const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
     const [isCreating, setIsCreating] = useState(false);
     const [newImagePreview, setNewImagePreview] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -39,7 +72,7 @@ export default function UserSelection({ users }: Props) {
         profile_image: null,
     });
 
-    const handleUserClick = (user: User) => {
+    const handleUserClick = (user: UserData) => {
         if (user.has_password) {
             setSelectedUser(user);
             loginForm.setData('user_id', user.id);
@@ -87,101 +120,114 @@ export default function UserSelection({ users }: Props) {
         setNewImagePreview(null);
     };
 
-    const getInitials = (name: string) => {
-        return name
-            .split(' ')
-            .map((n) => n[0])
-            .join('')
-            .toUpperCase()
-            .slice(0, 2);
+    const resetPasswordForm = () => {
+        setSelectedUser(null);
+        loginForm.reset();
     };
 
-    const getRandomColor = (name: string) => {
-        const colors = [
-            'bg-blue-500',
-            'bg-green-500',
-            'bg-purple-500',
-            'bg-pink-500',
-            'bg-indigo-500',
-            'bg-teal-500',
-            'bg-orange-500',
-            'bg-cyan-500',
-        ];
-        const index = name.charCodeAt(0) % colors.length;
-        return colors[index];
-    };
+    // Handle Android back button to close modals instead of navigating
+    useEffect(() => {
+        const handlePopState = (e: PopStateEvent) => {
+            if (isCreating) {
+                e.preventDefault();
+                resetCreateForm();
+                window.history.pushState(null, '', window.location.href);
+            } else if (selectedUser) {
+                e.preventDefault();
+                resetPasswordForm();
+                window.history.pushState(null, '', window.location.href);
+            }
+        };
+
+        // Push initial state when modal/form opens
+        if (isCreating || selectedUser) {
+            window.history.pushState(null, '', window.location.href);
+        }
+
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, [isCreating, selectedUser]);
 
     // Password prompt modal
     if (selectedUser) {
         return (
             <>
                 <Head title="პაროლის შეყვანა" />
-                <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100 p-4 dark:bg-gray-900">
-                    <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-lg dark:bg-gray-800">
-                        <button
-                            onClick={() => {
-                                setSelectedUser(null);
-                                loginForm.reset();
-                            }}
-                            className="mb-4 text-gray-500 hover:text-gray-700 dark:text-gray-400"
-                        >
-                            ← უკან
-                        </button>
-
-                        <div className="mb-6 flex flex-col items-center">
-                            {selectedUser.profile_image_url ? (
-                                <img
-                                    src={selectedUser.profile_image_url}
-                                    alt={selectedUser.name}
-                                    className="mb-3 h-20 w-20 rounded-full object-cover"
-                                />
-                            ) : (
-                                <div
-                                    className={`mb-3 flex h-20 w-20 items-center justify-center rounded-full text-2xl font-bold text-white ${getRandomColor(selectedUser.name)}`}
-                                >
-                                    {getInitials(selectedUser.name)}
-                                </div>
-                            )}
-                            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-                                {selectedUser.name}
-                            </h2>
-                        </div>
-
-                        <form onSubmit={handlePasswordSubmit}>
-                            <input
-                                type="password"
-                                value={loginForm.data.password}
-                                onChange={(e) =>
-                                    loginForm.setData(
-                                        'password',
-                                        e.target.value,
-                                    )
-                                }
-                                placeholder="პაროლი"
-                                className="mb-3 w-full rounded-xl border border-gray-300 px-4 py-3 focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                autoFocus
-                            />
-                            {loginForm.errors.error && (
-                                <p className="mb-3 text-sm text-red-500">
-                                    {loginForm.errors.error}
-                                </p>
-                            )}
-                            {loginForm.errors.password && (
-                                <p className="mb-3 text-sm text-red-500">
-                                    {loginForm.errors.password}
-                                </p>
-                            )}
-                            <button
-                                type="submit"
-                                disabled={loginForm.processing}
-                                className="w-full rounded-xl bg-blue-500 py-3 font-semibold text-white transition hover:bg-blue-600 disabled:opacity-50"
+                <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
+                    <Card className="w-full max-w-sm">
+                        <CardHeader className="pb-4">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={resetPasswordForm}
+                                className="mb-2 -ml-2 w-fit gap-1"
                             >
-                                {loginForm.processing
-                                    ? 'იტვირთება...'
-                                    : 'შესვლა'}
-                            </button>
-                        </form>
-                    </div>
+                                <ArrowLeft className="h-4 w-4" />
+                                უკან
+                            </Button>
+                            <div className="flex flex-col items-center gap-3">
+                                <Avatar className="h-20 w-20">
+                                    <AvatarImage
+                                        src={
+                                            selectedUser.profile_image_url ||
+                                            undefined
+                                        }
+                                        alt={selectedUser.name}
+                                    />
+                                    <AvatarFallback
+                                        className={`text-2xl font-bold text-white ${getAvatarColor(selectedUser.name)}`}
+                                    >
+                                        {getInitials(selectedUser.name)}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <CardTitle className="text-xl">
+                                    {selectedUser.name}
+                                </CardTitle>
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                            <form
+                                onSubmit={handlePasswordSubmit}
+                                className="space-y-4"
+                            >
+                                <div className="space-y-2">
+                                    <Label htmlFor="password">პაროლი</Label>
+                                    <Input
+                                        id="password"
+                                        type="password"
+                                        value={loginForm.data.password}
+                                        onChange={(e) =>
+                                            loginForm.setData(
+                                                'password',
+                                                e.target.value,
+                                            )
+                                        }
+                                        placeholder="შეიყვანეთ პაროლი"
+                                        autoFocus
+                                    />
+                                    {loginForm.errors.error && (
+                                        <p className="text-sm text-destructive">
+                                            {loginForm.errors.error}
+                                        </p>
+                                    )}
+                                    {loginForm.errors.password && (
+                                        <p className="text-sm text-destructive">
+                                            {loginForm.errors.password}
+                                        </p>
+                                    )}
+                                </div>
+                                <Button
+                                    type="submit"
+                                    disabled={loginForm.processing}
+                                    className="w-full"
+                                >
+                                    {loginForm.processing
+                                        ? 'იტვირთება...'
+                                        : 'შესვლა'}
+                                </Button>
+                            </form>
+                        </CardContent>
+                    </Card>
                 </div>
             </>
         );
@@ -192,112 +238,131 @@ export default function UserSelection({ users }: Props) {
         return (
             <>
                 <Head title="ახალი მომხმარებელი" />
-                <div className="flex min-h-screen flex-col items-center justify-center bg-gray-100 p-4 dark:bg-gray-900">
-                    <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-lg dark:bg-gray-800">
-                        <button
-                            onClick={resetCreateForm}
-                            className="mb-4 text-gray-500 hover:text-gray-700 dark:text-gray-400"
-                        >
-                            ← უკან
-                        </button>
-
-                        <h2 className="mb-6 text-center text-xl font-semibold text-gray-900 dark:text-white">
-                            ახალი მომხმარებელი
-                        </h2>
-
-                        <form onSubmit={handleCreateUser}>
-                            {/* Profile Image */}
-                            <div className="mb-4 flex justify-center">
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        fileInputRef.current?.click()
-                                    }
-                                    className="relative"
-                                >
-                                    {newImagePreview ? (
-                                        <img
-                                            src={newImagePreview}
-                                            alt="Preview"
-                                            className="h-24 w-24 rounded-full object-cover"
-                                        />
-                                    ) : (
-                                        <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gray-200 dark:bg-gray-600">
-                                            <span className="text-3xl text-gray-400">
-                                                +
-                                            </span>
-                                        </div>
-                                    )}
-                                    <div className="absolute right-0 bottom-0 flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-white">
-                                        <span className="text-sm">📷</span>
-                                    </div>
-                                </button>
-                                <input
-                                    ref={fileInputRef}
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleImageChange}
-                                    className="hidden"
-                                />
-                            </div>
-                            <p className="mb-4 text-center text-sm text-gray-500 dark:text-gray-400">
-                                დაამატეთ ფოტო (არასავალდებულო)
-                            </p>
-
-                            {/* Name */}
-                            <input
-                                type="text"
-                                value={registerForm.data.name}
-                                onChange={(e) =>
-                                    registerForm.setData('name', e.target.value)
-                                }
-                                placeholder="სახელი / მეტსახელი"
-                                className="mb-3 w-full rounded-xl border border-gray-300 px-4 py-3 focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                                autoFocus
-                            />
-                            {registerForm.errors.name && (
-                                <p className="mb-3 text-sm text-red-500">
-                                    {registerForm.errors.name}
-                                </p>
-                            )}
-
-                            {/* Password (optional) */}
-                            <input
-                                type="password"
-                                value={registerForm.data.password}
-                                onChange={(e) =>
-                                    registerForm.setData(
-                                        'password',
-                                        e.target.value,
-                                    )
-                                }
-                                placeholder="პაროლი (არასავალდებულო)"
-                                className="mb-3 w-full rounded-xl border border-gray-300 px-4 py-3 focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                            />
-                            {registerForm.errors.password && (
-                                <p className="mb-3 text-sm text-red-500">
-                                    {registerForm.errors.password}
-                                </p>
-                            )}
-                            <p className="mb-4 text-xs text-gray-500 dark:text-gray-400">
-                                პაროლი საჭიროა მხოლოდ თუ გსურთ თქვენი ანგარიშის
-                                დაცვა
-                            </p>
-
-                            <button
-                                type="submit"
-                                disabled={
-                                    registerForm.processing ||
-                                    !registerForm.data.name.trim()
-                                }
-                                className="w-full rounded-xl bg-blue-500 py-3 font-semibold text-white transition hover:bg-blue-600 disabled:opacity-50"
+                <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
+                    <Card className="w-full max-w-sm">
+                        <CardHeader className="pb-4">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={resetCreateForm}
+                                className="mb-2 -ml-2 w-fit gap-1"
                             >
-                                {registerForm.processing
-                                    ? 'იტვირთება...'
-                                    : 'დაწყება'}
-                            </button>
-                        </form>
-                    </div>
+                                <ArrowLeft className="h-4 w-4" />
+                                უკან
+                            </Button>
+                            <CardTitle className="text-center text-xl">
+                                ახალი მომხმარებელი
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <form
+                                onSubmit={handleCreateUser}
+                                className="space-y-4"
+                            >
+                                {/* Profile Image */}
+                                <div className="flex flex-col items-center gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            fileInputRef.current?.click()
+                                        }
+                                        className="relative"
+                                    >
+                                        <Avatar className="h-24 w-24">
+                                            {newImagePreview ? (
+                                                <AvatarImage
+                                                    src={newImagePreview}
+                                                    alt="Preview"
+                                                />
+                                            ) : null}
+                                            <AvatarFallback className="bg-muted">
+                                                <User className="h-10 w-10 text-muted-foreground" />
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <div className="absolute right-0 bottom-0 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                                            <Camera className="h-4 w-4" />
+                                        </div>
+                                    </button>
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleImageChange}
+                                        className="hidden"
+                                    />
+                                    <p className="text-sm text-muted-foreground">
+                                        დაამატეთ ფოტო (არასავალდებულო)
+                                    </p>
+                                </div>
+
+                                {/* Name */}
+                                <div className="space-y-2">
+                                    <Label htmlFor="name">
+                                        სახელი / მეტსახელი
+                                    </Label>
+                                    <Input
+                                        id="name"
+                                        type="text"
+                                        value={registerForm.data.name}
+                                        onChange={(e) =>
+                                            registerForm.setData(
+                                                'name',
+                                                e.target.value,
+                                            )
+                                        }
+                                        placeholder="შეიყვანეთ სახელი"
+                                        autoFocus
+                                    />
+                                    {registerForm.errors.name && (
+                                        <p className="text-sm text-destructive">
+                                            {registerForm.errors.name}
+                                        </p>
+                                    )}
+                                </div>
+
+                                {/* Password (optional) */}
+                                <div className="space-y-2">
+                                    <Label htmlFor="reg-password">
+                                        პაროლი (არასავალდებულო)
+                                    </Label>
+                                    <Input
+                                        id="reg-password"
+                                        type="password"
+                                        value={registerForm.data.password}
+                                        onChange={(e) =>
+                                            registerForm.setData(
+                                                'password',
+                                                e.target.value,
+                                            )
+                                        }
+                                        placeholder="შეიყვანეთ პაროლი"
+                                    />
+                                    {registerForm.errors.password && (
+                                        <p className="text-sm text-destructive">
+                                            {registerForm.errors.password}
+                                        </p>
+                                    )}
+                                    <p className="text-xs text-muted-foreground">
+                                        პაროლი საჭიროა მხოლოდ თუ გსურთ თქვენი
+                                        ანგარიშის დაცვა
+                                    </p>
+                                </div>
+
+                                <Button
+                                    type="submit"
+                                    disabled={
+                                        registerForm.processing ||
+                                        !registerForm.data.name.trim()
+                                    }
+                                    className="w-full"
+                                >
+                                    {registerForm.processing
+                                        ? 'იტვირთება...'
+                                        : 'დაწყება'}
+                                </Button>
+                            </form>
+                        </CardContent>
+                    </Card>
                 </div>
             </>
         );
@@ -307,14 +372,14 @@ export default function UserSelection({ users }: Props) {
     return (
         <>
             <Head title="აირჩიეთ მომხმარებელი" />
-            <div className="flex min-h-screen flex-col bg-gray-100 p-4 dark:bg-gray-900">
+            <div className="flex min-h-screen flex-col bg-background p-4">
                 <div className="mx-auto w-full max-w-md">
                     {/* Header */}
                     <div className="mb-8 pt-8 text-center">
-                        <h1 className="mb-2 text-2xl font-bold text-gray-900 dark:text-white">
+                        <h1 className="mb-2 text-2xl font-bold">
                             მართვის მოწმობა
                         </h1>
-                        <p className="text-gray-600 dark:text-gray-400">
+                        <p className="text-muted-foreground">
                             აირჩიეთ მომხმარებელი
                         </p>
                     </div>
@@ -323,47 +388,52 @@ export default function UserSelection({ users }: Props) {
                     {users.length > 0 && (
                         <div className="mb-6 grid grid-cols-2 gap-4">
                             {users.map((user) => (
-                                <button
+                                <Card
                                     key={user.id}
+                                    className="cursor-pointer py-4 transition-shadow hover:shadow-md active:scale-[0.98]"
                                     onClick={() => handleUserClick(user)}
-                                    className="flex flex-col items-center rounded-2xl bg-white p-4 shadow-md transition hover:shadow-lg active:scale-95 dark:bg-gray-800"
                                 >
-                                    {user.profile_image_url ? (
-                                        <img
-                                            src={user.profile_image_url}
-                                            alt={user.name}
-                                            className="mb-3 h-16 w-16 rounded-full object-cover"
-                                        />
-                                    ) : (
-                                        <div
-                                            className={`mb-3 flex h-16 w-16 items-center justify-center rounded-full text-xl font-bold text-white ${getRandomColor(user.name)}`}
-                                        >
-                                            {getInitials(user.name)}
-                                        </div>
-                                    )}
-                                    <span className="font-medium text-gray-900 dark:text-white">
-                                        {user.name}
-                                    </span>
-                                    {user.has_password && (
-                                        <span className="mt-1 text-xs text-gray-500">
-                                            🔒
+                                    <CardContent className="flex flex-col items-center gap-3 p-4">
+                                        <Avatar className="h-16 w-16">
+                                            <AvatarImage
+                                                src={
+                                                    user.profile_image_url ||
+                                                    undefined
+                                                }
+                                                alt={user.name}
+                                            />
+                                            <AvatarFallback
+                                                className={`text-xl font-bold text-white ${getAvatarColor(user.name)}`}
+                                            >
+                                                {getInitials(user.name)}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <span className="font-medium">
+                                            {user.name}
                                         </span>
-                                    )}
-                                </button>
+                                        {user.has_password && (
+                                            <Lock className="h-3.5 w-3.5 text-muted-foreground" />
+                                        )}
+                                    </CardContent>
+                                </Card>
                             ))}
                         </div>
                     )}
 
                     {/* Add New User Button */}
-                    <button
+                    <Card
+                        className="cursor-pointer border-dashed py-6 transition-colors hover:border-primary hover:bg-accent"
                         onClick={() => setIsCreating(true)}
-                        className="flex w-full items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-gray-300 bg-white/50 py-6 text-gray-600 transition hover:border-blue-400 hover:bg-white hover:text-blue-500 dark:border-gray-600 dark:bg-gray-800/50 dark:text-gray-400 dark:hover:border-blue-500 dark:hover:text-blue-400"
                     >
-                        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-xl text-blue-500 dark:bg-blue-900">
-                            +
-                        </span>
-                        <span className="font-medium">ახალი მომხმარებელი</span>
-                    </button>
+                        <CardContent className="flex items-center justify-center gap-3 p-4">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                                <Plus className="h-5 w-5 text-primary" />
+                            </div>
+                            <span className="font-medium">
+                                ახალი მომხმარებელი
+                            </span>
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
         </>

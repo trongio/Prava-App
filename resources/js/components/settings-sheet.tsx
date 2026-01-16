@@ -439,7 +439,9 @@ function ProfileView({
                                     <Input
                                         id="current_password"
                                         type="password"
-                                        value={passwordForm.data.current_password}
+                                        value={
+                                            passwordForm.data.current_password
+                                        }
                                         onChange={(e) =>
                                             passwordForm.setData(
                                                 'current_password',
@@ -587,7 +589,10 @@ function ProfileView({
                                 type="password"
                                 value={deleteForm.data.password}
                                 onChange={(e) =>
-                                    deleteForm.setData('password', e.target.value)
+                                    deleteForm.setData(
+                                        'password',
+                                        e.target.value,
+                                    )
                                 }
                                 autoComplete="current-password"
                             />
