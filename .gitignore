@@ -29,3 +29,4 @@ yarn-error.log
 
 # Credential files (keystores, private keys, etc.)
 /credentials/
+tests/Browser/Screenshots
