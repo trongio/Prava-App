@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\LicenseType;
 use App\Models\Question;
 use App\Models\QuestionCategory;
+use App\Models\Sign;
 use App\Models\UserQuestionProgress;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -18,7 +19,11 @@ class QuestionBrowserController extends Controller
         $user = $request->user();
 
         // Check if user has filter params in URL (not just page)
-        $hasFilterParams = $request->hasAny(['license_type', 'categories', 'show_inactive', 'bookmarked', 'wrong_only', 'correct_only', 'unanswered', 'per_page']);
+        $hasFilterParams = $request->hasAny(['license_type', 'categories', 'show_inactive', 'bookmarked', 'wrong_only', 'correct_only', 'unanswered', 'per_page', 'sign_id']);
+
+        // Sign filter (not saved to preferences, used when coming from signs page)
+        $signId = $request->input('sign_id');
+        $sign = $signId ? Sign::find($signId) : null;
 
         // Load saved preferences if no filter params provided
         $savedPreferences = $user?->question_filter_preferences ?? [];
@@ -94,6 +99,11 @@ class QuestionBrowserController extends Controller
         // Filter by categories
         if (! empty($categoryIds)) {
             $query->whereIn('question_category_id', $categoryIds);
+        }
+
+        // Filter by sign (questions related to a specific sign)
+        if ($sign) {
+            $query->whereHas('signs', fn ($q) => $q->where('signs.id', $sign->id));
         }
 
         // Filter by session-based correct/wrong IDs (passed from frontend)
@@ -180,7 +190,13 @@ class QuestionBrowserController extends Controller
                 'wrong_only' => $showWrong,
                 'unanswered' => $showUnanswered,
                 'per_page' => (int) $perPage,
+                'sign_id' => $sign?->id,
             ],
+            'filterSign' => $sign ? [
+                'id' => $sign->id,
+                'title' => $sign->title,
+                'image' => $sign->image,
+            ] : null,
             'stats' => [
                 'total' => $totalQuestions,
                 'answered' => $answeredCount,

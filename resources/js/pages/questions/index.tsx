@@ -106,6 +106,13 @@ interface Filters {
     correct_only: boolean;
     unanswered: boolean;
     per_page: number;
+    sign_id: number | null;
+}
+
+interface FilterSign {
+    id: number;
+    title: string;
+    image: string;
 }
 
 interface Stats {
@@ -121,6 +128,7 @@ interface Props {
     categories: QuestionCategory[];
     categoryCounts: Record<number, number>;
     filters: Filters;
+    filterSign: FilterSign | null;
     stats: Stats;
 }
 
@@ -307,6 +315,7 @@ export default function QuestionsIndex({
     categories,
     categoryCounts,
     filters,
+    filterSign,
 }: Props) {
     const [answerStates, setAnswerStates] = useState<
         Record<number, AnswerState>
@@ -859,6 +868,42 @@ export default function QuestionsIndex({
                     </Sheet>
                 </div>
             </div>
+
+            {/* Sign Filter Banner */}
+            {filterSign && (
+                <div className="flex items-center gap-3 border-b bg-muted/50 px-4 py-2">
+                    <div className="h-10 w-10 shrink-0 overflow-hidden rounded border bg-background p-1">
+                        <img
+                            src={`/images/signs/${filterSign.image}`}
+                            alt={filterSign.title}
+                            className="h-full w-full object-contain"
+                        />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                        <p className="text-xs text-muted-foreground">
+                            ნიშნის კითხვები
+                        </p>
+                        <p className="truncate text-sm font-medium">
+                            {filterSign.title}
+                        </p>
+                    </div>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 shrink-0"
+                        onClick={() => {
+                            // Clear sign filter by navigating without sign_id
+                            const { sign_id: _, ...restFilters } = localFilters;
+                            router.get('/questions', restFilters, {
+                                preserveState: true,
+                                preserveScroll: true,
+                            });
+                        }}
+                    >
+                        <X className="h-4 w-4" />
+                    </Button>
+                </div>
+            )}
 
             {/* Top Pagination */}
             <Pagination
