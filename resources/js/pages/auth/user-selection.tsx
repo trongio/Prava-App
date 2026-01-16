@@ -3,7 +3,7 @@ import { ArrowLeft, Camera, ImagePlus, Lock, Plus, User } from 'lucide-react';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 
 // NativePHP imports for camera access
-import { camera, Events, off, on } from '#nativephp';
+import { camera, Events, isMobile, off, on } from '#nativephp';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -108,24 +108,21 @@ export default function UserSelection({ users }: Props) {
     };
 
     // Handle native camera photo capture
-    const handleTakePhoto = () => {
+    const handleTakePhoto = async () => {
         setShowImagePicker(false);
-        camera.getPhoto().id('profile-photo');
+        await camera.getPhoto().id('profile-photo');
     };
 
     // Handle native gallery picker
-    const handlePickFromGallery = () => {
+    const handlePickFromGallery = async () => {
         setShowImagePicker(false);
-        camera.pickImages().images().id('profile-gallery');
+        await camera.pickImages().images().id('profile-gallery');
     };
 
     // Handle click on avatar - show native picker or file input
-    const handleAvatarClick = () => {
-        // Check if we're in a NativePHP environment by checking for the native bridge
-        const isNative =
-            typeof window !== 'undefined' &&
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (window as any).nativephp !== undefined;
+    const handleAvatarClick = async () => {
+        // Check if we're in a NativePHP mobile environment
+        const isNative = await isMobile();
 
         if (isNative) {
             setShowImagePicker(true);
@@ -144,9 +141,11 @@ export default function UserSelection({ users }: Props) {
             }
         };
 
-        const handleMediaSelected = (payload: { paths: string[] }) => {
-            if (payload.paths && payload.paths.length > 0) {
-                const path = payload.paths[0];
+        const handleMediaSelected = (payload: {
+            media: Array<{ path: string; mimeType: string }>;
+        }) => {
+            if (payload.media && payload.media.length > 0) {
+                const path = payload.media[0].path;
                 setNativeImagePath(path);
                 setNewImagePreview(path);
                 registerForm.setData('profile_image', null); // Clear file when using native path
