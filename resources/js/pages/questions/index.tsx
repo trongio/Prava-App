@@ -1,4 +1,5 @@
 import { Head, router } from '@inertiajs/react';
+import axios from 'axios';
 import {
     Bookmark,
     Bus,
@@ -388,29 +389,10 @@ export default function QuestionsIndex({
             setSubmittingQuestions((prev) => new Set(prev).add(question.id));
 
             try {
-                const response = await fetch(
+                const { data } = await axios.post(
                     `/questions/${question.id}/answer`,
-                    {
-                        method: 'POST',
-                        credentials: 'same-origin',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            Accept: 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'X-CSRF-TOKEN':
-                                document.querySelector<HTMLMetaElement>(
-                                    'meta[name="csrf-token"]',
-                                )?.content || '',
-                        },
-                        body: JSON.stringify({ answer_id: answerId }),
-                    },
+                    { answer_id: answerId },
                 );
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
 
                 setAnswerStates((prev) => ({
                     ...prev,
@@ -450,25 +432,9 @@ export default function QuestionsIndex({
 
     const handleBookmark = useCallback(async (questionId: number) => {
         try {
-            const response = await fetch(`/questions/${questionId}/bookmark`, {
-                method: 'POST',
-                credentials: 'same-origin',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN':
-                        document.querySelector<HTMLMetaElement>(
-                            'meta[name="csrf-token"]',
-                        )?.content || '',
-                },
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
+            const { data } = await axios.post(
+                `/questions/${questionId}/bookmark`,
+            );
             setBookmarkedQuestions((prev) => ({
                 ...prev,
                 [questionId]: data.is_bookmarked,
@@ -501,15 +467,15 @@ export default function QuestionsIndex({
             ? { ...restFilters, bookmarked: true }
             : restFilters;
 
-        // Preserve session IDs for correct/wrong filters
+        // Preserve session IDs for correct/wrong filters (comma-separated for NativePHP)
         if (localFilters.correct_only && sessionCorrectIds.length > 0) {
             Object.assign(requestParams, {
-                session_correct_ids: sessionCorrectIds,
+                session_correct_ids: sessionCorrectIds.join(','),
             });
         }
         if (localFilters.wrong_only && sessionWrongIds.length > 0) {
             Object.assign(requestParams, {
-                session_wrong_ids: sessionWrongIds,
+                session_wrong_ids: sessionWrongIds.join(','),
             });
         }
 
@@ -520,7 +486,7 @@ export default function QuestionsIndex({
     }, [localFilters, sessionCorrectIds, sessionWrongIds]);
 
     // Toggle answer status filter (correct/wrong) - only one can be active
-    // Uses session-based IDs for filtering
+    // Uses session-based IDs for filtering (comma-separated for NativePHP compatibility)
     const toggleAnswerFilter = useCallback(
         (type: 'correct' | 'wrong') => {
             const isCurrentlyActive =
@@ -534,17 +500,17 @@ export default function QuestionsIndex({
             };
             setLocalFilters(newFilters);
 
-            // Pass session IDs for filtering
+            // Pass session IDs as comma-separated strings for NativePHP compatibility
             const requestParams = {
                 ...newFilters,
                 session_correct_ids:
                     type === 'correct' && !isCurrentlyActive
-                        ? sessionCorrectIds
-                        : [],
+                        ? sessionCorrectIds.join(',')
+                        : '',
                 session_wrong_ids:
                     type === 'wrong' && !isCurrentlyActive
-                        ? sessionWrongIds
-                        : [],
+                        ? sessionWrongIds.join(',')
+                        : '',
             };
 
             router.get('/questions', requestParams, {

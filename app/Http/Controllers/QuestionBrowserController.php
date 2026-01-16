@@ -37,11 +37,17 @@ class QuestionBrowserController extends Controller
             ? $request->boolean('bookmarked', false)
             : ($savedPreferences['bookmarked'] ?? false);
         // correct_only and wrong_only are session-only filters (not saved to preferences)
-        // These use session IDs passed from frontend, not database progress
+        // These use session IDs passed from frontend as comma-separated strings (NativePHP compatibility)
         $showCorrect = $request->boolean('correct_only', false);
         $showWrong = $request->boolean('wrong_only', false);
-        $sessionCorrectIds = collect($request->input('session_correct_ids', []))->map(fn ($id) => (int) $id)->toArray();
-        $sessionWrongIds = collect($request->input('session_wrong_ids', []))->map(fn ($id) => (int) $id)->toArray();
+        $sessionCorrectIds = collect(explode(',', $request->input('session_correct_ids', '')))
+            ->filter(fn ($id) => $id !== '')
+            ->map(fn ($id) => (int) $id)
+            ->toArray();
+        $sessionWrongIds = collect(explode(',', $request->input('session_wrong_ids', '')))
+            ->filter(fn ($id) => $id !== '')
+            ->map(fn ($id) => (int) $id)
+            ->toArray();
         $showUnanswered = $hasFilterParams
             ? $request->boolean('unanswered', false)
             : ($savedPreferences['unanswered'] ?? false);

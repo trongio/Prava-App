@@ -143,9 +143,7 @@ export function SignPreview({
         <div
             className={cn(
                 'fixed inset-x-0 bottom-0 z-50 bg-background shadow-[0_-4px_20px_rgba(0,0,0,0.15)] transition-all duration-300 ease-out dark:shadow-[0_-4px_20px_rgba(0,0,0,0.4)]',
-                isExpanded
-                    ? 'h-72 rounded-t-2xl'
-                    : 'h-20 rounded-t-xl',
+                isExpanded ? 'h-72 rounded-t-2xl' : 'h-20 rounded-t-xl',
             )}
             style={{ paddingBottom: 'var(--inset-bottom, 0px)' }}
         >
@@ -182,7 +180,7 @@ export function SignPreview({
 
                 {/* Sign Info */}
                 <div className="min-w-0 flex-1">
-                    <p className="line-clamp-2 text-sm font-medium leading-tight">
+                    <p className="line-clamp-2 text-sm leading-tight font-medium">
                         {sign.title}
                     </p>
                     {sign.title_en && (
