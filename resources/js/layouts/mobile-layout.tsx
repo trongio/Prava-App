@@ -1,4 +1,4 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import {
     BookOpen,
     ClipboardList,
@@ -7,7 +7,7 @@ import {
     ImageIcon,
     Settings,
 } from 'lucide-react';
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 
 import { SettingsSheet } from '@/components/settings-sheet';
 import { Button } from '@/components/ui/button';
@@ -44,6 +44,71 @@ export default function MobileLayout({
     const { url } = usePage();
     const activeTab = getActiveTab(url);
     const [settingsOpen, setSettingsOpen] = useState(false);
+    const [showExitToast, setShowExitToast] = useState(false);
+    const exitPressedRef = useRef(false);
+    const exitTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    const isOnDashboard = activeTab === 'home';
+
+    // Handle back button for "press again to exit" behavior
+    const handleBackButton = useCallback(() => {
+        if (!isOnDashboard) {
+            // Not on dashboard - navigate to dashboard
+            router.visit('/dashboard');
+            return;
+        }
+
+        // On dashboard - check if this is second press
+        if (exitPressedRef.current) {
+            // Second press - allow app to close (don't prevent)
+            return true;
+        }
+
+        // First press on dashboard - show toast
+        exitPressedRef.current = true;
+        setShowExitToast(true);
+
+        // Clear previous timeout
+        if (exitTimeoutRef.current) {
+            clearTimeout(exitTimeoutRef.current);
+        }
+
+        // Reset after 2 seconds
+        exitTimeoutRef.current = setTimeout(() => {
+            exitPressedRef.current = false;
+            setShowExitToast(false);
+        }, 2000);
+
+        return false;
+    }, [isOnDashboard]);
+
+    useEffect(() => {
+        const handlePopState = (e: PopStateEvent) => {
+            // Check if another component (like SignPreview) already handled this
+            const win = window as Window & { __backHandled?: boolean };
+            if (win.__backHandled) {
+                win.__backHandled = false;
+                return;
+            }
+
+            const shouldClose = handleBackButton();
+            if (!shouldClose) {
+                e.preventDefault();
+                window.history.pushState(null, '', window.location.href);
+            }
+        };
+
+        // Push initial state
+        window.history.pushState(null, '', window.location.href);
+
+        window.addEventListener('popstate', handlePopState);
+        return () => {
+            window.removeEventListener('popstate', handlePopState);
+            if (exitTimeoutRef.current) {
+                clearTimeout(exitTimeoutRef.current);
+            }
+        };
+    }, [handleBackButton]);
 
     return (
         <div className="fixed inset-0 flex flex-col overflow-hidden bg-background">
@@ -100,6 +165,21 @@ export default function MobileLayout({
                     })}
                 </div>
             </nav>
+
+            {/* Exit Toast */}
+            <div
+                className={cn(
+                    'pointer-events-none fixed inset-x-0 z-50 flex justify-center transition-all duration-300',
+                    showExitToast
+                        ? 'opacity-100 translate-y-0'
+                        : 'opacity-0 translate-y-4',
+                )}
+                style={{ bottom: 'calc(5rem + var(--inset-bottom, 0px))' }}
+            >
+                <div className="rounded-full bg-foreground/90 px-4 py-2 text-sm text-background shadow-lg">
+                    გასასვლელად კიდევ ერთხელ დააჭირეთ უკან
+                </div>
+            </div>
         </div>
     );
 }
