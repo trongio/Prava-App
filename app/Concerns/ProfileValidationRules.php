@@ -17,6 +17,7 @@ trait ProfileValidationRules
         return [
             'name' => $this->nameRules(),
             'profile_image' => $this->profileImageRules(),
+            'profile_image_path' => ['nullable', 'string'], // NativePHP camera path
         ];
     }
 

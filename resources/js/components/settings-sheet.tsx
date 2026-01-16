@@ -3,6 +3,7 @@ import { router, useForm, usePage } from '@inertiajs/react';
 import {
     Camera,
     ChevronRight,
+    ImagePlus,
     LogOut,
     Monitor,
     Moon,
@@ -12,6 +13,8 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
+// NativePHP imports for camera access
+import { camera, isMobile, off, on } from '#nativephp';
 import { type Appearance, useAppearance } from '@/hooks/use-appearance';
 import { cn } from '@/lib/utils';
 import { type SharedData } from '@/types';
@@ -236,6 +239,10 @@ function ProfileView({
     const [showPasswordForm, setShowPasswordForm] = useState(false);
     const [deleteStep, setDeleteStep] = useState<0 | 1 | 2>(0);
     const [showFinalDialog, setShowFinalDialog] = useState(false);
+    const [showImagePicker, setShowImagePicker] = useState(false);
+    const [nativeImagePath, setNativeImagePath] = useState<string | null>(null);
+    const [imageSaved, setImageSaved] = useState(false);
+    const [savingImage, setSavingImage] = useState(false);
 
     const profileForm = useForm({
         name: user.name,
@@ -252,20 +259,163 @@ function ProfileView({
         password: '',
     });
 
+    // Auto-save image to server
+    const saveImage = (file: File | null, nativePath: string | null) => {
+        setSavingImage(true);
+        setImageSaved(false);
+
+        const onSuccess = () => {
+            setSavingImage(false);
+            setImageSaved(true);
+            // Reset saved message after 3 seconds
+            setTimeout(() => setImageSaved(false), 3000);
+        };
+
+        const onError = () => {
+            setSavingImage(false);
+        };
+
+        if (nativePath) {
+            router.post(
+                '/settings/profile',
+                {
+                    name: user.name,
+                    profile_image_path: nativePath,
+                },
+                { preserveScroll: true, onSuccess, onError },
+            );
+        } else if (file) {
+            const formData = new FormData();
+            formData.append('name', user.name);
+            formData.append('profile_image', file);
+
+            router.post('/settings/profile', formData, {
+                preserveScroll: true,
+                onSuccess,
+                onError,
+            });
+        }
+    };
+
+    // Convert native file to base64 data URL for preview (GET to avoid NativePHP POST interception)
+    const loadNativeFilePreview = async (path: string) => {
+        try {
+            console.log('Loading preview for:', path);
+            const url = `/native-file/preview?path=${encodeURIComponent(path)}`;
+            const response = await fetch(url);
+
+            const data = await response.json();
+            console.log('Preview response:', data);
+
+            if (data.dataUrl) {
+                console.log('Setting base64 preview');
+                setNativeImagePath(path);
+                setPreviewUrl(data.dataUrl);
+                profileForm.setData('profile_image', null);
+                // Auto-save the native image
+                saveImage(null, path);
+            } else {
+                console.error('Preview failed:', data.error);
+            }
+        } catch (error) {
+            console.error('Failed to load native file preview:', error);
+        }
+    };
+
+    // Handle native camera photo capture
+    const handleTakePhoto = async () => {
+        setShowImagePicker(false);
+        await camera.getPhoto().id('settings-photo');
+    };
+
+    // Handle native gallery picker
+    const handlePickFromGallery = async () => {
+        setShowImagePicker(false);
+        await camera.pickImages().images().id('settings-gallery');
+    };
+
+    // Handle click on avatar - show native picker or file input
+    const handleAvatarClick = async () => {
+        const isNative = await isMobile();
+
+        if (isNative) {
+            setShowImagePicker(true);
+        } else {
+            fileInputRef.current?.click();
+        }
+    };
+
+    // Set up NativePHP event listeners for camera and gallery
+    useEffect(() => {
+        const handlePhotoTaken = (payload: {
+            path: string;
+            mimeType: string;
+            id: string;
+        }) => {
+            console.log('PhotoTaken event (settings):', payload);
+            if (payload.path && payload.id?.startsWith('settings-')) {
+                loadNativeFilePreview(payload.path);
+            }
+        };
+
+        const handleMediaSelected = (payload: {
+            success: boolean;
+            files: Array<{
+                path: string;
+                mimeType: string;
+                extension: string;
+                type: string;
+            }>;
+            count: number;
+        }) => {
+            console.log('MediaSelected event (settings):', payload);
+            if (payload.success && payload.files && payload.files.length > 0) {
+                loadNativeFilePreview(payload.files[0].path);
+            }
+        };
+
+        const photoEvent = 'Native\\Mobile\\Events\\Camera\\PhotoTaken';
+        const mediaEvent = 'Native\\Mobile\\Events\\Gallery\\MediaSelected';
+
+        on(photoEvent, handlePhotoTaken);
+        on(mediaEvent, handleMediaSelected);
+
+        return () => {
+            off(photoEvent, handlePhotoTaken);
+            off(mediaEvent, handleMediaSelected);
+        };
+    }, []);
+
     const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             profileForm.setData('profile_image', file);
+            setNativeImagePath(null);
             setPreviewUrl(URL.createObjectURL(file));
+            // Auto-save the image
+            saveImage(file, null);
         }
     };
 
     const handleProfileSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        profileForm.post('/settings/profile', {
-            forceFormData: !!profileForm.data.profile_image,
-            preserveScroll: true,
-        });
+
+        // If we have a native image path, send it as profile_image_path
+        if (nativeImagePath) {
+            router.post('/settings/profile', {
+                name: profileForm.data.name,
+                profile_image_path: nativeImagePath,
+            });
+        } else if (profileForm.data.profile_image) {
+            profileForm.post('/settings/profile', {
+                forceFormData: true,
+                preserveScroll: true,
+            });
+        } else {
+            profileForm.post('/settings/profile', {
+                preserveScroll: true,
+            });
+        }
     };
 
     const handlePasswordSubmit = (e: React.FormEvent) => {
@@ -350,7 +500,7 @@ function ProfileView({
                             </Avatar>
                             <button
                                 type="button"
-                                onClick={() => fileInputRef.current?.click()}
+                                onClick={handleAvatarClick}
                                 className="absolute right-0 bottom-0 flex h-8 w-8 items-center justify-center rounded-full border-2 border-background bg-primary text-primary-foreground shadow-sm"
                             >
                                 <Camera className="h-4 w-4" />
@@ -363,9 +513,65 @@ function ProfileView({
                             onChange={handleImageSelect}
                             className="hidden"
                         />
-                        <p className="mt-2 text-sm text-muted-foreground">
-                            შეეხეთ ფოტოს შესაცვლელად
+                        <p
+                            className={cn(
+                                'mt-2 text-sm',
+                                imageSaved
+                                    ? 'text-green-600'
+                                    : savingImage
+                                      ? 'text-muted-foreground'
+                                      : 'text-muted-foreground',
+                            )}
+                        >
+                            {savingImage
+                                ? 'იტვირთება...'
+                                : imageSaved
+                                  ? 'ფოტო შენახულია'
+                                  : 'შეეხეთ ფოტოს შესაცვლელად'}
                         </p>
+
+                        {/* Native Image Picker Modal */}
+                        {showImagePicker && (
+                            <div
+                                className="fixed inset-0 z-[100] flex items-end justify-center bg-black/50 p-4"
+                                onClick={() => setShowImagePicker(false)}
+                            >
+                                <div
+                                    className="w-full max-w-sm space-y-2 rounded-t-xl bg-background p-4 pb-8"
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    <p className="mb-4 text-center text-sm text-muted-foreground">
+                                        აირჩიეთ ფოტოს წყარო
+                                    </p>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="w-full justify-start gap-3"
+                                        onClick={handleTakePhoto}
+                                    >
+                                        <Camera className="h-5 w-5" />
+                                        გადაიღეთ ფოტო
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="w-full justify-start gap-3"
+                                        onClick={handlePickFromGallery}
+                                    >
+                                        <ImagePlus className="h-5 w-5" />
+                                        აირჩიეთ გალერიიდან
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        className="mt-2 w-full"
+                                        onClick={() => setShowImagePicker(false)}
+                                    >
+                                        გაუქმება
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Name field */}

@@ -38,6 +38,13 @@ class UserSelectionController extends Controller
 
     public function login(Request $request): JsonResponse|RedirectResponse
     {
+        // Debug: log all request data
+        \Log::info('Login attempt', [
+            'all' => $request->all(),
+            'user_id' => $request->user_id,
+            'has_password_field' => $request->has('password'),
+        ]);
+
         $request->validate([
             'user_id' => ['required', 'exists:users,id'],
             'password' => ['nullable', 'string'],
@@ -56,6 +63,8 @@ class UserSelectionController extends Controller
 
         // Login and remember the user
         Auth::login($user, true);
+
+        \Log::info('Login successful', ['user_id' => $user->id]);
 
         return redirect()->intended(route('dashboard'));
     }

@@ -18,6 +18,32 @@ Route::post('/logout', function () {
     return redirect()->route('home');
 })->name('logout');
 
+// Convert native file to base64 data URL for preview (GET to avoid NativePHP POST interception)
+Route::get('/native-file/preview', function () {
+    $path = request()->query('path');
+
+    if (! $path || ! file_exists($path)) {
+        return response()->json(['error' => 'File not found', 'path' => $path], 404);
+    }
+
+    // Only allow files from app cache directory for security
+    if (! str_contains($path, '/cache/')) {
+        return response()->json(['error' => 'Access denied'], 403);
+    }
+
+    try {
+        $contents = file_get_contents($path);
+        $mimeType = mime_content_type($path) ?: 'image/jpeg';
+        $base64 = base64_encode($contents);
+
+        return response()->json([
+            'dataUrl' => "data:{$mimeType};base64,{$base64}",
+        ]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+})->name('native.file.preview');
+
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');

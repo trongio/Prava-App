@@ -3,7 +3,7 @@ import { ArrowLeft, Camera, ImagePlus, Lock, Plus, User } from 'lucide-react';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 
 // NativePHP imports for camera access
-import { camera, Events, isMobile, off, on } from '#nativephp';
+import { camera, isMobile, off, on } from '#nativephp';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -83,8 +83,7 @@ export default function UserSelection({ users }: Props) {
             loginForm.setData('password', '');
             loginForm.clearErrors();
         } else {
-            // Direct login for passwordless users - use router.post with data directly
-            // (setData is async, so loginForm.post would use stale data)
+            // Direct login for passwordless users
             router.post('/login', { user_id: user.id, password: '' });
         }
     };
@@ -131,35 +130,70 @@ export default function UserSelection({ users }: Props) {
         }
     };
 
+    // Convert native file to base64 data URL for preview (GET to avoid NativePHP POST interception)
+    const loadNativeFilePreview = async (path: string) => {
+        try {
+            console.log('Loading preview for:', path);
+            const url = `/native-file/preview?path=${encodeURIComponent(path)}`;
+            const response = await fetch(url);
+
+            const data = await response.json();
+            console.log('Preview response:', data);
+
+            if (data.dataUrl) {
+                console.log('Setting base64 preview');
+                setNativeImagePath(path);
+                setNewImagePreview(data.dataUrl);
+                registerForm.setData('profile_image', null);
+            } else {
+                console.error('Preview failed:', data.error);
+            }
+        } catch (error) {
+            console.error('Failed to load native file preview:', error);
+        }
+    };
+
     // Set up NativePHP event listeners for camera and gallery
     useEffect(() => {
-        const handlePhotoTaken = (payload: { path: string }) => {
+        const handlePhotoTaken = (payload: {
+            path: string;
+            mimeType: string;
+            id: string;
+        }) => {
+            console.log('PhotoTaken event:', payload);
             if (payload.path) {
-                setNativeImagePath(payload.path);
-                setNewImagePreview(payload.path);
-                registerForm.setData('profile_image', null); // Clear file when using native path
+                loadNativeFilePreview(payload.path);
             }
         };
 
         const handleMediaSelected = (payload: {
-            media: Array<{ path: string; mimeType: string }>;
+            success: boolean;
+            files: Array<{
+                path: string;
+                mimeType: string;
+                extension: string;
+                type: string;
+            }>;
+            count: number;
         }) => {
-            if (payload.media && payload.media.length > 0) {
-                const path = payload.media[0].path;
-                setNativeImagePath(path);
-                setNewImagePreview(path);
-                registerForm.setData('profile_image', null); // Clear file when using native path
+            console.log('MediaSelected event:', payload);
+            if (payload.success && payload.files && payload.files.length > 0) {
+                loadNativeFilePreview(payload.files[0].path);
             }
         };
 
-        // Register event listeners
-        on(Events.Camera.PhotoTaken, handlePhotoTaken);
-        on(Events.Gallery.MediaSelected, handleMediaSelected);
+        // Register event listeners using full event class names
+        const photoEvent = 'Native\\Mobile\\Events\\Camera\\PhotoTaken';
+        const mediaEvent = 'Native\\Mobile\\Events\\Gallery\\MediaSelected';
+
+        console.log('Registering NativePHP event listeners...');
+        on(photoEvent, handlePhotoTaken);
+        on(mediaEvent, handleMediaSelected);
 
         // Cleanup on unmount
         return () => {
-            off(Events.Camera.PhotoTaken, handlePhotoTaken);
-            off(Events.Gallery.MediaSelected, handleMediaSelected);
+            off(photoEvent, handlePhotoTaken);
+            off(mediaEvent, handleMediaSelected);
         };
     }, []);
 

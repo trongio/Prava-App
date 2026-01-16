@@ -34,7 +34,7 @@ class ProfileController extends Controller
         $user = $request->user();
         $validated = $request->validated();
 
-        // Handle profile image upload
+        // Handle profile image upload (web)
         if ($request->hasFile('profile_image')) {
             // Delete old image if exists
             if ($user->profile_image) {
@@ -44,6 +44,30 @@ class ProfileController extends Controller
             $path = $request->file('profile_image')->store('profile-images', 'public');
             $validated['profile_image'] = $path;
         }
+        // Handle NativePHP camera path (mobile)
+        elseif ($request->filled('profile_image_path')) {
+            $nativePath = $request->input('profile_image_path');
+
+            // Copy the native file to our storage
+            if (file_exists($nativePath)) {
+                // Delete old image if exists
+                if ($user->profile_image) {
+                    Storage::disk('public')->delete($user->profile_image);
+                }
+
+                $extension = pathinfo($nativePath, PATHINFO_EXTENSION) ?: 'jpg';
+                $filename = 'profile-images/'.uniqid().'.'.$extension;
+                $contents = file_get_contents($nativePath);
+
+                if ($contents !== false) {
+                    Storage::disk('public')->put($filename, $contents);
+                    $validated['profile_image'] = $filename;
+                }
+            }
+        }
+
+        // Remove profile_image_path from validated data (not a model attribute)
+        unset($validated['profile_image_path']);
 
         $user->fill($validated);
         $user->save();

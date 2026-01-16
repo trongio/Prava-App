@@ -22,6 +22,16 @@ return Application::configure(basePath: dirname(__DIR__))
             AddLinkHeadersForPreloadedAssets::class,
         ]);
 
+        // Exclude routes from CSRF verification for NativePHP mobile WebView compatibility
+        // The WebView has issues with cookie/session handling that cause random 419 errors
+        $middleware->validateCsrfTokens(except: [
+            '/login',
+            '/logout',
+            '/register',
+            '/settings/profile',
+            '/settings/password',
+        ]);
+
         $middleware->redirectGuestsTo('/');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
