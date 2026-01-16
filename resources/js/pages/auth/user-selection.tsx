@@ -2,13 +2,15 @@ import { Head, router, useForm } from '@inertiajs/react';
 import { ArrowLeft, Camera, ImagePlus, Lock, Plus, User } from 'lucide-react';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 
-// NativePHP imports for camera access
-import { camera, isMobile, off, on } from '#nativephp';
+// NativePHP imports for camera access and secure storage
+import { camera, isMobile, off, on, secureStorage } from '#nativephp';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+
+const AUTH_TOKEN_KEY = 'auth_token';
 
 interface UserData {
     id: number;
@@ -47,6 +49,29 @@ function getInitials(name: string): string {
         .slice(0, 2);
 }
 
+// API helper for token-based auth
+async function apiRequest<T>(
+    endpoint: string,
+    options: RequestInit = {},
+): Promise<T> {
+    const response = await fetch(`/api${endpoint}`, {
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            ...(options.headers as Record<string, string>),
+        },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        throw data;
+    }
+
+    return data as T;
+}
+
 export default function UserSelection({ users }: Props) {
     const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
     const [isCreating, setIsCreating] = useState(false);
@@ -54,6 +79,16 @@ export default function UserSelection({ users }: Props) {
     const [showImagePicker, setShowImagePicker] = useState(false);
     const [nativeImagePath, setNativeImagePath] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Mobile-specific state for API-based auth
+    const [isNative, setIsNative] = useState(false);
+    const [apiProcessing, setApiProcessing] = useState(false);
+    const [apiErrors, setApiErrors] = useState<Record<string, string>>({});
+
+    // Check if running in NativePHP mobile
+    useEffect(() => {
+        isMobile().then(setIsNative);
+    }, []);
 
     // Login form - include 'error' for general auth errors from Laravel
     const loginForm = useForm<{
@@ -76,21 +111,120 @@ export default function UserSelection({ users }: Props) {
         profile_image: null,
     });
 
-    const handleUserClick = (user: UserData) => {
+    // Local state for API-based forms
+    const [loginPassword, setLoginPassword] = useState('');
+    const [registerName, setRegisterName] = useState('');
+    const [registerPassword, setRegisterPassword] = useState('');
+
+    const handleUserClick = async (user: UserData) => {
+        console.log('handleUserClick called, isNative:', isNative, 'user:', user);
+
         if (user.has_password) {
             setSelectedUser(user);
+            setLoginPassword('');
+            setApiErrors({});
             loginForm.setData('user_id', user.id);
             loginForm.setData('password', '');
             loginForm.clearErrors();
         } else {
             // Direct login for passwordless users
-            router.post('/login', { user_id: user.id, password: '' });
+            if (isNative) {
+                console.log('Using API login for mobile');
+                setApiProcessing(true);
+                try {
+                    console.log('Calling /api/login...');
+                    const response = await apiRequest<{
+                        user: UserData;
+                        token: string;
+                    }>('/login', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            user_id: user.id,
+                            password: '',
+                        }),
+                    });
+                    console.log('API login response:', response);
+
+                    // Store token in SecureStorage
+                    console.log('Storing token in SecureStorage...');
+                    await secureStorage.set(AUTH_TOKEN_KEY, response.token);
+                    console.log('Token stored successfully');
+
+                    // Navigate to dashboard
+                    console.log('Navigating to dashboard...');
+                    router.visit('/dashboard');
+                } catch (error: unknown) {
+                    console.error('API login error:', error);
+                    const err = error as { errors?: Record<string, string[]> };
+                    if (err.errors) {
+                        const flatErrors: Record<string, string> = {};
+                        Object.entries(err.errors).forEach(([key, msgs]) => {
+                            flatErrors[key] = msgs[0];
+                        });
+                        setApiErrors(flatErrors);
+                    }
+                } finally {
+                    setApiProcessing(false);
+                }
+            } else {
+                console.log('Using Inertia login for web');
+                router.post('/login', { user_id: user.id, password: '' });
+            }
         }
     };
 
-    const handlePasswordSubmit = (e: FormEvent) => {
+    const handlePasswordSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        loginForm.post('/login');
+        console.log('handlePasswordSubmit called, isNative:', isNative);
+
+        if (isNative && selectedUser) {
+            console.log('Using API login with password for mobile');
+            setApiProcessing(true);
+            setApiErrors({});
+            try {
+                console.log('Calling /api/login with password...');
+                const response = await apiRequest<{
+                    user: UserData;
+                    token: string;
+                }>('/login', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        user_id: selectedUser.id,
+                        password: loginPassword,
+                    }),
+                });
+                console.log('API login response:', response);
+
+                // Store token in SecureStorage
+                console.log('Storing token in SecureStorage...');
+                await secureStorage.set(AUTH_TOKEN_KEY, response.token);
+                console.log('Token stored successfully');
+
+                // Navigate to dashboard
+                console.log('Navigating to dashboard...');
+                router.visit('/dashboard');
+            } catch (error: unknown) {
+                console.error('API login error:', error);
+                const err = error as {
+                    message?: string;
+                    errors?: Record<string, string[]>;
+                };
+                if (err.errors) {
+                    const flatErrors: Record<string, string> = {};
+                    Object.entries(err.errors).forEach(([key, msgs]) => {
+                        flatErrors[key] = msgs[0];
+                    });
+                    setApiErrors(flatErrors);
+                } else if (err.message) {
+                    setApiErrors({ password: err.message });
+                }
+            } finally {
+                setApiProcessing(false);
+            }
+        } else {
+            console.log('Using Inertia login for web');
+            loginForm.post('/login');
+        }
     };
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -120,9 +254,6 @@ export default function UserSelection({ users }: Props) {
 
     // Handle click on avatar - show native picker or file input
     const handleAvatarClick = async () => {
-        // Check if we're in a NativePHP mobile environment
-        const isNative = await isMobile();
-
         if (isNative) {
             setShowImagePicker(true);
         } else {
@@ -197,38 +328,76 @@ export default function UserSelection({ users }: Props) {
         };
     }, []);
 
-    const handleCreateUser = (e: FormEvent) => {
+    const handleCreateUser = async (e: FormEvent) => {
         e.preventDefault();
 
-        // If we have a native image path, send it as profile_image_path
-        if (nativeImagePath) {
-            router.post('/register', {
-                name: registerForm.data.name,
-                password: registerForm.data.password,
-                profile_image_path: nativeImagePath,
-            });
-        } else if (registerForm.data.profile_image) {
-            // Use FormData for file upload (web)
-            registerForm.post('/register', {
-                forceFormData: true,
-            });
+        if (isNative) {
+            setApiProcessing(true);
+            setApiErrors({});
+            try {
+                const response = await apiRequest<{
+                    user: UserData;
+                    token: string;
+                }>('/register', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        name: registerName,
+                        password: registerPassword || undefined,
+                        profile_image_path: nativeImagePath || undefined,
+                    }),
+                });
+
+                // Store token in SecureStorage
+                await secureStorage.set(AUTH_TOKEN_KEY, response.token);
+
+                // Navigate to dashboard
+                router.visit('/dashboard');
+            } catch (error: unknown) {
+                const err = error as { errors?: Record<string, string[]> };
+                if (err.errors) {
+                    const flatErrors: Record<string, string> = {};
+                    Object.entries(err.errors).forEach(([key, msgs]) => {
+                        flatErrors[key] = msgs[0];
+                    });
+                    setApiErrors(flatErrors);
+                }
+            } finally {
+                setApiProcessing(false);
+            }
         } else {
-            // JSON for text-only
-            registerForm.post('/register');
+            // Web: Use Inertia forms
+            if (nativeImagePath) {
+                router.post('/register', {
+                    name: registerForm.data.name,
+                    password: registerForm.data.password,
+                    profile_image_path: nativeImagePath,
+                });
+            } else if (registerForm.data.profile_image) {
+                registerForm.post('/register', {
+                    forceFormData: true,
+                });
+            } else {
+                registerForm.post('/register');
+            }
         }
     };
 
     const resetCreateForm = () => {
         setIsCreating(false);
         registerForm.reset();
+        setRegisterName('');
+        setRegisterPassword('');
         setNewImagePreview(null);
         setNativeImagePath(null);
         setShowImagePicker(false);
+        setApiErrors({});
     };
 
     const resetPasswordForm = () => {
         setSelectedUser(null);
         loginForm.reset();
+        setLoginPassword('');
+        setApiErrors({});
     };
 
     // Handle Android back button to close modals instead of navigating
@@ -253,6 +422,26 @@ export default function UserSelection({ users }: Props) {
         window.addEventListener('popstate', handlePopState);
         return () => window.removeEventListener('popstate', handlePopState);
     }, [isCreating, selectedUser]);
+
+    // Determine processing state
+    const isLoginProcessing = isNative ? apiProcessing : loginForm.processing;
+    const isRegisterProcessing = isNative
+        ? apiProcessing
+        : registerForm.processing;
+
+    // Determine errors
+    const loginErrors = isNative
+        ? apiErrors
+        : {
+              error: loginForm.errors.error,
+              password: loginForm.errors.password,
+          };
+    const registerErrors = isNative
+        ? apiErrors
+        : {
+              name: registerForm.errors.name,
+              password: registerForm.errors.password,
+          };
 
     // Password prompt modal
     if (selectedUser) {
@@ -301,33 +490,41 @@ export default function UserSelection({ users }: Props) {
                                     <Input
                                         id="password"
                                         type="password"
-                                        value={loginForm.data.password}
-                                        onChange={(e) =>
-                                            loginForm.setData(
-                                                'password',
-                                                e.target.value,
-                                            )
+                                        value={
+                                            isNative
+                                                ? loginPassword
+                                                : loginForm.data.password
                                         }
+                                        onChange={(e) => {
+                                            if (isNative) {
+                                                setLoginPassword(e.target.value);
+                                            } else {
+                                                loginForm.setData(
+                                                    'password',
+                                                    e.target.value,
+                                                );
+                                            }
+                                        }}
                                         placeholder="შეიყვანეთ პაროლი"
                                         autoFocus
                                     />
-                                    {loginForm.errors.error && (
+                                    {loginErrors.error && (
                                         <p className="text-sm text-destructive">
-                                            {loginForm.errors.error}
+                                            {loginErrors.error}
                                         </p>
                                     )}
-                                    {loginForm.errors.password && (
+                                    {loginErrors.password && (
                                         <p className="text-sm text-destructive">
-                                            {loginForm.errors.password}
+                                            {loginErrors.password}
                                         </p>
                                     )}
                                 </div>
                                 <Button
                                     type="submit"
-                                    disabled={loginForm.processing}
+                                    disabled={isLoginProcessing}
                                     className="w-full"
                                 >
-                                    {loginForm.processing
+                                    {isLoginProcessing
                                         ? 'იტვირთება...'
                                         : 'შესვლა'}
                                 </Button>
@@ -460,19 +657,27 @@ export default function UserSelection({ users }: Props) {
                                     <Input
                                         id="name"
                                         type="text"
-                                        value={registerForm.data.name}
-                                        onChange={(e) =>
-                                            registerForm.setData(
-                                                'name',
-                                                e.target.value,
-                                            )
+                                        value={
+                                            isNative
+                                                ? registerName
+                                                : registerForm.data.name
                                         }
+                                        onChange={(e) => {
+                                            if (isNative) {
+                                                setRegisterName(e.target.value);
+                                            } else {
+                                                registerForm.setData(
+                                                    'name',
+                                                    e.target.value,
+                                                );
+                                            }
+                                        }}
                                         placeholder="შეიყვანეთ სახელი"
                                         autoFocus
                                     />
-                                    {registerForm.errors.name && (
+                                    {registerErrors.name && (
                                         <p className="text-sm text-destructive">
-                                            {registerForm.errors.name}
+                                            {registerErrors.name}
                                         </p>
                                     )}
                                 </div>
@@ -485,18 +690,28 @@ export default function UserSelection({ users }: Props) {
                                     <Input
                                         id="reg-password"
                                         type="password"
-                                        value={registerForm.data.password}
-                                        onChange={(e) =>
-                                            registerForm.setData(
-                                                'password',
-                                                e.target.value,
-                                            )
+                                        value={
+                                            isNative
+                                                ? registerPassword
+                                                : registerForm.data.password
                                         }
+                                        onChange={(e) => {
+                                            if (isNative) {
+                                                setRegisterPassword(
+                                                    e.target.value,
+                                                );
+                                            } else {
+                                                registerForm.setData(
+                                                    'password',
+                                                    e.target.value,
+                                                );
+                                            }
+                                        }}
                                         placeholder="შეიყვანეთ პაროლი"
                                     />
-                                    {registerForm.errors.password && (
+                                    {registerErrors.password && (
                                         <p className="text-sm text-destructive">
-                                            {registerForm.errors.password}
+                                            {registerErrors.password}
                                         </p>
                                     )}
                                     <p className="text-xs text-muted-foreground">
@@ -508,12 +723,14 @@ export default function UserSelection({ users }: Props) {
                                 <Button
                                     type="submit"
                                     disabled={
-                                        registerForm.processing ||
-                                        !registerForm.data.name.trim()
+                                        isRegisterProcessing ||
+                                        !(isNative
+                                            ? registerName.trim()
+                                            : registerForm.data.name.trim())
                                     }
                                     className="w-full"
                                 >
-                                    {registerForm.processing
+                                    {isRegisterProcessing
                                         ? 'იტვირთება...'
                                         : 'დაწყება'}
                                 </Button>
