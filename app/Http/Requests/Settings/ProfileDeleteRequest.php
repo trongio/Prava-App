@@ -17,8 +17,13 @@ class ProfileDeleteRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'password' => $this->currentPasswordRules(),
-        ];
+        // Only require password if user has one (check both flag and actual password)
+        if ($this->user()->has_password || $this->user()->password !== null) {
+            return [
+                'password' => $this->currentPasswordRules(),
+            ];
+        }
+
+        return [];
     }
 }

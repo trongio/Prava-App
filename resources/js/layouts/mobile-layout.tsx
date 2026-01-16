@@ -7,8 +7,9 @@ import {
     ImageIcon,
     Settings,
 } from 'lucide-react';
-import { type ReactNode } from 'react';
+import { type ReactNode, useState } from 'react';
 
+import { SettingsSheet } from '@/components/settings-sheet';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -42,19 +43,25 @@ export default function MobileLayout({
 }: MobileLayoutProps) {
     const { url } = usePage();
     const activeTab = getActiveTab(url);
+    const [settingsOpen, setSettingsOpen] = useState(false);
 
     return (
         <div className="fixed inset-0 flex flex-col overflow-hidden bg-background">
             {/* Top Bar - uses safe area inset for status bar */}
             <header className="flex h-[calc(var(--inset-top)+3.5rem)] flex-none items-center justify-between border-b bg-background/95 pt-[var(--inset-top)] pr-[calc(var(--inset-right)+1rem)] pl-[calc(var(--inset-left)+1rem)] backdrop-blur supports-[backdrop-filter]:bg-background/60">
                 <h1 className="text-lg font-semibold">{title}</h1>
-                <Button variant="ghost" size="icon" asChild>
-                    <Link href="/settings">
-                        <Settings className="h-5 w-5" />
-                        <span className="sr-only">პარამეტრები</span>
-                    </Link>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setSettingsOpen(true)}
+                >
+                    <Settings className="h-5 w-5" />
+                    <span className="sr-only">პარამეტრები</span>
                 </Button>
             </header>
+
+            {/* Settings Sheet */}
+            <SettingsSheet open={settingsOpen} onOpenChange={setSettingsOpen} />
 
             {/* Main Content - scrollable area */}
             <main className="min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch]">
