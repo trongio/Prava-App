@@ -135,8 +135,12 @@ class AuthController extends Controller
     {
         $request->user()->currentAccessToken()->delete();
 
-        // Also log out from session for Inertia navigation
-        Auth::logout();
+        // Also log out from session for Inertia navigation (only if using web guard)
+        if ($request->hasSession()) {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
 
         return response()->json(['message' => 'Logged out successfully']);
     }

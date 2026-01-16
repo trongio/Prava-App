@@ -418,3 +418,121 @@ test('questions load with answers', function () {
         ->has('questions.data.0.answers', 4)
     );
 });
+
+test('questions can be filtered by unanswered status', function () {
+    $user = User::factory()->create();
+    $category = QuestionCategory::factory()->create();
+
+    $answeredQuestion = Question::factory()->for($category, 'questionCategory')->create();
+    $unansweredQuestion1 = Question::factory()->for($category, 'questionCategory')->create();
+    $unansweredQuestion2 = Question::factory()->for($category, 'questionCategory')->create();
+
+    // Mark one question as answered
+    UserQuestionProgress::create([
+        'user_id' => $user->id,
+        'question_id' => $answeredQuestion->id,
+    ]);
+
+    $response = $this->actingAs($user)->get(route('questions.index', [
+        'categories' => [$category->id],
+        'unanswered' => true,
+    ]));
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page
+        ->has('questions.data', 2)
+    );
+});
+
+test('questions can be filtered by related sign', function () {
+    $user = User::factory()->create();
+    $category = QuestionCategory::factory()->create();
+
+    $sign = \App\Models\Sign::first();
+
+    // Count existing questions with this sign
+    $existingCount = $sign->questions()->where('is_active', true)->count();
+
+    $questionWithSign = Question::factory()->for($category, 'questionCategory')->create();
+    $questionWithSign->signs()->attach($sign);
+
+    Question::factory()->count(3)->for($category, 'questionCategory')->create();
+
+    $response = $this->actingAs($user)->get(route('questions.index', ['sign_id' => $sign->id]));
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page
+        ->has('questions.data', $existingCount + 1)
+        ->has('filterSign')
+        ->where('filterSign.id', $sign->id)
+    );
+});
+
+test('correct only filter returns empty when no session correct ids provided', function () {
+    $user = User::factory()->create();
+    $category = QuestionCategory::factory()->create();
+    Question::factory()->count(5)->for($category, 'questionCategory')->create();
+
+    $response = $this->actingAs($user)->get(route('questions.index', [
+        'correct_only' => true,
+    ]));
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page
+        ->has('questions.data', 0)
+    );
+});
+
+test('wrong only filter returns empty when no session wrong ids provided', function () {
+    $user = User::factory()->create();
+    $category = QuestionCategory::factory()->create();
+    Question::factory()->count(5)->for($category, 'questionCategory')->create();
+
+    $response = $this->actingAs($user)->get(route('questions.index', [
+        'wrong_only' => true,
+    ]));
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page
+        ->has('questions.data', 0)
+    );
+});
+
+test('correct only filter with session ids returns matching questions', function () {
+    $user = User::factory()->create();
+    $category = QuestionCategory::factory()->create();
+    $question1 = Question::factory()->for($category, 'questionCategory')->create();
+    $question2 = Question::factory()->for($category, 'questionCategory')->create();
+    Question::factory()->count(3)->for($category, 'questionCategory')->create();
+
+    $response = $this->actingAs($user)->get(route('questions.index', [
+        'correct_only' => true,
+        'session_correct_ids' => "{$question1->id},{$question2->id}",
+    ]));
+
+    $response->assertOk();
+    $response->assertInertia(fn ($page) => $page
+        ->has('questions.data', 2)
+    );
+});
+
+test('answer endpoint requires authentication', function () {
+    $category = QuestionCategory::factory()->create();
+    $question = Question::factory()->for($category, 'questionCategory')->create();
+    $answer = Answer::factory()->for($question)->correct()->create();
+
+    $response = $this->postJson(route('questions.answer', $question), [
+        'answer_id' => $answer->id,
+    ]);
+
+    $response->assertUnauthorized();
+});
+
+test('bookmark endpoint requires authentication', function () {
+    $category = QuestionCategory::factory()->create();
+    $question = Question::factory()->for($category, 'questionCategory')->create();
+
+    $response = $this->postJson(route('questions.bookmark', $question));
+
+    $response->assertUnauthorized();
+});

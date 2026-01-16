@@ -64,3 +64,42 @@ test('sign detail endpoint returns sign data with related questions count', func
         'related_questions_count',
     ]);
 });
+
+test('sign detail includes category information', function () {
+    $this->actingAs(User::factory()->create());
+
+    $sign = Sign::with('signCategory')->first();
+
+    $response = $this->getJson(route('signs.show', $sign));
+
+    $response->assertOk();
+    $response->assertJsonStructure([
+        'sign' => [
+            'sign_category',
+        ],
+    ]);
+});
+
+test('sign detail endpoint requires authentication', function () {
+    $sign = Sign::first();
+
+    $response = $this->getJson(route('signs.show', $sign));
+
+    $response->assertUnauthorized();
+});
+
+test('categories are ordered by group number', function () {
+    $this->actingAs(User::factory()->create());
+
+    $response = $this->get(route('signs.index'));
+
+    $response->assertOk();
+
+    $categories = $response->original->getData()['page']['props']['categories'];
+
+    // Verify categories are ordered by group_number
+    $groupNumbers = collect($categories)->pluck('group_number')->toArray();
+    $sortedGroupNumbers = collect($categories)->pluck('group_number')->sort()->values()->toArray();
+
+    expect($groupNumbers)->toBe($sortedGroupNumbers);
+});
