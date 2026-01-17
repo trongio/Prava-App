@@ -243,7 +243,7 @@ class TestController extends Controller
                 'time_per_question' => $request->time_per_question,
                 'failure_threshold' => $request->failure_threshold,
                 'category_ids' => $request->category_ids ?? [],
-                'auto_advance' => $request->boolean('auto_advance'),
+                'auto_advance' => $request->has('auto_advance') ? $request->boolean('auto_advance') : ($user->test_auto_advance ?? true),
                 'shuffle_seed' => mt_rand() / mt_getrandmax(),
             ],
             'questions_with_answers' => $questionsWithAnswers,
@@ -557,6 +557,9 @@ class TestController extends Controller
             return redirect()->route('test.show', $testResult);
         }
 
+        // Load license type relationship
+        $testResult->load('licenseType');
+
         return Inertia::render('test/results', [
             'testResult' => [
                 'id' => $testResult->id,
@@ -574,6 +577,7 @@ class TestController extends Controller
                 'started_at' => $testResult->started_at->toISOString(),
                 'finished_at' => $testResult->finished_at?->toISOString(),
                 'license_type_id' => $testResult->license_type_id,
+                'license_type' => $testResult->licenseType?->only(['id', 'code', 'name']),
             ],
         ]);
     }
@@ -680,7 +684,7 @@ class TestController extends Controller
             'time_per_question' => $config['time_per_question'] ?? 60,
             'failure_threshold' => $config['failure_threshold'] ?? 10,
             'category_ids' => $config['category_ids'] ?? [],
-            'auto_advance' => (bool) ($config['auto_advance'] ?? false),
+            'auto_advance' => (bool) ($config['auto_advance'] ?? true),
             'abandon_active' => $request->boolean('abandon_active'),
         ]);
 

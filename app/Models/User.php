@@ -17,6 +17,15 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable, TwoFactorAuthenticatable;
 
     /**
+     * The model's default attribute values.
+     *
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'test_auto_advance' => true,
+    ];
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>

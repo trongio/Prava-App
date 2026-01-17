@@ -103,14 +103,30 @@ const formatTime = (seconds: number) => {
 };
 
 export default function ActiveTest({ testResult, userSettings }: Props) {
-    // Calculate initial position: first unanswered question, or saved position if all before it are answered
+    // Calculate initial position: find where user left off and go to the next unanswered question
     const getInitialIndex = () => {
         const answers = testResult.answers_given || {};
         const skipped = testResult.skipped_question_ids || [];
+        const questions = testResult.questions;
 
-        // Find the first question that is neither answered nor skipped
-        for (let i = 0; i < testResult.questions.length; i++) {
-            const questionId = testResult.questions[i].id;
+        // Find the highest index that was answered or skipped (where user left off)
+        let lastInteractedIndex = -1;
+        for (let i = 0; i < questions.length; i++) {
+            const questionId = questions[i].id;
+            const isAnswered = !!answers[questionId];
+            const isSkipped = skipped.includes(questionId);
+
+            if (isAnswered || isSkipped) {
+                lastInteractedIndex = i;
+            }
+        }
+
+        // Start searching from the position after the last interacted question
+        const startFrom = lastInteractedIndex + 1;
+
+        // Find next unanswered/unskipped question from that point
+        for (let i = startFrom; i < questions.length; i++) {
+            const questionId = questions[i].id;
             const isAnswered = !!answers[questionId];
             const isSkipped = skipped.includes(questionId);
 
@@ -119,8 +135,12 @@ export default function ActiveTest({ testResult, userSettings }: Props) {
             }
         }
 
-        // All questions are answered or skipped - go to the last question
-        return testResult.questions.length - 1;
+        // If no unanswered questions after last interaction, use saved position or last question
+        // This handles the case where user might want to review skipped questions
+        return Math.min(
+            testResult.current_question_index,
+            questions.length - 1,
+        );
     };
 
     const [currentIndex, setCurrentIndex] = useState(getInitialIndex);
@@ -157,6 +177,25 @@ export default function ActiveTest({ testResult, userSettings }: Props) {
     );
 
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    // Reset state when testResult changes (e.g., resuming from pause or navigating)
+    // We intentionally only depend on testResult.id to reset all state when the test changes
+    useEffect(() => {
+        setCurrentIndex(getInitialIndex());
+        setAnswersGiven(testResult.answers_given || {});
+        setSkippedIds(testResult.skipped_question_ids || []);
+        setCorrectCount(testResult.correct_count);
+        setWrongCount(testResult.wrong_count);
+        setRemainingTime(testResult.remaining_time_seconds);
+        setHasFailed(testResult.wrong_count > testResult.allowed_wrong);
+        setHasTimeExpired(testResult.remaining_time_seconds <= 0);
+        setAutoAdvance(
+            testResult.configuration.auto_advance ??
+                userSettings.auto_advance ??
+                true,
+        );
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [testResult.id]);
     const autoAdvanceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const isPausedRef = useRef(false);
 
@@ -286,6 +325,12 @@ export default function ActiveTest({ testResult, userSettings }: Props) {
         async (answerId: number) => {
             if (isAnswered || isSubmitting) return;
 
+            // Clear any pending auto-advance timeout
+            if (autoAdvanceRef.current) {
+                clearTimeout(autoAdvanceRef.current);
+                autoAdvanceRef.current = null;
+            }
+
             setIsSubmitting(true);
 
             try {
@@ -315,15 +360,19 @@ export default function ActiveTest({ testResult, userSettings }: Props) {
                     prev.filter((id) => id !== currentQuestion.id),
                 );
 
-                // Check if exceeded mistakes
+                // Check if exceeded mistakes (show dialog only once)
                 if (data.has_exceeded_mistakes && !hasFailed) {
                     setHasFailed(true);
                     setShowFailedDialog(true);
-                } else if (autoAdvance && !data.has_exceeded_mistakes) {
-                    // Auto-advance to next question after a delay
-                    autoAdvanceRef.current = setTimeout(() => {
-                        goToNext();
-                    }, 1500);
+                } else if (autoAdvance) {
+                    // Auto-advance to next question after brief delay
+                    // Note: We advance directly instead of using goToNext() to avoid stale closure issues
+                    // Auto-advance continues even after failing (for practice mode)
+                    if (currentIndex < questions.length - 1) {
+                        autoAdvanceRef.current = setTimeout(() => {
+                            setCurrentIndex((prev) => prev + 1);
+                        }, 200);
+                    }
                 }
             } catch (error) {
                 console.error('Failed to submit answer:', error);
@@ -339,11 +388,19 @@ export default function ActiveTest({ testResult, userSettings }: Props) {
             isSubmitting,
             hasFailed,
             autoAdvance,
+            currentIndex,
+            questions.length,
         ],
     );
 
     const handleSkip = useCallback(async () => {
         if (isAnswered) return;
+
+        // Clear any pending auto-advance timeout
+        if (autoAdvanceRef.current) {
+            clearTimeout(autoAdvanceRef.current);
+            autoAdvanceRef.current = null;
+        }
 
         try {
             await axios.post(`/test/${testResult.id}/skip`, {
@@ -495,22 +552,21 @@ export default function ActiveTest({ testResult, userSettings }: Props) {
 
                 {/* Row 2: Skip (left), Auto-advance toggle (center), Pause (right) */}
                 <div className="flex items-center justify-between border-t bg-muted/30 px-4 py-1.5">
-                    {/* Skip Button */}
+                    {/* Pause Button */}
                     <Button
                         variant="ghost"
                         size="sm"
-                        onClick={handleSkip}
-                        disabled={isAnswered || isSubmitting}
-                        className="h-8 px-3 text-muted-foreground hover:text-foreground"
+                        onClick={() => setShowPauseDialog(true)}
+                        className="h-8 gap-1.5 px-3 text-muted-foreground hover:text-foreground"
                     >
-                        გამოტოვება
+                        <Pause className="h-4 w-4" />
+                        შეჩერება
                     </Button>
 
                     {/* Auto-advance Toggle */}
-                    <button
-                        onClick={() => setAutoAdvance((prev) => !prev)}
+                    <label
                         className={cn(
-                            'flex h-8 items-center gap-1.5 rounded-md px-2 text-xs transition-colors',
+                            'flex h-8 cursor-pointer items-center gap-1.5 rounded-md px-2 text-xs transition-colors',
                             autoAdvance
                                 ? 'bg-primary/10 text-primary'
                                 : 'text-muted-foreground hover:text-foreground',
@@ -523,17 +579,17 @@ export default function ActiveTest({ testResult, userSettings }: Props) {
                             onCheckedChange={setAutoAdvance}
                             className="h-4 w-7 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input"
                         />
-                    </button>
+                    </label>
 
-                    {/* Pause Button */}
+                    {/* Skip Button */}
                     <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => setShowPauseDialog(true)}
-                        className="h-8 gap-1.5 px-3 text-muted-foreground hover:text-foreground"
+                        onClick={handleSkip}
+                        disabled={isAnswered || isSubmitting}
+                        className="h-8 px-3 text-muted-foreground hover:text-foreground"
                     >
-                        <Pause className="h-4 w-4" />
-                        შეჩერება
+                        გამოტოვება
                     </Button>
                 </div>
             </header>
@@ -578,39 +634,55 @@ export default function ActiveTest({ testResult, userSettings }: Props) {
                         <ChevronLeft className="h-5 w-5" />
                     </Button>
 
-                    {/* Answer Buttons */}
+                    {/* Answer Buttons - Always show 4 buttons for consistent layout */}
                     <div className="flex gap-1.5">
-                        {shuffledAnswers.map((answer, index) => {
+                        {[0, 1, 2, 3].map((index) => {
+                            const answer = shuffledAnswers[index];
+                            const hasAnswer = !!answer;
                             const isSelected =
+                                hasAnswer &&
                                 currentAnswer?.answer_id === answer.id;
-                            const isCorrectAnswer = answer.is_correct;
+                            const isCorrectAnswer =
+                                hasAnswer && answer.is_correct;
 
                             return (
                                 <button
-                                    key={answer.id}
-                                    onClick={() => handleAnswer(answer.id)}
-                                    disabled={isAnswered || isSubmitting}
+                                    key={index}
+                                    onClick={() =>
+                                        hasAnswer && handleAnswer(answer.id)
+                                    }
+                                    disabled={
+                                        !hasAnswer || isAnswered || isSubmitting
+                                    }
                                     className={cn(
                                         'flex h-11 w-11 items-center justify-center rounded-lg border text-lg font-bold transition-colors',
+                                        // No answer for this slot - show disabled placeholder
+                                        !hasAnswer &&
+                                            'cursor-not-allowed border-border bg-muted/30 text-muted-foreground/30',
                                         // Default state (not answered)
-                                        !isAnswered &&
+                                        hasAnswer &&
+                                            !isAnswered &&
                                             'border-border bg-background hover:border-primary hover:bg-accent',
                                         // Answered - show correct answer in green
-                                        isAnswered &&
+                                        hasAnswer &&
+                                            isAnswered &&
                                             isCorrectAnswer &&
                                             'border-green-500 bg-green-500 text-white',
                                         // Answered - show selected wrong answer in red
-                                        isAnswered &&
+                                        hasAnswer &&
+                                            isAnswered &&
                                             isSelected &&
                                             !currentAnswer?.is_correct &&
                                             'border-red-500 bg-red-500 text-white',
                                         // Answered - dim other answers
-                                        isAnswered &&
+                                        hasAnswer &&
+                                            isAnswered &&
                                             !isCorrectAnswer &&
                                             !isSelected &&
                                             'border-border opacity-50',
-                                        // Disabled state
-                                        (isAnswered || isSubmitting) &&
+                                        // Disabled state (answered or submitting)
+                                        hasAnswer &&
+                                            (isAnswered || isSubmitting) &&
                                             'cursor-not-allowed',
                                     )}
                                 >
