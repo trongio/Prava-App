@@ -7,6 +7,7 @@ import {
     Check,
     ChevronLeft,
     ChevronRight,
+    ClipboardList,
     Filter,
     Motorbike,
     Scooter,
@@ -20,7 +21,7 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { QuestionCard } from '@/components/question-card';
+import { Question, QuestionCard } from '@/components/question-card';
 import { SignsInfoDialog } from '@/components/signs-info-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,13 +41,6 @@ import {
 } from '@/components/ui/sheet';
 import MobileLayout from '@/layouts/mobile-layout';
 
-interface Answer {
-    id: number;
-    text: string;
-    is_correct: boolean;
-    position: number;
-}
-
 interface QuestionCategory {
     id: number;
     name: string;
@@ -60,25 +54,11 @@ interface LicenseType {
     children: LicenseType[];
 }
 
-interface Sign {
-    id: number;
-    image: string;
-    title: string;
-    description: string | null;
-}
-
-interface Question {
-    id: number;
-    question: string;
-    description: string | null;
-    full_description: string | null;
-    image: string | null;
-    image_custom: string | null;
-    is_short_image: boolean;
+// Question type is imported from question-card.tsx
+// Extended with required fields for this page
+interface PageQuestion extends Question {
     is_active: boolean;
-    answers: Answer[];
     question_category: QuestionCategory;
-    signs: Sign[];
 }
 
 interface UserProgress {
@@ -89,7 +69,7 @@ interface UserProgress {
 }
 
 interface PaginatedQuestions {
-    data: Question[];
+    data: PageQuestion[];
     current_page: number;
     last_page: number;
     per_page: number;
@@ -1012,6 +992,54 @@ export default function QuestionsIndex({
                 onPageChange={goToPage}
                 onPerPageChange={handlePerPageChange}
             />
+
+            {/* FAB - Start Test with Current Filters */}
+            <div
+                className="fixed right-4 z-20"
+                style={{ bottom: 'calc(var(--inset-bottom) + 5rem)' }}
+            >
+                <Button
+                    size="lg"
+                    className="h-14 w-14 rounded-full shadow-lg"
+                    onClick={() => {
+                        // Build query params from current filters
+                        const params = new URLSearchParams();
+                        params.set('from_questions', '1');
+
+                        if (localFilters.license_type) {
+                            params.set(
+                                'license_type',
+                                localFilters.license_type.toString(),
+                            );
+                        }
+
+                        if (
+                            localFilters.categories &&
+                            localFilters.categories.length > 0
+                        ) {
+                            params.set(
+                                'categories',
+                                localFilters.categories.join(','),
+                            );
+                        }
+
+                        if (localFilters.sign_id) {
+                            params.set(
+                                'sign_id',
+                                localFilters.sign_id.toString(),
+                            );
+                        }
+
+                        if (localFilters.bookmarked) {
+                            params.set('bookmarked', '1');
+                        }
+
+                        router.visit(`/test?${params.toString()}`);
+                    }}
+                >
+                    <ClipboardList className="h-6 w-6" />
+                </Button>
+            </div>
 
             {/* Signs Info Modal */}
             <SignsInfoDialog

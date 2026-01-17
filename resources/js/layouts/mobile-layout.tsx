@@ -28,15 +28,15 @@ interface MobileLayoutProps {
 const navItems = [
     { id: 'home', label: 'მთავარი', icon: Home, href: '/dashboard' },
     { id: 'test', label: 'ტესტი', icon: ClipboardList, href: '/test' },
-    { id: 'history', label: 'ისტორია', icon: History, href: '/history' },
+    { id: 'history', label: 'ისტორია', icon: History, href: '/test/history' },
     { id: 'tickets', label: 'ბილეთები', icon: BookOpen, href: '/questions' },
     { id: 'signs', label: 'ნიშნები', icon: ImageIcon, href: '/signs' },
 ];
 
 function getActiveTab(path: string): string {
     if (path.startsWith('/dashboard') || path === '/') return 'home';
+    if (path.startsWith('/test/history')) return 'history';
     if (path.startsWith('/test')) return 'test';
-    if (path.startsWith('/history')) return 'history';
     if (path.startsWith('/questions') || path.startsWith('/tickets'))
         return 'tickets';
     if (path.startsWith('/signs')) return 'signs';
@@ -135,7 +135,10 @@ export default function MobileLayout({
             <SettingsSheet open={settingsOpen} onOpenChange={setSettingsOpen} />
 
             {/* Main Content - scrollable area */}
-            <main className="min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch]">
+            <main
+                id="main-scroll-container"
+                className="min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch]"
+            >
                 {children}
             </main>
 

@@ -24,7 +24,7 @@ interface Sign {
     description: string | null;
 }
 
-interface Question {
+export interface Question {
     id: number;
     question: string;
     description: string | null;
@@ -32,7 +32,7 @@ interface Question {
     image: string | null;
     image_custom: string | null;
     is_short_image: boolean;
-    is_active: boolean;
+    is_active?: boolean;
     answers: Answer[];
     question_category: QuestionCategory;
     signs: Sign[];
@@ -56,6 +56,8 @@ interface QuestionCardProps {
     onAnswer: (question: Question, answerId: number) => void;
     onBookmark: (questionId: number) => void;
     onInfoClick: (question: Question) => void;
+    /** Test mode: answers are disabled, info button hidden until answered */
+    testMode?: boolean;
 }
 
 export function QuestionCard({
@@ -68,11 +70,20 @@ export function QuestionCard({
     onAnswer,
     onBookmark,
     onInfoClick,
+    testMode = false,
 }: QuestionCardProps) {
     const [imageLoaded, setImageLoaded] = useState(false);
 
+    const isAnswered = !!answerState?.selectedAnswerId;
+    const hasInfoContent =
+        question.signs.length > 0 ||
+        question.description ||
+        question.image_custom;
+    // In testMode, show info button only after answered
+    const showInfoButton = hasInfoContent && (!testMode || isAnswered);
+
     // Shuffle answers deterministically based on seed + question.id
-    const shuffledAnswers = useMemo(() => {
+    const displayAnswers = useMemo(() => {
         const seededRandom = (seed: number) => {
             const x = Math.sin(seed) * 10000;
             return x - Math.floor(x);
@@ -91,7 +102,7 @@ export function QuestionCard({
 
     const getAnswerClassName = (answer: Answer) => {
         if (!answerState)
-            return 'border-border hover:border-primary hover:bg-accent';
+            return 'border-border hover:border-primary hover:bg-accent disabled:hover:border-border disabled:hover:bg-transparent';
 
         if (answer.id === answerState.correctAnswerId) {
             return 'border-green-500 bg-green-50 dark:bg-green-950';
@@ -106,7 +117,9 @@ export function QuestionCard({
     };
 
     return (
-        <Card className={`py-0 ${!question.is_active ? 'opacity-60' : ''}`}>
+        <Card
+            className={cn('py-0', question.is_active === false && 'opacity-60')}
+        >
             <CardContent className="p-4">
                 {/* Question Header */}
                 <div className="mb-3 flex items-start justify-between">
@@ -116,7 +129,7 @@ export function QuestionCard({
                         </span>
                         <span className="flex items-center gap-1 text-xs text-muted-foreground">
                             ID: {question.id}
-                            {!question.is_active && (
+                            {question.is_active === false && (
                                 <TriangleAlert className="h-3.5 w-3.5 text-red-500" />
                             )}
                             <span className="text-xs text-muted-foreground">
@@ -139,9 +152,7 @@ export function QuestionCard({
                                 }`}
                             />
                         </Button>
-                        {(question.signs.length > 0 ||
-                            question.description ||
-                            question.image_custom) && (
+                        {showInfoButton && (
                             <Button
                                 variant="ghost"
                                 size="icon"
@@ -189,16 +200,20 @@ export function QuestionCard({
 
                 {/* Answer Options */}
                 <div
-                    className={`space-y-2 ${isSubmitting ? 'pointer-events-none opacity-70' : ''}`}
+                    className={cn(
+                        'space-y-2',
+                        isSubmitting && 'pointer-events-none opacity-70',
+                    )}
                 >
-                    {shuffledAnswers.map((answer, answerIndex) => (
+                    {displayAnswers.map((answer, answerIndex) => (
                         <button
                             key={answer.id}
                             onClick={() => onAnswer(question, answer.id)}
-                            disabled={
-                                !!answerState?.selectedAnswerId || isSubmitting
-                            }
-                            className={`flex w-full items-start gap-3 rounded-lg border p-3 text-left transition-colors ${getAnswerClassName(answer)}`}
+                            disabled={isAnswered || isSubmitting || testMode}
+                            className={cn(
+                                'flex w-full items-start gap-3 rounded-lg border p-3 text-left transition-colors',
+                                getAnswerClassName(answer),
+                            )}
                         >
                             <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-xs">
                                 {answerIndex + 1}
@@ -208,21 +223,12 @@ export function QuestionCard({
                                 <Check className="ml-auto h-5 w-5 shrink-0 text-green-600" />
                             )}
                             {answerState?.selectedAnswerId === answer.id &&
-                                !answerState.isCorrect && (
+                                !answerState?.isCorrect && (
                                     <X className="ml-auto h-5 w-5 shrink-0 text-red-600" />
                                 )}
                         </button>
                     ))}
                 </div>
-
-                {/* Explanation */}
-                {answerState?.explanation && (
-                    <div className="mt-4 rounded-lg bg-muted p-3">
-                        <p className="text-sm text-muted-foreground">
-                            {answerState.explanation}
-                        </p>
-                    </div>
-                )}
             </CardContent>
         </Card>
     );
