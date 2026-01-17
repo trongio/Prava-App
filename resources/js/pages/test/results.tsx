@@ -116,6 +116,8 @@ export default function TestResults({ testResult }: Props) {
                 answeredCount={answeredCount}
                 scorePercentage={testResult.score_percentage}
                 timeTakenSeconds={testResult.time_taken_seconds}
+                testType={testResult.test_type}
+                licenseType={testResult.license_type}
                 withTopPadding
             />
 

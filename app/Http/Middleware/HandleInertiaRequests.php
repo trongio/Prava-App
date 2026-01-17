@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\LicenseType;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -42,6 +43,7 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'licenseTypes' => fn () => LicenseType::parents()->with('children')->get(),
         ];
     }
 }

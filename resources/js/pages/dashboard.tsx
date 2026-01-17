@@ -13,8 +13,12 @@ import {
     XCircle,
     Zap,
 } from 'lucide-react';
+import { useEffect } from 'react';
 
-import { LicenseTypeSelect } from '@/components/license-type-select';
+import {
+    getLicenseTypeIcon,
+    LicenseTypeSelect,
+} from '@/components/license-type-select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -60,6 +64,13 @@ interface RecentTest {
     license_type_id: number | null;
 }
 
+interface PassChance {
+    percentage: number;
+    total_questions: number;
+    studied_questions: number;
+    mastered_questions: number;
+}
+
 interface Props {
     stats: {
         total_tests: number;
@@ -79,6 +90,7 @@ interface Props {
     recentTests: RecentTest[];
     defaultLicenseType: LicenseType | null;
     licenseTypes: LicenseType[];
+    passChance: PassChance | null;
 }
 
 const formatTime = (seconds: number) => {
@@ -104,6 +116,7 @@ export default function Dashboard({
     recentTests,
     defaultLicenseType,
     licenseTypes,
+    passChance,
 }: Props) {
     const { auth } = usePage<SharedData>().props;
     const user = auth.user;
@@ -125,6 +138,24 @@ export default function Dashboard({
         );
     };
 
+    // Reload pass chance and stats when page becomes visible (user returns to tab)
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                // Partial reload - only fetch updated data, preserve scroll
+                router.reload({
+                    only: ['passChance', 'stats', 'progress', 'activeTest'],
+                    preserveScroll: true,
+                });
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, []);
+
     // Calculate chart data
     const maxScore = Math.max(...recentTests.map((t) => t.score_percentage), 100);
     const chartHeight = 60;
@@ -145,8 +176,10 @@ export default function Dashboard({
                                 {getInitials(user.name)}
                             </AvatarFallback>
                         </Avatar>
-                        <div className="flex-1">
-                            <h2 className="text-lg font-semibold">{user.name}</h2>
+                        <div className="min-w-0 flex-1">
+                            <h2 className="truncate text-lg font-semibold">
+                                {user.name}
+                            </h2>
                             <div className="flex items-center gap-2">
                                 <LicenseTypeSelect
                                     value={defaultLicenseType?.id || null}
@@ -160,6 +193,64 @@ export default function Dashboard({
                                 />
                             </div>
                         </div>
+
+                        {/* Pass Chance Indicator */}
+                        {passChance && defaultLicenseType && (
+                            <div className="flex flex-col items-center">
+                                <div className="relative flex h-14 w-14 items-center justify-center">
+                                    <svg
+                                        className="h-full w-full -rotate-90"
+                                        viewBox="0 0 100 100"
+                                    >
+                                        <circle
+                                            cx="50"
+                                            cy="50"
+                                            r="42"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="8"
+                                            className="text-muted/30"
+                                        />
+                                        <circle
+                                            cx="50"
+                                            cy="50"
+                                            r="42"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="8"
+                                            strokeLinecap="round"
+                                            strokeDasharray={`${passChance.percentage * 2.64} 264`}
+                                            className={cn(
+                                                'transition-all duration-500',
+                                                passChance.percentage >= 70
+                                                    ? 'text-green-500'
+                                                    : passChance.percentage >= 50
+                                                      ? 'text-amber-500'
+                                                      : 'text-red-500',
+                                            )}
+                                        />
+                                    </svg>
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <span
+                                            className={cn(
+                                                'text-sm font-bold',
+                                                passChance.percentage >= 70
+                                                    ? 'text-green-500'
+                                                    : passChance.percentage >= 50
+                                                      ? 'text-amber-500'
+                                                      : 'text-red-500',
+                                            )}
+                                        >
+                                            {passChance.percentage}%
+                                        </span>
+                                    </div>
+                                </div>
+                                <span className="mt-0.5 text-[10px] text-muted-foreground">
+                                    {passChance.studied_questions}/
+                                    {passChance.total_questions}
+                                </span>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
 
@@ -175,12 +266,24 @@ export default function Dashboard({
                                     <Play className="h-6 w-6 text-primary" />
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex flex-wrap items-center gap-2">
                                         <span className="font-medium">
                                             გაგრძელება
                                         </span>
                                         <span className="rounded bg-primary/20 px-1.5 py-0.5 text-xs text-primary">
                                             {getTestTypeName(activeTest.test_type)}
+                                        </span>
+                                        <span className="flex items-center gap-1 rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
+                                            {activeTest.license_type ? (
+                                                <>
+                                                    {getLicenseTypeIcon(
+                                                        activeTest.license_type.code,
+                                                    )}
+                                                    {activeTest.license_type.code}
+                                                </>
+                                            ) : (
+                                                'ყველა'
+                                            )}
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-3 text-sm text-muted-foreground">

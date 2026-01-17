@@ -1,5 +1,6 @@
 import { Check, Clock, X } from 'lucide-react';
 
+import { getLicenseTypeIcon } from '@/components/license-type-select';
 import {
     formatTime,
     getTestTypeName,
@@ -95,7 +96,16 @@ export function TestResultBanner({
                     {formatTime(timeTakenSeconds)}
                 </span>
                 {testType && <span>{getTestTypeName(testType)}</span>}
-                {licenseType && <span>{licenseType.code}</span>}
+                <span className="flex items-center gap-1">
+                    {licenseType ? (
+                        <>
+                            {getLicenseTypeIcon(licenseType.code)}
+                            {licenseType.code}
+                        </>
+                    ) : (
+                        'ყველა'
+                    )}
+                </span>
             </div>
         </div>
     );

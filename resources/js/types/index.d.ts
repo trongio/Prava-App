@@ -22,10 +22,18 @@ export interface NavItem {
     isActive?: boolean;
 }
 
+export interface LicenseType {
+    id: number;
+    code: string;
+    name: string;
+    children?: LicenseType[];
+}
+
 export interface SharedData {
     name: string;
     auth: Auth;
     sidebarOpen: boolean;
+    licenseTypes: LicenseType[];
     // Native navigation props (used by app.blade.php for NativePHP TopBar/BottomNav)
     pageTitle?: string;
     pageSubtitle?: string;
@@ -42,6 +50,7 @@ export interface User {
     avatar?: string;
     profile_image_url?: string | null;
     has_password?: boolean;
+    default_license_type_id?: number | null;
     email_verified_at: string | null;
     created_at: string;
     updated_at: string;

@@ -18,6 +18,7 @@ trait ProfileValidationRules
             'name' => $this->nameRules(),
             'profile_image' => $this->profileImageRules(),
             'profile_image_path' => ['nullable', 'string'], // NativePHP camera path
+            'default_license_type_id' => ['nullable', 'integer', 'exists:license_types,id'],
         ];
     }
 

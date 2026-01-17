@@ -66,7 +66,12 @@ class DashboardController extends Controller
 
         // Get user's default license type
         $defaultLicenseType = $user->default_license_type_id
-            ? LicenseType::find($user->default_license_type_id)
+            ? LicenseType::with('children')->find($user->default_license_type_id)
+            : null;
+
+        // Calculate pass chance based on question mastery for default license type
+        $passChance = $defaultLicenseType
+            ? $this->calculateQuestionBasedPassChance($user->id, $defaultLicenseType)
             : null;
 
         // Get available license types for selection
@@ -106,6 +111,7 @@ class DashboardController extends Controller
             'weeklyActivity' => $weeklyActivity,
             'defaultLicenseType' => $defaultLicenseType?->only(['id', 'code', 'name']),
             'licenseTypes' => $licenseTypes,
+            'passChance' => $passChance,
         ]);
     }
 
@@ -203,5 +209,90 @@ class DashboardController extends Controller
         }
 
         return 'stable';
+    }
+
+    /**
+     * Calculate pass chance based on per-question mastery.
+     *
+     * Variant B: Require 2+ correct for full mastery
+     * - If wrong = 0 and correct >= 2: score = 1 (fully mastered)
+     * - If wrong = 0 and correct = 1: score = 0.5 (partially proven)
+     * - If correct = 0: score = 0 (unanswered or only wrongs)
+     * - Otherwise: score = correct / (correct + wrong)
+     *
+     * Pass chance = average score across all questions × 100
+     */
+    private function calculateQuestionBasedPassChance(int $userId, LicenseType $licenseType): array
+    {
+        // Get all license type IDs (parent + children)
+        $licenseTypeIds = collect([$licenseType->id]);
+        if ($licenseType->children) {
+            $licenseTypeIds = $licenseTypeIds->merge($licenseType->children->pluck('id'));
+        }
+
+        // Get all active questions for these license types
+        $questions = Question::where('is_active', true)
+            ->whereHas('licenseTypes', fn ($q) => $q->whereIn('license_types.id', $licenseTypeIds))
+            ->pluck('id');
+
+        $totalQuestions = $questions->count();
+
+        if ($totalQuestions === 0) {
+            return [
+                'percentage' => 0,
+                'total_questions' => 0,
+                'studied_questions' => 0,
+                'mastered_questions' => 0,
+            ];
+        }
+
+        // Get user's progress for these questions
+        $progress = UserQuestionProgress::where('user_id', $userId)
+            ->whereIn('question_id', $questions)
+            ->get()
+            ->keyBy('question_id');
+
+        $totalScore = 0;
+        $studiedCount = 0;
+        $masteredCount = 0; // Questions with 100% mastery
+
+        foreach ($questions as $questionId) {
+            $userProgress = $progress->get($questionId);
+
+            $correct = $userProgress->times_correct ?? 0;
+            $wrong = $userProgress->times_wrong ?? 0;
+
+            if ($correct === 0) {
+                // Never answered correctly (or only wrong answers)
+                $score = 0;
+            } elseif ($wrong === 0 && $correct >= 2) {
+                // Fully mastered: 2+ correct, no wrongs
+                $score = 1;
+                $studiedCount++;
+                $masteredCount++;
+            } elseif ($wrong === 0 && $correct === 1) {
+                // Partially proven: 1 correct, no wrongs
+                $score = 0.5;
+                $studiedCount++;
+            } else {
+                // Mixed: calculate ratio
+                $score = $correct / ($correct + $wrong);
+                $studiedCount++;
+                if ($score >= 1) {
+                    $masteredCount++;
+                }
+            }
+
+            $totalScore += $score;
+        }
+
+        $passChance = $totalQuestions > 0 ? round(($totalScore / $totalQuestions) * 100) : 0;
+
+        return [
+            'percentage' => $passChance,
+            'total_questions' => $totalQuestions,
+            'studied_questions' => $studiedCount,
+            'mastered_questions' => $masteredCount,
+        ];
     }
 }

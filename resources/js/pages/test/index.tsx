@@ -9,7 +9,6 @@ import {
     Clock,
     MoreVertical,
     Motorbike,
-    Pause,
     Play,
     Plus,
     Scooter,
@@ -168,8 +167,11 @@ export default function TestIndex({
     const [templateName, setTemplateName] = useState('');
     const [showAbandonDialog, setShowAbandonDialog] = useState(false);
     const [pendingAction, setPendingAction] = useState<
-        'quick' | 'custom' | null
+        'quick' | 'custom' | 'template' | null
     >(null);
+    const [pendingTemplate, setPendingTemplate] = useState<TestTemplate | null>(
+        null,
+    );
 
     // Form for test creation
     const form = useForm({
@@ -252,13 +254,30 @@ export default function TestIndex({
                 abandon_active: true,
             }));
             form.post('/test');
+        } else if (pendingAction === 'template' && pendingTemplate) {
+            router.post('/test', {
+                test_type: 'thematic',
+                license_type_id: pendingTemplate.license_type_id,
+                question_count: pendingTemplate.question_count,
+                time_per_question: pendingTemplate.time_per_question,
+                failure_threshold: pendingTemplate.failure_threshold,
+                category_ids: pendingTemplate.category_ids || [],
+                auto_advance: userDefaults.auto_advance ?? true,
+                abandon_active: true,
+            });
         }
         setPendingAction(null);
+        setPendingTemplate(null);
     };
 
     const handleCancelAbandon = () => {
         setShowAbandonDialog(false);
         setPendingAction(null);
+        setPendingTemplate(null);
+        // Navigate to the active test to continue it
+        if (activeTest) {
+            router.get(`/test/${activeTest.id}`);
+        }
     };
 
     const handleResumeTest = () => {
@@ -278,6 +297,25 @@ export default function TestIndex({
             auto_advance: userDefaults.auto_advance ?? true,
         });
         setTestType('thematic');
+    };
+
+    const handleStartFromTemplate = (template: TestTemplate) => {
+        if (activeTest) {
+            setPendingAction('template');
+            setPendingTemplate(template);
+            setShowAbandonDialog(true);
+            return;
+        }
+        // Start test directly with template settings
+        router.post('/test', {
+            test_type: 'thematic',
+            license_type_id: template.license_type_id,
+            question_count: template.question_count,
+            time_per_question: template.time_per_question,
+            failure_threshold: template.failure_threshold,
+            category_ids: template.category_ids || [],
+            auto_advance: userDefaults.auto_advance ?? true,
+        });
     };
 
     const handleSaveTemplate = async () => {
@@ -333,52 +371,50 @@ export default function TestIndex({
                     სწრაფი ტესტი
                 </Button>
 
-                {/* Continue Section - Active test */}
+                {/* Continue Section - Active test (matching dashboard style) */}
                 {activeTest && (
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <CardTitle className="flex items-center gap-2 text-base">
-                                <Pause className="h-4 w-4" />
-                                გაგრძელება
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
+                    <Card className="border-primary/50 bg-gradient-to-r from-primary/10 to-primary/5">
+                        <CardContent className="p-4">
                             <button
                                 onClick={handleResumeTest}
-                                className="flex w-full items-center justify-between rounded-lg border bg-card p-3 text-left transition-colors hover:bg-accent"
+                                className="flex w-full items-center gap-3"
                             >
-                                <div className="flex items-center gap-3">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                                        <Play className="h-5 w-5 text-primary" />
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-medium">
-                                            {activeTest.test_type ===
-                                            'bookmarked'
-                                                ? 'შენახული'
-                                                : activeTest.test_type ===
-                                                    'quick'
-                                                  ? 'სწრაფი'
-                                                  : 'თემატური'}{' '}
-                                            ტესტი
-                                        </p>
-                                        <p className="text-xs text-muted-foreground">
-                                            {activeTest.answered_count}/
-                                            {activeTest.total_questions} • ✓
-                                            {activeTest.correct_count} ✗
-                                            {activeTest.wrong_count}
-                                        </p>
-                                    </div>
+                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/20">
+                                    <Play className="h-6 w-6 text-primary" />
                                 </div>
-                                <div className="text-right">
-                                    <p className="text-sm font-medium">
-                                        {formatTime(
-                                            activeTest.remaining_time_seconds,
-                                        )}
-                                    </p>
-                                    <p className="text-xs text-muted-foreground">
-                                        დარჩენილი დრო
-                                    </p>
+                                <div className="min-w-0 flex-1">
+                                    <div className="flex items-center gap-2">
+                                        <span className="font-medium">
+                                            გაგრძელება
+                                        </span>
+                                        <span className="rounded bg-primary/20 px-1.5 py-0.5 text-xs text-primary">
+                                            {activeTest.test_type === 'bookmarked'
+                                                ? 'შენახული'
+                                                : activeTest.test_type === 'quick'
+                                                  ? 'სწრაფი'
+                                                  : 'თემატური'}
+                                        </span>
+                                        <span className="flex items-center gap-1 rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
+                                            {activeTest.license_type ? (
+                                                <>
+                                                    {getLicenseTypeIcon(activeTest.license_type.code)}
+                                                    {activeTest.license_type.code}
+                                                </>
+                                            ) : (
+                                                'ყველა'
+                                            )}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                                        <span>
+                                            {activeTest.answered_count}/
+                                            {activeTest.total_questions}
+                                        </span>
+                                        <span className="flex items-center gap-1">
+                                            <Clock className="h-3 w-3" />
+                                            {formatTime(activeTest.remaining_time_seconds)}
+                                        </span>
+                                    </div>
                                 </div>
                             </button>
                         </CardContent>
@@ -397,17 +433,43 @@ export default function TestIndex({
                             {templates.map((template) => (
                                 <div
                                     key={template.id}
-                                    className="flex items-center justify-between rounded-lg border p-3"
+                                    className="flex items-center gap-2 rounded-lg border p-3"
                                 >
+                                    {/* Play button to start test directly */}
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-10 w-10 shrink-0 rounded-full bg-primary/10 text-primary hover:bg-primary/20"
+                                        onClick={() =>
+                                            handleStartFromTemplate(template)
+                                        }
+                                    >
+                                        <Play className="h-5 w-5" />
+                                    </Button>
                                     <button
                                         onClick={() =>
                                             handleLoadTemplate(template)
                                         }
-                                        className="flex-1 text-left"
+                                        className="min-w-0 flex-1 text-left"
                                     >
-                                        <p className="text-sm font-medium">
-                                            {template.name}
-                                        </p>
+                                        <div className="flex items-center gap-2">
+                                            <p className="truncate text-sm font-medium">
+                                                {template.name}
+                                            </p>
+                                            <span className="flex shrink-0 items-center gap-1 rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
+                                                {template.license_type ? (
+                                                    <>
+                                                        {getLicenseTypeIcon(
+                                                            template.license_type
+                                                                .code,
+                                                        )}
+                                                        {template.license_type.code}
+                                                    </>
+                                                ) : (
+                                                    'ყველა'
+                                                )}
+                                            </span>
+                                        </div>
                                         <p className="text-xs text-muted-foreground">
                                             {template.question_count} კითხვა •{' '}
                                             {Math.floor(
@@ -428,6 +490,16 @@ export default function TestIndex({
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
+                                            <DropdownMenuItem
+                                                onClick={() =>
+                                                    handleStartFromTemplate(
+                                                        template,
+                                                    )
+                                                }
+                                            >
+                                                <Play className="mr-2 h-4 w-4" />
+                                                დაწყება
+                                            </DropdownMenuItem>
                                             <DropdownMenuItem
                                                 onClick={() => {
                                                     setEditingTemplate(
