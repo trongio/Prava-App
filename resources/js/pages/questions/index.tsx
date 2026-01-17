@@ -2,25 +2,18 @@ import { Head, router } from '@inertiajs/react';
 import axios from 'axios';
 import {
     Bookmark,
-    Bus,
-    Car,
     Check,
     ChevronLeft,
     ChevronRight,
     ClipboardList,
     Filter,
-    Motorbike,
-    Scooter,
     Search,
-    Shield,
-    Tractor,
-    TramFront,
     TriangleAlert,
-    Truck,
     X,
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { LicenseTypeSelect } from '@/components/license-type-select';
 import { Question, QuestionCard } from '@/components/question-card';
 import { SignsInfoDialog } from '@/components/signs-info-dialog';
 import { Button } from '@/components/ui/button';
@@ -127,45 +120,6 @@ interface AnswerState {
     isCorrect: boolean | null;
     explanation: string | null;
 }
-
-const getLicenseTypeIcon = (code: string) => {
-    const iconClass = 'h-4 w-4 shrink-0';
-    const upperCode = code.toUpperCase().replace(/\s/g, '');
-
-    // AM - Moped (before A check since AM starts with A)
-    if (upperCode === 'AM') {
-        return <Scooter className={iconClass} />;
-    }
-    // A, A1 - Motorcycle
-    if (upperCode.startsWith('A')) {
-        return <Motorbike className={iconClass} />;
-    }
-    // B, B1 - Car
-    if (upperCode.startsWith('B')) {
-        return <Car className={iconClass} />;
-    }
-    // C, C1 - Truck
-    if (upperCode.startsWith('C')) {
-        return <Truck className={iconClass} />;
-    }
-    // D, D1 - Bus
-    if (upperCode.startsWith('D')) {
-        return <Bus className={iconClass} />;
-    }
-    // T, T,S - Tractor
-    if (upperCode === 'T' || upperCode === 'T,S' || upperCode === 'TS') {
-        return <Tractor className={iconClass} />;
-    }
-    // Tram
-    if (upperCode === 'TRAM') {
-        return <TramFront className={iconClass} />;
-    }
-    // Mil - Military
-    if (upperCode === 'MIL') {
-        return <Shield className={iconClass} />;
-    }
-    return <Car className={iconClass} />;
-};
 
 // Generate page numbers to display
 function getPageNumbers(
@@ -644,11 +598,9 @@ export default function QuestionsIndex({
                     </Button>
 
                     {/* License Type Selector */}
-                    <Select
-                        value={localFilters.license_type?.toString() || 'all'}
-                        onValueChange={(v) => {
-                            const newLicenseType =
-                                v === 'all' ? null : parseInt(v);
+                    <LicenseTypeSelect
+                        value={localFilters.license_type}
+                        onValueChange={(newLicenseType) => {
                             setLocalFilters((f) => ({
                                 ...f,
                                 license_type: newLicenseType,
@@ -666,29 +618,10 @@ export default function QuestionsIndex({
                                 },
                             );
                         }}
-                    >
-                        <SelectTrigger className="h-8 w-auto min-w-[80px] text-sm">
-                            <SelectValue placeholder="ყველა" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">ყველა </SelectItem>
-                            {licenseTypes.map((lt) => (
-                                <SelectItem
-                                    key={lt.id}
-                                    value={lt.id.toString()}
-                                >
-                                    <span className="flex items-center gap-2">
-                                        {getLicenseTypeIcon(lt.code)}
-                                        <span>
-                                            {lt.code}
-                                            {lt.children.length > 0 &&
-                                                `, ${lt.children.map((c) => c.code).join(', ')}`}
-                                        </span>
-                                    </span>
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
+                        licenseTypes={licenseTypes}
+                        placeholder="ყველა"
+                        emptyLabel="ყველა"
+                    />
 
                     <Sheet
                         open={isFilterOpen}
