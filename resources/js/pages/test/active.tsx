@@ -367,12 +367,31 @@ export default function ActiveTest({ testResult, userSettings }: Props) {
                     setShowFailedDialog(true);
                 }
 
-                // Auto-advance to next question after brief delay
-                // Note: Auto-advance happens regardless of failure (for practice mode)
-                if (autoAdvance && currentIndex < questions.length - 1) {
+                // Determine next question to navigate to
+                const nextSequentialIndex = currentIndex + 1;
+                const isNextSequentialAvailable =
+                    nextSequentialIndex < questions.length &&
+                    !answersGiven[questions[nextSequentialIndex].id];
+
+                // Find first unanswered question (for when we need to jump to skipped questions)
+                const firstUnansweredIndex = questions.findIndex(
+                    (q, i) => i !== currentIndex && !answersGiven[q.id],
+                );
+
+                // Auto-advance logic
+                if (autoAdvance) {
                     autoAdvanceRef.current = setTimeout(() => {
-                        setCurrentIndex((prev) => prev + 1);
+                        if (isNextSequentialAvailable) {
+                            // Normal flow: go to next question in sequence
+                            setCurrentIndex(nextSequentialIndex);
+                        } else if (firstUnansweredIndex !== -1) {
+                            // At end or next is answered: go to first unanswered (skipped questions)
+                            setCurrentIndex(firstUnansweredIndex);
+                        }
                     }, 200);
+                } else if (!isNextSequentialAvailable && firstUnansweredIndex !== -1) {
+                    // Manual mode: if at end or reviewing skipped, go to first unanswered
+                    setCurrentIndex(firstUnansweredIndex);
                 }
             } catch (error) {
                 console.error('Failed to submit answer:', error);
@@ -389,7 +408,8 @@ export default function ActiveTest({ testResult, userSettings }: Props) {
             hasFailed,
             autoAdvance,
             currentIndex,
-            questions.length,
+            questions,
+            answersGiven,
         ],
     );
 
@@ -468,13 +488,24 @@ export default function ActiveTest({ testResult, userSettings }: Props) {
             return; // Block navigation
         }
 
-        if (currentIndex < questions.length - 1) {
-            setCurrentIndex((prev) => prev + 1);
-        } else if (!allAnswered) {
-            // If at end and there are unanswered questions, show skipped dialog
-            setShowSkippedDialog(true);
+        const nextSequentialIndex = currentIndex + 1;
+        const isNextAvailable =
+            nextSequentialIndex < questions.length &&
+            !answersGiven[questions[nextSequentialIndex].id];
+
+        if (isNextAvailable) {
+            // Normal flow: go to next sequential question
+            setCurrentIndex(nextSequentialIndex);
+        } else {
+            // At end or next is answered: find first unanswered (skipped questions)
+            const firstUnanswered = questions.findIndex(
+                (q) => !answersGiven[q.id],
+            );
+            if (firstUnanswered !== -1) {
+                setCurrentIndex(firstUnanswered);
+            }
         }
-    }, [currentIndex, questions, answersGiven, skippedIds, allAnswered]);
+    }, [currentIndex, questions, answersGiven, skippedIds]);
 
     const goToPrevious = useCallback(() => {
         if (currentIndex > 0) {
@@ -579,12 +610,12 @@ export default function ActiveTest({ testResult, userSettings }: Props) {
                         />
                     </label>
 
-                    {/* Skip Button */}
+                    {/* Skip Button - disabled if already answered, submitting, or already skipped (no second skip) */}
                     <Button
                         variant="outline"
                         size="sm"
                         onClick={handleSkip}
-                        disabled={isAnswered || isSubmitting}
+                        disabled={isAnswered || isSubmitting || skippedIds.includes(currentQuestion.id)}
                         className="h-8 gap-1 px-2 text-xs"
                     >
                         <Redo2 className="h-3.5 w-3.5" />
