@@ -28,10 +28,10 @@ class QuestionBrowserController extends Controller
         // Load saved preferences if no filter params provided
         $savedPreferences = $user?->question_filter_preferences ?? [];
 
-        // Get filter parameters (use saved if no URL params)
+        // Get filter parameters (use saved if no URL params, fallback to user's default)
         $licenseTypeId = $hasFilterParams
             ? $request->input('license_type')
-            : ($savedPreferences['license_type'] ?? null);
+            : ($savedPreferences['license_type'] ?? $user?->default_license_type_id);
 
         // Debug: Collect debug info to send to frontend
         $debug = [
