@@ -22,7 +22,7 @@ class TestController extends Controller
     {
         return TestResult::forUser($userId)
             ->active()
-            ->with('licenseType')
+            ->with('licenseType.children')
             ->first();
     }
 
@@ -102,7 +102,15 @@ class TestController extends Controller
                 'answered_count' => $activeTest->getAnsweredCount(),
                 'remaining_time_seconds' => $activeTest->remaining_time_seconds,
                 'started_at' => $activeTest->started_at->toISOString(),
-                'license_type' => $activeTest->licenseType?->only(['id', 'code', 'name']),
+                'license_type' => $activeTest->licenseType ? [
+                    'id' => $activeTest->licenseType->id,
+                    'code' => $activeTest->licenseType->code,
+                    'name' => $activeTest->licenseType->name,
+                    'children' => $activeTest->licenseType->children->map(fn ($c) => [
+                        'id' => $c->id,
+                        'code' => $c->code,
+                    ])->toArray(),
+                ] : null,
             ] : null,
             'licenseTypes' => $licenseTypes,
             'categories' => $categories,

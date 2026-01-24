@@ -148,13 +148,16 @@ export default function MobileLayout({
                     {navItems.map((item) => {
                         const isActive = activeTab === item.id;
                         const Icon = item.icon;
+                        // Dashboard and test pages need fresh data (activeTest), so don't cache them
+                        const shouldCache =
+                            item.id !== 'home' && item.id !== 'test';
 
                         return (
                             <Link
                                 key={item.id}
                                 href={item.href}
-                                prefetch="mount"
-                                cacheFor="5m"
+                                prefetch={shouldCache ? 'mount' : undefined}
+                                cacheFor={shouldCache ? '5m' : undefined}
                                 className={cn(
                                     'flex flex-1 flex-col items-center justify-center gap-1 py-2 text-xs transition-colors',
                                     isActive

@@ -8,6 +8,7 @@ interface LicenseType {
     id: number;
     code: string;
     name: string;
+    children?: { id: number; code: string }[];
 }
 
 interface ActiveTest {
@@ -75,6 +76,10 @@ export function ActiveTestCard({
                                     activeTest.license_type.code,
                                 )}
                                 {activeTest.license_type.code}
+                                {activeTest.license_type.children &&
+                                    activeTest.license_type.children.length >
+                                        0 &&
+                                    `, ${activeTest.license_type.children.map((c) => c.code).join(', ')}`}
                             </>
                         ) : (
                             'ყველა'

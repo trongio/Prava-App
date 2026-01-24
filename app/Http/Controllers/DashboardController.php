@@ -31,7 +31,7 @@ class DashboardController extends Controller
         // Get active test to continue
         $activeTest = TestResult::forUser($user->id)
             ->active()
-            ->with('licenseType')
+            ->with('licenseType.children')
             ->first();
 
         // Get questions progress
@@ -104,7 +104,15 @@ class DashboardController extends Controller
                 'correct_count' => $activeTest->correct_count,
                 'wrong_count' => $activeTest->wrong_count,
                 'remaining_time_seconds' => $activeTest->remaining_time_seconds,
-                'license_type' => $activeTest->licenseType?->only(['id', 'code', 'name']),
+                'license_type' => $activeTest->licenseType ? [
+                    'id' => $activeTest->licenseType->id,
+                    'code' => $activeTest->licenseType->code,
+                    'name' => $activeTest->licenseType->name,
+                    'children' => $activeTest->licenseType->children->map(fn ($c) => [
+                        'id' => $c->id,
+                        'code' => $c->code,
+                    ])->toArray(),
+                ] : null,
             ] : null,
             'licensePerformance' => $licensePerformance,
             'recentTests' => $recentTests,
