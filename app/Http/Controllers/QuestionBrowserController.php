@@ -63,6 +63,7 @@ class QuestionBrowserController extends Controller
             }
         } else {
             $categoryIds = collect($savedPreferences['categories'] ?? [])
+                ->map(fn ($id) => (int) $id)
                 ->filter(fn ($id) => $id > 0)
                 ->values()
                 ->toArray();

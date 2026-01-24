@@ -302,9 +302,12 @@ export default function QuestionsIndex({
     const pendingAnswersRef = useRef<Set<number>>(new Set());
 
     // Sync localFilters with server filters when they change
+    // Don't sync while filter sheet is open (preserves user's selections)
     useEffect(() => {
-        setLocalFilters(filters);
-    }, [filters]);
+        if (!isFilterOpen) {
+            setLocalFilters(filters);
+        }
+    }, [filters, isFilterOpen]);
 
     // Sync bookmarkedQuestions with userProgress when page data changes
     useEffect(() => {
@@ -319,9 +322,35 @@ export default function QuestionsIndex({
     }, [userProgress]);
 
     // Handle Android back button to close filter sheet instead of navigating
+    // Use a ref to track the current state since Inertia events can't access React state
+    const isFilterOpenRef = useRef(isFilterOpen);
     useEffect(() => {
+        isFilterOpenRef.current = isFilterOpen;
+    }, [isFilterOpen]);
+
+    useEffect(() => {
+        // Use Inertia's router events to intercept navigation BEFORE it happens
+        const removeBeforeListener = router.on('before', (event) => {
+            if (isFilterOpenRef.current) {
+                // Only block navigation to a DIFFERENT page, not same-page filter updates
+                const targetUrl = new URL(event.detail.visit.url);
+                const currentPath = window.location.pathname;
+
+                // Allow navigation to the same page (filter updates)
+                if (targetUrl.pathname === currentPath) {
+                    return;
+                }
+
+                // Cancel navigation to different pages and close the sheet instead
+                event.preventDefault();
+                setIsFilterOpen(false);
+                return false;
+            }
+        });
+
+        // Also handle browser back button via popstate for non-Inertia navigation
         const handlePopState = (e: PopStateEvent) => {
-            if (isFilterOpen) {
+            if (isFilterOpenRef.current) {
                 e.preventDefault();
                 setIsFilterOpen(false);
                 // Re-push state to prevent actual navigation
@@ -329,13 +358,16 @@ export default function QuestionsIndex({
             }
         };
 
-        // Push initial state when filter opens
+        // Push a history state when filter opens to catch browser back
         if (isFilterOpen) {
-            window.history.pushState(null, '', window.location.href);
+            window.history.pushState({ filterOpen: true }, '', window.location.href);
         }
 
         window.addEventListener('popstate', handlePopState);
-        return () => window.removeEventListener('popstate', handlePopState);
+        return () => {
+            removeBeforeListener();
+            window.removeEventListener('popstate', handlePopState);
+        };
     }, [isFilterOpen]);
 
     // Seed for deterministic answer shuffling (generated once per page load)
@@ -628,6 +660,16 @@ export default function QuestionsIndex({
                         onOpenChange={(open) => {
                             if (!open) {
                                 setCategorySearch('');
+                                // Apply filters when closing the sheet
+                                const requestParams = {
+                                    ...localFilters,
+                                    categories:
+                                        localFilters.categories.join(','),
+                                };
+                                router.get('/questions', requestParams, {
+                                    preserveState: true,
+                                    preserveScroll: true,
+                                });
                             }
                             setIsFilterOpen(open);
                         }}
@@ -688,28 +730,10 @@ export default function QuestionsIndex({
                                                         0) > 0,
                                             )
                                             .map((c) => c.id);
-                                        const newFilters = {
-                                            ...localFilters,
+                                        setLocalFilters((f) => ({
+                                            ...f,
                                             categories: allCategories,
-                                        };
-                                        setLocalFilters(newFilters);
-                                        // Use comma-separated string for NativePHP compatibility
-                                        const requestParams = {
-                                            ...newFilters,
-                                            categories: allCategories.join(','),
-                                        };
-                                        console.log(
-                                            '[SelectAll] Sending categories as string:',
-                                            requestParams.categories,
-                                        );
-                                        router.get(
-                                            '/questions',
-                                            requestParams,
-                                            {
-                                                preserveState: true,
-                                                preserveScroll: true,
-                                            },
-                                        );
+                                        }));
                                     }}
                                 >
                                     ყველა ({totalCategoryCount})
@@ -719,27 +743,10 @@ export default function QuestionsIndex({
                                     size="sm"
                                     className="flex-1"
                                     onClick={() => {
-                                        const newFilters = {
-                                            ...localFilters,
+                                        setLocalFilters((f) => ({
+                                            ...f,
                                             categories: [],
-                                        };
-                                        setLocalFilters(newFilters);
-                                        // Use empty string for NativePHP compatibility
-                                        const requestParams = {
-                                            ...newFilters,
-                                            categories: '',
-                                        };
-                                        console.log(
-                                            '[Clear] Sending categories as empty string',
-                                        );
-                                        router.get(
-                                            '/questions',
-                                            requestParams,
-                                            {
-                                                preserveState: true,
-                                                preserveScroll: true,
-                                            },
-                                        );
+                                        }));
                                     }}
                                 >
                                     გასუფთავება
@@ -759,59 +766,16 @@ export default function QuestionsIndex({
                                             key={cat.id}
                                             disabled={count === 0}
                                             onClick={() => {
-                                                console.log(
-                                                    '[CategoryFilter] Click on category:',
-                                                    cat.id,
-                                                    cat.name,
-                                                );
-                                                console.log(
-                                                    '[CategoryFilter] isSelected:',
-                                                    isSelected,
-                                                );
-                                                console.log(
-                                                    '[CategoryFilter] Current localFilters.categories:',
-                                                    localFilters.categories,
-                                                );
-
-                                                const newCategories = isSelected
-                                                    ? localFilters.categories.filter(
-                                                          (id) => id !== cat.id,
-                                                      )
-                                                    : [
-                                                          ...localFilters.categories,
-                                                          cat.id,
-                                                      ];
-
-                                                console.log(
-                                                    '[CategoryFilter] New categories:',
-                                                    newCategories,
-                                                );
-
-                                                const newFilters = {
-                                                    ...localFilters,
-                                                    categories: newCategories,
-                                                };
-
-                                                setLocalFilters(newFilters);
-                                                // Auto-apply filter on selection
-                                                // Use comma-separated string for NativePHP compatibility
-                                                const requestParams = {
-                                                    ...newFilters,
-                                                    categories:
-                                                        newCategories.join(','),
-                                                };
-                                                console.log(
-                                                    '[CategoryFilter] Sending categories as string:',
-                                                    requestParams.categories,
-                                                );
-                                                router.get(
-                                                    '/questions',
-                                                    requestParams,
-                                                    {
-                                                        preserveState: true,
-                                                        preserveScroll: true,
-                                                    },
-                                                );
+                                                // Toggle category selection (applied on sheet close)
+                                                setLocalFilters((f) => ({
+                                                    ...f,
+                                                    categories: isSelected
+                                                        ? f.categories.filter(
+                                                              (id) =>
+                                                                  id !== cat.id,
+                                                          )
+                                                        : [...f.categories, cat.id],
+                                                }));
                                             }}
                                             className={`flex w-full items-center justify-between gap-3 rounded-lg border p-4 text-left transition-colors ${
                                                 count === 0

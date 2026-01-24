@@ -55,6 +55,12 @@ export function SettingsSheet({ open, onOpenChange }: SettingsSheetProps) {
         currentViewRef.current = currentView;
     }, [currentView]);
 
+    // Track open state in ref for Inertia event handler
+    const openRef = useRef(open);
+    useEffect(() => {
+        openRef.current = open;
+    }, [open]);
+
     // Handle Android back button - only depend on `open`
     useEffect(() => {
         if (!open) {
@@ -66,6 +72,33 @@ export function SettingsSheet({ open, onOpenChange }: SettingsSheetProps) {
         window.history.pushState({ settingsSheet: true, view: 'main' }, '');
         historyDepthRef.current = 1;
 
+        // Use Inertia's router events to intercept navigation BEFORE it happens
+        const removeBeforeListener = router.on('before', (event) => {
+            if (openRef.current) {
+                // Only block navigation to a DIFFERENT page, not same-page updates
+                const targetUrl = new URL(event.detail.visit.url);
+                const currentPath = window.location.pathname;
+
+                // Allow navigation to the same page (e.g., saving settings)
+                if (targetUrl.pathname === currentPath) {
+                    return;
+                }
+
+                // Cancel navigation to different pages and handle like a back button press
+                event.preventDefault();
+                if (historyDepthRef.current > 0) {
+                    historyDepthRef.current--;
+                    if (currentViewRef.current !== 'main') {
+                        setCurrentView('main');
+                    } else {
+                        onOpenChange(false);
+                    }
+                }
+                return false;
+            }
+        });
+
+        // Also handle browser back button via popstate for non-Inertia navigation
         const handlePopState = () => {
             if (historyDepthRef.current <= 0) {
                 return;
@@ -82,6 +115,7 @@ export function SettingsSheet({ open, onOpenChange }: SettingsSheetProps) {
 
         window.addEventListener('popstate', handlePopState);
         return () => {
+            removeBeforeListener();
             window.removeEventListener('popstate', handlePopState);
         };
     }, [open, onOpenChange]);
