@@ -1,5 +1,6 @@
 import { Transition } from '@headlessui/react';
 import { router, useForm, usePage } from '@inertiajs/react';
+import { logout } from '@/routes/auth';
 import {
     Camera,
     Check,
@@ -307,7 +308,7 @@ function MainView({
     const { licenseTypes } = usePage<SharedData>().props;
 
     const handleLogout = () => {
-        router.post('/logout');
+        window.location.href = logout.url();
     };
 
     return (

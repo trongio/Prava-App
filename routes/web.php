@@ -14,13 +14,18 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [UserSelectionController::class, 'index'])->name('home');
 Route::post('/login', [UserSelectionController::class, 'login'])->name('login');
 Route::post('/register', [UserSelectionController::class, 'store'])->name('register');
-Route::post('/logout', function () {
+Route::get('/auth/logout', function () {
+    // Revoke all Sanctum tokens for the user
+    if (auth()->check()) {
+        auth()->user()->tokens()->delete();
+    }
+
     auth()->logout();
     request()->session()->invalidate();
     request()->session()->regenerateToken();
 
-    return redirect()->route('home');
-})->name('logout');
+    return redirect('/');
+})->name('auth.logout');
 
 // Convert native file to base64 data URL for preview (GET to avoid NativePHP POST interception)
 Route::get('/native-file/preview', function () {

@@ -1,4 +1,4 @@
-import { Link, router } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { LogOut } from 'lucide-react';
 
 import {
@@ -7,8 +7,7 @@ import {
     DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { UserInfo } from '@/components/user-info';
-import { useMobileNavigation } from '@/hooks/use-mobile-navigation';
-import { logout } from '@/routes';
+import { logout } from '@/routes/auth';
 import { type User } from '@/types';
 
 interface UserMenuContentProps {
@@ -16,13 +15,6 @@ interface UserMenuContentProps {
 }
 
 export function UserMenuContent({ user }: UserMenuContentProps) {
-    const cleanup = useMobileNavigation();
-
-    const handleLogout = () => {
-        cleanup();
-        router.flushAll();
-    };
-
     return (
         <>
             <DropdownMenuLabel className="p-0 font-normal">
@@ -34,9 +26,7 @@ export function UserMenuContent({ user }: UserMenuContentProps) {
             <DropdownMenuItem asChild>
                 <Link
                     className="block w-full cursor-pointer"
-                    href={logout()}
-                    as="button"
-                    onClick={handleLogout}
+                    href={logout.url()}
                     data-test="logout-button"
                 >
                     <LogOut className="mr-2" />
