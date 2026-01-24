@@ -2,25 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\TestStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TestResult extends Model
 {
-    // Status constants
-    public const STATUS_IN_PROGRESS = 'in_progress';
-
-    public const STATUS_PAUSED = 'paused';
-
-    public const STATUS_COMPLETED = 'completed';
-
-    public const STATUS_PASSED = 'passed';
-
-    public const STATUS_FAILED = 'failed';
-
-    public const STATUS_ABANDONED = 'abandoned';
-
     protected $fillable = [
         'user_id',
         'test_template_id',
@@ -46,6 +34,7 @@ class TestResult extends Model
     protected function casts(): array
     {
         return [
+            'status' => TestStatus::class,
             'configuration' => 'array',
             'questions_with_answers' => 'array',
             'answers_given' => 'array',
@@ -75,37 +64,37 @@ class TestResult extends Model
     // Status check methods
     public function isInProgress(): bool
     {
-        return $this->status === self::STATUS_IN_PROGRESS;
+        return $this->status === TestStatus::InProgress;
     }
 
     public function isPaused(): bool
     {
-        return $this->status === self::STATUS_PAUSED;
+        return $this->status === TestStatus::Paused;
     }
 
     public function isCompleted(): bool
     {
-        return in_array($this->status, [self::STATUS_COMPLETED, self::STATUS_PASSED, self::STATUS_FAILED, self::STATUS_ABANDONED]);
+        return $this->status?->isCompleted() ?? false;
     }
 
     public function isAbandoned(): bool
     {
-        return $this->status === self::STATUS_ABANDONED;
+        return $this->status === TestStatus::Abandoned;
     }
 
     public function isActive(): bool
     {
-        return in_array($this->status, [self::STATUS_IN_PROGRESS, self::STATUS_PAUSED]);
+        return $this->status?->isActive() ?? false;
     }
 
     public function isPassed(): bool
     {
-        return $this->status === self::STATUS_PASSED;
+        return $this->status === TestStatus::Passed;
     }
 
     public function isFailed(): bool
     {
-        return $this->status === self::STATUS_FAILED;
+        return $this->status === TestStatus::Failed;
     }
 
     public function isOvertime(): bool
@@ -115,7 +104,7 @@ class TestResult extends Model
 
     public function canBeResumed(): bool
     {
-        return in_array($this->status, [self::STATUS_IN_PROGRESS, self::STATUS_PAUSED]);
+        return $this->status?->isActive() ?? false;
     }
 
     // Scopes
@@ -126,27 +115,27 @@ class TestResult extends Model
 
     public function scopeInProgress(Builder $query): Builder
     {
-        return $query->whereIn('status', [self::STATUS_IN_PROGRESS, self::STATUS_PAUSED]);
+        return $query->whereIn('status', TestStatus::activeStatuses());
     }
 
     public function scopeCompleted(Builder $query): Builder
     {
-        return $query->whereIn('status', [self::STATUS_COMPLETED, self::STATUS_PASSED, self::STATUS_FAILED]);
+        return $query->whereIn('status', TestStatus::completedStatuses());
     }
 
     public function scopeActive(Builder $query): Builder
     {
-        return $query->whereIn('status', [self::STATUS_IN_PROGRESS, self::STATUS_PAUSED]);
+        return $query->whereIn('status', TestStatus::activeStatuses());
     }
 
     public function scopePassed(Builder $query): Builder
     {
-        return $query->where('status', self::STATUS_PASSED);
+        return $query->where('status', TestStatus::Passed);
     }
 
     public function scopeFailed(Builder $query): Builder
     {
-        return $query->where('status', self::STATUS_FAILED);
+        return $query->where('status', TestStatus::Failed);
     }
 
     // Helper methods
@@ -214,7 +203,7 @@ class TestResult extends Model
         $timeTaken = $totalTime - ($this->remaining_time_seconds ?? 0);
 
         $this->update([
-            'status' => self::STATUS_ABANDONED,
+            'status' => TestStatus::Abandoned,
             'finished_at' => now(),
             'time_taken_seconds' => $timeTaken,
             'score_percentage' => $this->total_questions > 0
