@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
+import { useHaptic } from '@/hooks/use-haptic';
 import { cn } from '@/lib/utils';
 import type { AnswerGiven, TestResult } from '@/types/models';
 
@@ -119,6 +120,9 @@ export default function ActiveTest({ testResult, userSettings }: Props) {
     );
 
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    // Haptic feedback
+    const { vibrateCorrect, vibrateWrong } = useHaptic();
 
     // Reset state when testResult changes (e.g., resuming from pause or navigating)
     // We intentionally only depend on testResult.id to reset all state when the test changes
@@ -279,6 +283,13 @@ export default function ActiveTest({ testResult, userSettings }: Props) {
                 setCorrectCount(data.correct_count);
                 setWrongCount(data.wrong_count);
 
+                // Haptic feedback
+                if (data.is_correct) {
+                    vibrateCorrect();
+                } else {
+                    vibrateWrong();
+                }
+
                 // Remove from skipped if it was there
                 setSkippedIds((prev) =>
                     prev.filter((id) => id !== currentQuestion.id),
@@ -336,6 +347,8 @@ export default function ActiveTest({ testResult, userSettings }: Props) {
             currentIndex,
             questions,
             answersGiven,
+            vibrateCorrect,
+            vibrateWrong,
         ],
     );
 

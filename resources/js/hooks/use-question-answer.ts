@@ -3,6 +3,8 @@ import { useCallback, useRef, useState } from 'react';
 
 import type { AnswerState, Question } from '@/types/models';
 
+import { useHaptic } from './use-haptic';
+
 interface AnswerResponse {
     is_correct: boolean;
     correct_answer_id: number;
@@ -76,6 +78,9 @@ export function useQuestionAnswer({
     const [sessionCorrectIds, setSessionCorrectIds] = useState<number[]>([]);
     const [sessionWrongIds, setSessionWrongIds] = useState<number[]>([]);
 
+    // Haptic feedback for answer responses
+    const { vibrateCorrect, vibrateWrong } = useHaptic();
+
     // Ref to track pending submissions (prevents race conditions from rapid clicks)
     const pendingAnswersRef = useRef<Set<number>>(new Set());
 
@@ -140,9 +145,11 @@ export function useQuestionAnswer({
                 // Track question IDs for session-based filtering
                 if (data.is_correct) {
                     setSessionCorrectIds((prev) => [...prev, question.id]);
+                    vibrateCorrect();
                     onCorrect?.(question.id);
                 } else {
                     setSessionWrongIds((prev) => [...prev, question.id]);
+                    vibrateWrong();
                     onWrong?.(question.id);
                 }
 
@@ -159,7 +166,7 @@ export function useQuestionAnswer({
                 });
             }
         },
-        [answerStates, onCorrect, onWrong, onAnswer, onError],
+        [answerStates, onCorrect, onWrong, onAnswer, onError, vibrateCorrect, vibrateWrong],
     );
 
     const reset = useCallback((): void => {
