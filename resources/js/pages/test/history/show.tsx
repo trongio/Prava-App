@@ -116,8 +116,8 @@ export default function HistoryShow({ testResult }: Props) {
                 answeredCount={
                     testResult.correct_count + testResult.wrong_count
                 }
-                scorePercentage={testResult.score_percentage}
-                timeTakenSeconds={testResult.time_taken_seconds}
+                scorePercentage={testResult.score_percentage ?? 0}
+                timeTakenSeconds={testResult.time_taken_seconds ?? 0}
                 testType={testResult.test_type}
                 licenseType={testResult.license_type}
             />

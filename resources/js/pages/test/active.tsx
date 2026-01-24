@@ -27,69 +27,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
-
-interface Answer {
-    id: number;
-    text: string;
-    is_correct: boolean;
-    position: number;
-}
-
-interface Sign {
-    id: number;
-    image: string;
-    title: string;
-    description: string | null;
-}
-
-interface QuestionCategory {
-    id: number;
-    name: string;
-}
-
-interface TestQuestion {
-    id: number;
-    question: string;
-    description: string | null;
-    full_description: string | null;
-    image: string | null;
-    image_custom: string | null;
-    is_short_image: boolean;
-    answers: Answer[];
-    signs: Sign[];
-    question_category: QuestionCategory;
-}
-
-interface AnswerGiven {
-    answer_id: number;
-    is_correct: boolean;
-    answered_at: string;
-}
-
-interface TestResultData {
-    id: number;
-    test_type: string;
-    configuration: {
-        question_count: number;
-        time_per_question: number;
-        failure_threshold: number;
-        auto_advance: boolean;
-        shuffle_seed: number;
-    };
-    questions: TestQuestion[];
-    current_question_index: number;
-    answers_given: Record<string, AnswerGiven>;
-    skipped_question_ids: number[];
-    correct_count: number;
-    wrong_count: number;
-    total_questions: number;
-    remaining_time_seconds: number;
-    allowed_wrong: number;
-    started_at: string;
-}
+import type { AnswerGiven, TestResult } from '@/types/models';
 
 interface Props {
-    testResult: TestResultData;
+    testResult: TestResult;
     userSettings: {
         auto_advance: boolean;
     };
@@ -279,24 +220,6 @@ export default function ActiveTest({ testResult, userSettings }: Props) {
         };
     }, [hasTimeExpired]);
 
-    // Auto-pause when navigating away
-    useEffect(() => {
-        const handleVisibilityChange = () => {
-            if (document.hidden) {
-                handlePause();
-            }
-        };
-
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-
-        return () => {
-            document.removeEventListener(
-                'visibilitychange',
-                handleVisibilityChange,
-            );
-        };
-    }, [currentIndex, remainingTime]);
-
     // Handle back button during test
     useEffect(() => {
         const handlePopState = (e: PopStateEvent) => {
@@ -468,6 +391,24 @@ export default function ActiveTest({ testResult, userSettings }: Props) {
             isPausedRef.current = false;
         }
     }, [testResult.id, currentIndex, remainingTime]);
+
+    // Auto-pause when navigating away
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                handlePause();
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            document.removeEventListener(
+                'visibilitychange',
+                handleVisibilityChange,
+            );
+        };
+    }, [handlePause]);
 
     const handleComplete = useCallback(async () => {
         try {

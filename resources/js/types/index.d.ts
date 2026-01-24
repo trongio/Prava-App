@@ -1,6 +1,13 @@
 import { InertiaLinkProps } from '@inertiajs/react';
 import { LucideIcon } from 'lucide-react';
 
+// Re-export all model types from centralized definitions
+export * from './models';
+
+// =============================================================================
+// Framework-Specific Types (Inertia, Navigation, etc.)
+// =============================================================================
+
 export interface Auth {
     user: User;
 }
@@ -22,18 +29,11 @@ export interface NavItem {
     isActive?: boolean;
 }
 
-export interface LicenseType {
-    id: number;
-    code: string;
-    name: string;
-    children?: LicenseType[];
-}
-
 export interface SharedData {
     name: string;
     auth: Auth;
     sidebarOpen: boolean;
-    licenseTypes: LicenseType[];
+    licenseTypes: import('./models').LicenseType[];
     // Native navigation props (used by app.blade.php for NativePHP TopBar/BottomNav)
     pageTitle?: string;
     pageSubtitle?: string;

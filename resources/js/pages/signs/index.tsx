@@ -179,7 +179,7 @@ export default function SignsIndex({ categories, totalSigns }: Props) {
                 });
             }
         }
-    }, [selectedSign?.id]);
+    }, [selectedSign]);
 
     // Get selected category
     const selectedCategory = useMemo(

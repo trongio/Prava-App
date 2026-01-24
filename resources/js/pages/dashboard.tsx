@@ -1,4 +1,4 @@
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Deferred, Head, Link, router, usePage } from '@inertiajs/react';
 import {
     BookOpen,
     CheckCircle2,
@@ -7,7 +7,6 @@ import {
     TrendingDown,
     TrendingUp,
     Trophy,
-    XCircle,
     Zap,
 } from 'lucide-react';
 import { useEffect } from 'react';
@@ -17,69 +16,23 @@ import { LicenseTypeSelect } from '@/components/license-type-select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import MobileLayout from '@/layouts/mobile-layout';
 import { cn } from '@/lib/utils';
 import { type SharedData } from '@/types';
-
-interface LicenseType {
-    id: number;
-    code: string;
-    name: string;
-    children?: LicenseType[];
-}
-
-interface ActiveTest {
-    id: number;
-    test_type: string;
-    status: string;
-    total_questions: number;
-    answered_count: number;
-    correct_count: number;
-    wrong_count: number;
-    remaining_time_seconds: number;
-    license_type: LicenseType | null;
-}
-
-interface LicensePerformance {
-    license_type: LicenseType;
-    total_tests: number;
-    passed: number;
-    failed: number;
-    pass_rate: number;
-    avg_score: number;
-    pass_chance: number;
-    trend: 'improving' | 'declining' | 'stable';
-}
-
-interface RecentTest {
-    id: number;
-    status: string;
-    score_percentage: number;
-    finished_at: string;
-    license_type_id: number | null;
-}
-
-interface PassChance {
-    percentage: number;
-    total_questions: number;
-    studied_questions: number;
-    mastered_questions: number;
-}
+import type {
+    ActiveTest,
+    LicensePerformance,
+    LicenseType,
+    PassChance,
+    ProgressStats,
+    RecentTest,
+    UserStats,
+} from '@/types/models';
 
 interface Props {
-    stats: {
-        total_tests: number;
-        passed: number;
-        failed: number;
-        pass_rate: number;
-        total_correct: number;
-        total_wrong: number;
-    };
-    progress: {
-        studied: number;
-        total: number;
-        percentage: number;
-    };
+    stats: UserStats;
+    progress: ProgressStats;
     activeTest: ActiveTest | null;
     licensePerformance: LicensePerformance[];
     recentTests: RecentTest[];
@@ -140,13 +93,6 @@ export default function Dashboard({
             );
         };
     }, []);
-
-    // Calculate chart data
-    const maxScore = Math.max(
-        ...recentTests.map((t) => t.score_percentage),
-        100,
-    );
-    const chartHeight = 60;
 
     return (
         <MobileLayout>
@@ -314,56 +260,33 @@ export default function Dashboard({
                     </CardContent>
                 </Card>
 
-                {/* Recent Tests Chart */}
-                {recentTests.length > 0 && (
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <div className="flex items-center justify-between">
-                                <CardTitle className="text-base">
-                                    ბოლო ტესტები
-                                </CardTitle>
-                                <Link
-                                    href="/test/history"
-                                    className="text-xs text-primary"
-                                >
-                                    ყველა
-                                </Link>
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            {/* Mini chart */}
-                            <div className="flex items-end gap-1">
-                                {recentTests.map((test) => (
-                                    <div
-                                        key={test.id}
-                                        className="group relative flex-1"
-                                    >
-                                        <div
-                                            className={cn(
-                                                'w-full rounded-t transition-all',
-                                                test.status === 'passed'
-                                                    ? 'bg-green-500'
-                                                    : 'bg-red-500',
-                                            )}
-                                            style={{
-                                                height: `${(test.score_percentage / maxScore) * chartHeight}px`,
-                                                minHeight: '4px',
-                                            }}
-                                        />
-                                        {/* Tooltip */}
-                                        <div className="pointer-events-none absolute bottom-full left-1/2 mb-1 -translate-x-1/2 rounded bg-popover px-2 py-1 text-xs whitespace-nowrap opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
-                                            {Math.round(test.score_percentage)}%
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
-                                <span>ძველი</span>
-                                <span>ახალი</span>
-                            </div>
-                        </CardContent>
-                    </Card>
-                )}
+                {/* Recent Tests Chart - Deferred */}
+                <Deferred
+                    data="recentTests"
+                    fallback={
+                        <Card>
+                            <CardHeader className="pb-2">
+                                <div className="flex items-center justify-between">
+                                    <CardTitle className="text-base">ბოლო ტესტები</CardTitle>
+                                    <Skeleton className="h-4 w-12" />
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="flex items-end gap-1" style={{ height: 60 }}>
+                                    {[25, 35, 30, 45, 40, 50, 35, 55, 45, 60].map((height, i) => (
+                                        <Skeleton key={i} className="flex-1 rounded-t" style={{ height: `${height}px` }} />
+                                    ))}
+                                </div>
+                                <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
+                                    <span>ძველი</span>
+                                    <span>ახალი</span>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    }
+                >
+                    <RecentTestsChart recentTests={recentTests} />
+                </Deferred>
 
                 {/* Progress */}
                 <Card>
@@ -391,81 +314,34 @@ export default function Dashboard({
                     </CardContent>
                 </Card>
 
-                {/* License Performance */}
-                {licensePerformance.length > 0 && (
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <CardTitle className="flex items-center gap-2 text-base">
-                                <Target className="h-4 w-4" />
-                                ჩაბარების შანსი
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-3">
-                            {licensePerformance.map((perf) => (
-                                <div
-                                    key={perf.license_type.id}
-                                    className="rounded-lg border p-3"
-                                >
-                                    <div className="mb-2 flex items-center justify-between">
-                                        <div className="flex items-center gap-2">
-                                            <span className="font-medium">
-                                                {perf.license_type.code}
-                                            </span>
-                                            {perf.trend === 'improving' && (
-                                                <TrendingUp className="h-4 w-4 text-green-500" />
-                                            )}
-                                            {perf.trend === 'declining' && (
-                                                <TrendingDown className="h-4 w-4 text-red-500" />
-                                            )}
+                {/* License Performance - Deferred */}
+                <Deferred
+                    data="licensePerformance"
+                    fallback={
+                        <Card>
+                            <CardHeader className="pb-2">
+                                <CardTitle className="flex items-center gap-2 text-base">
+                                    <Target className="h-4 w-4" />
+                                    ჩაბარების შანსი
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                                {Array.from({ length: 2 }).map((_, i) => (
+                                    <div key={i} className="rounded-lg border p-3">
+                                        <div className="mb-2 flex items-center justify-between">
+                                            <Skeleton className="h-5 w-16" />
+                                            <Skeleton className="h-6 w-12" />
                                         </div>
-                                        <div className="flex items-center gap-1">
-                                            <Gauge className="h-4 w-4 text-muted-foreground" />
-                                            <span
-                                                className={cn(
-                                                    'text-lg font-bold',
-                                                    perf.pass_chance >= 70
-                                                        ? 'text-green-500'
-                                                        : perf.pass_chance >= 50
-                                                          ? 'text-amber-500'
-                                                          : 'text-red-500',
-                                                )}
-                                            >
-                                                {perf.pass_chance}%
-                                            </span>
-                                        </div>
+                                        <Skeleton className="h-4 w-32" />
+                                        <Skeleton className="mt-2 h-1.5 w-full" />
                                     </div>
-                                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                                        <span className="flex items-center gap-1">
-                                            <Trophy className="h-3 w-3 text-green-500" />
-                                            {perf.passed}
-                                        </span>
-                                        <span className="flex items-center gap-1">
-                                            <XCircle className="h-3 w-3 text-red-500" />
-                                            {perf.failed}
-                                        </span>
-                                        <span>საშ. {perf.avg_score}%</span>
-                                    </div>
-                                    {/* Pass chance bar */}
-                                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
-                                        <div
-                                            className={cn(
-                                                'h-full rounded-full transition-all',
-                                                perf.pass_chance >= 70
-                                                    ? 'bg-green-500'
-                                                    : perf.pass_chance >= 50
-                                                      ? 'bg-amber-500'
-                                                      : 'bg-red-500',
-                                            )}
-                                            style={{
-                                                width: `${perf.pass_chance}%`,
-                                            }}
-                                        />
-                                    </div>
-                                </div>
-                            ))}
-                        </CardContent>
-                    </Card>
-                )}
+                                ))}
+                            </CardContent>
+                        </Card>
+                    }
+                >
+                    <LicensePerformanceSection licensePerformance={licensePerformance} />
+                </Deferred>
 
                 {/* Empty state for new users */}
                 {stats.total_tests === 0 && (
@@ -494,5 +370,150 @@ export default function Dashboard({
                 )}
             </div>
         </MobileLayout>
+    );
+}
+
+// Extracted component for deferred loading
+function RecentTestsChart({ recentTests }: { recentTests: RecentTest[] }) {
+    const maxScore = Math.max(
+        ...recentTests.map((t) => t.score_percentage),
+        100,
+    );
+    const chartHeight = 60;
+
+    return (
+        <Card>
+            <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                    <CardTitle className="text-base">ბოლო ტესტები</CardTitle>
+                    <span className="text-xs text-muted-foreground">
+                        {recentTests.length} ტესტი
+                    </span>
+                </div>
+            </CardHeader>
+            <CardContent>
+                {recentTests.length > 0 ? (
+                    <>
+                        <div
+                            className="flex items-end gap-1"
+                            style={{ height: chartHeight }}
+                        >
+                            {recentTests.map((test, index) => {
+                                const height =
+                                    (test.score_percentage / maxScore) *
+                                    chartHeight;
+                                const isPassed = test.status === 'passed';
+                                return (
+                                    <div
+                                        key={test.id}
+                                        className={cn(
+                                            'flex-1 rounded-t transition-all',
+                                            isPassed
+                                                ? 'bg-green-500'
+                                                : 'bg-red-500',
+                                        )}
+                                        style={{
+                                            height: `${height}px`,
+                                            opacity:
+                                                0.4 +
+                                                (index / recentTests.length) *
+                                                    0.6,
+                                        }}
+                                        title={`${test.score_percentage}%`}
+                                    />
+                                );
+                            })}
+                        </div>
+                        <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
+                            <span>ძველი</span>
+                            <span>ახალი</span>
+                        </div>
+                    </>
+                ) : (
+                    <p className="py-4 text-center text-sm text-muted-foreground">
+                        ჯერ არ გაქვს დასრულებული ტესტები
+                    </p>
+                )}
+            </CardContent>
+        </Card>
+    );
+}
+
+// Extracted component for deferred loading
+function LicensePerformanceSection({
+    licensePerformance,
+}: {
+    licensePerformance: LicensePerformance[];
+}) {
+    if (licensePerformance.length === 0) {
+        return null;
+    }
+
+    return (
+        <Card>
+            <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2 text-base">
+                    <Target className="h-4 w-4" />
+                    ჩაბარების შანსი
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+                {licensePerformance.map((perf) => (
+                    <div
+                        key={perf.license_type.id}
+                        className="rounded-lg border p-3"
+                    >
+                        <div className="mb-2 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <span className="font-medium">
+                                    {perf.license_type.code}
+                                </span>
+                                {perf.trend === 'improving' && (
+                                    <TrendingUp className="h-4 w-4 text-green-500" />
+                                )}
+                                {perf.trend === 'declining' && (
+                                    <TrendingDown className="h-4 w-4 text-red-500" />
+                                )}
+                            </div>
+                            <div
+                                className={cn(
+                                    'rounded-full px-2 py-0.5 text-sm font-bold',
+                                    perf.pass_chance >= 70
+                                        ? 'bg-green-500/10 text-green-500'
+                                        : perf.pass_chance >= 50
+                                          ? 'bg-amber-500/10 text-amber-500'
+                                          : 'bg-red-500/10 text-red-500',
+                                )}
+                            >
+                                {perf.pass_chance}%
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                                <Trophy className="h-3 w-3" />
+                                {perf.passed}/{perf.total_tests}
+                            </span>
+                            <span className="flex items-center gap-1">
+                                <Gauge className="h-3 w-3" />
+                                საშუალო: {perf.avg_score}%
+                            </span>
+                        </div>
+                        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-secondary">
+                            <div
+                                className={cn(
+                                    'h-full rounded-full transition-all',
+                                    perf.pass_chance >= 70
+                                        ? 'bg-green-500'
+                                        : perf.pass_chance >= 50
+                                          ? 'bg-amber-500'
+                                          : 'bg-red-500',
+                                )}
+                                style={{ width: `${perf.pass_chance}%` }}
+                            />
+                        </div>
+                    </div>
+                ))}
+            </CardContent>
+        </Card>
     );
 }

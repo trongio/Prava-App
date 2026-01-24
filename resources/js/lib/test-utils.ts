@@ -1,50 +1,22 @@
-import type { Question } from '@/components/question-card';
+import type {
+    AnswerGiven,
+    AnswerState,
+    LicenseType,
+    Question,
+    TestConfiguration,
+    TestResult,
+} from '@/types/models';
 
-// Shared types for test results
-export interface AnswerGiven {
-    answer_id: number;
-    is_correct: boolean;
-    answered_at: string;
-}
+// Re-export for backward compatibility
+export type { AnswerGiven, AnswerState, LicenseType, TestConfiguration };
 
-export interface LicenseType {
-    id: number;
-    code: string;
-    name: string;
-}
-
-export interface TestConfiguration {
-    question_count: number;
-    time_per_question: number;
-    failure_threshold: number;
-    shuffle_seed?: number;
-}
-
-export interface TestResultData {
-    id: number;
-    test_type: string;
-    status: 'in_progress' | 'paused' | 'passed' | 'failed';
-    configuration: TestConfiguration;
-    questions: Question[];
-    answers_given: Record<string, AnswerGiven>;
-    correct_count: number;
-    wrong_count: number;
-    total_questions: number;
-    score_percentage: number;
-    time_taken_seconds: number;
-    allowed_wrong: number;
-    started_at: string;
-    finished_at: string | null;
-    license_type_id: number | null;
-    license_type?: LicenseType | null;
-}
-
-export interface AnswerState {
-    questionId: number;
-    selectedAnswerId: number | null;
-    correctAnswerId: number | null;
-    isCorrect: boolean | null;
-    explanation: string | null;
+/**
+ * TestResultData is an alias for TestResult with additional fields
+ * that may be present in specific contexts (e.g., results page).
+ */
+export interface TestResultData extends Omit<TestResult, 'current_question_index' | 'skipped_question_ids'> {
+    time_taken_seconds?: number;
+    license_type_id?: number | null;
 }
 
 // Utility functions

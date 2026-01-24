@@ -5,20 +5,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-
-interface LicenseTypeChild {
-    id: number;
-    code: string;
-    name: string;
-}
-
-interface LicenseType {
-    id: number;
-    code: string;
-    name: string;
-    is_parent: boolean;
-    children: LicenseTypeChild[];
-}
+import type { LicenseType } from '@/types/models';
 
 interface Props {
     licenseTypes: LicenseType[];
@@ -113,9 +100,10 @@ export default function LicenseSelection({ licenseTypes }: Props) {
                 <div className="grid grid-cols-2 gap-3">
                     {licenseTypes.map((license) => {
                         const isSelected = selectedId === license.id;
-                        const childCodes = license.children
-                            .map((c) => c.code)
-                            .join(', ');
+                        const childCodes =
+                            license.children
+                                ?.map((c) => c.code)
+                                .join(', ') ?? '';
 
                         return (
                             <Card

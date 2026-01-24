@@ -4,47 +4,10 @@ import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import type { Answer, AnswerState, Question } from '@/types/models';
 
-interface Answer {
-    id: number;
-    text: string;
-    is_correct: boolean;
-    position: number;
-}
-
-interface QuestionCategory {
-    id: number;
-    name: string;
-}
-
-interface Sign {
-    id: number;
-    image: string;
-    title: string;
-    description: string | null;
-}
-
-export interface Question {
-    id: number;
-    question: string;
-    description: string | null;
-    full_description: string | null;
-    image: string | null;
-    image_custom: string | null;
-    is_short_image: boolean;
-    is_active?: boolean;
-    answers: Answer[];
-    question_category: QuestionCategory;
-    signs: Sign[];
-}
-
-interface AnswerState {
-    questionId: number;
-    selectedAnswerId: number | null;
-    correctAnswerId: number | null;
-    isCorrect: boolean | null;
-    explanation: string | null;
-}
+// Re-export Question for backward compatibility with existing imports
+export type { Question } from '@/types/models';
 
 interface QuestionCardProps {
     question: Question;

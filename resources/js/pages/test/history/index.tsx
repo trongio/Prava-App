@@ -33,18 +33,18 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import MobileLayout from '@/layouts/mobile-layout';
+import {
+    formatDateTime,
+    formatTime,
+    getTestTypeName,
+} from '@/lib/test-utils';
 import { cn } from '@/lib/utils';
-
-interface LicenseType {
-    id: number;
-    code: string;
-    name: string;
-}
+import type { LicenseType, TestStatus, TestType } from '@/types/models';
 
 interface TestResultItem {
     id: number;
-    test_type: string;
-    status: string;
+    test_type: TestType;
+    status: TestStatus;
     correct_count: number;
     wrong_count: number;
     total_questions: number;
@@ -81,34 +81,6 @@ interface Props {
     stats: Stats;
     filters: Filters;
 }
-
-const formatTime = (seconds: number) => {
-    const sign = seconds < 0 ? '-' : '';
-    const absSeconds = Math.abs(seconds);
-    const mins = Math.floor(absSeconds / 60);
-    const secs = absSeconds % 60;
-    return `${sign}${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-};
-
-const formatDateTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ka-GE', {
-        day: 'numeric',
-        month: 'short',
-        hour: '2-digit',
-        minute: '2-digit',
-    });
-};
-
-const getTestTypeName = (type: string) => {
-    const types: Record<string, string> = {
-        thematic: 'თემატური',
-        bookmarked: 'შენახული',
-        quick: 'სწრაფი',
-        custom: 'მორგებული',
-    };
-    return types[type] || type;
-};
 
 export default function HistoryIndex({ testResults, stats, filters }: Props) {
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);

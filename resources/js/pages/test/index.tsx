@@ -62,44 +62,12 @@ import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import MobileLayout from '@/layouts/mobile-layout';
-
-interface LicenseType {
-    id: number;
-    code: string;
-    name: string;
-    is_parent: boolean;
-    children: LicenseType[];
-}
-
-interface QuestionCategory {
-    id: number;
-    name: string;
-    questions_count: number;
-}
-
-interface TestTemplate {
-    id: number;
-    name: string;
-    license_type_id: number | null;
-    question_count: number;
-    time_per_question: number;
-    failure_threshold: number;
-    category_ids: number[];
-    license_type: LicenseType | null;
-}
-
-interface ActiveTest {
-    id: number;
-    test_type: string;
-    status: string;
-    correct_count: number;
-    wrong_count: number;
-    total_questions: number;
-    answered_count: number;
-    remaining_time_seconds: number;
-    started_at: string;
-    license_type: LicenseType | null;
-}
+import type {
+    ActiveTest,
+    LicenseType,
+    QuestionCategory,
+    TestTemplate,
+} from '@/types/models';
 
 interface Props {
     templates: TestTemplate[];
@@ -209,10 +177,10 @@ export default function TestIndex({
         if (form.data.category_ids.length > 0) {
             return categories
                 .filter((c) => form.data.category_ids.includes(c.id))
-                .reduce((sum, c) => sum + c.questions_count, 0);
+                .reduce((sum, c) => sum + (c.questions_count ?? 0), 0);
         }
         // No categories selected - use total of all categories
-        return categories.reduce((sum, c) => sum + c.questions_count, 0);
+        return categories.reduce((sum, c) => sum + (c.questions_count ?? 0), 0);
     }, [testType, form.data.category_ids, categories, bookmarkedCount]);
 
     // Auto-adjust question count when max changes
@@ -223,6 +191,7 @@ export default function TestIndex({
         ) {
             form.setData('question_count', Math.max(1, maxAvailableQuestions));
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- Only react to maxAvailableQuestions; form would cause infinite loop
     }, [maxAvailableQuestions]);
 
     const handleQuickTest = () => {
@@ -587,8 +556,9 @@ export default function TestIndex({
                                                         )}
                                                         <span>
                                                             {lt.code}
-                                                            {lt.children
-                                                                .length > 0 &&
+                                                            {lt.children &&
+                                                                lt.children
+                                                                    .length > 0 &&
                                                                 `, ${lt.children.map((c) => c.code).join(', ')}`}
                                                         </span>
                                                     </span>
@@ -704,7 +674,8 @@ export default function TestIndex({
                                                 )
                                                 .reduce(
                                                     (sum, c) =>
-                                                        sum + c.questions_count,
+                                                        sum +
+                                                        (c.questions_count ?? 0),
                                                     0,
                                                 )}{' '}
                                             კითხვა

@@ -1,6 +1,6 @@
 import { Head, router, useForm, usePage } from '@inertiajs/react';
 import { ArrowLeft, Camera, ImagePlus, Lock, Plus, User } from 'lucide-react';
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 
 // NativePHP imports for camera access and secure storage
 import { camera, Events, isMobile, off, on, secureStorage } from '#nativephp';
@@ -371,6 +371,7 @@ export default function UserSelection({ users }: Props) {
             off(photoEvent, handlePhotoTaken);
             off(mediaEvent, handleMediaSelected);
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- Event listeners set up once on mount; handlers use current refs
     }, []);
 
     const handleCreateUser = async (e: FormEvent) => {
@@ -445,7 +446,7 @@ export default function UserSelection({ users }: Props) {
         }
     };
 
-    const resetCreateForm = () => {
+    const resetCreateForm = useCallback(() => {
         setIsCreating(false);
         registerForm.reset();
         setRegisterName('');
@@ -454,14 +455,14 @@ export default function UserSelection({ users }: Props) {
         setShowImagePicker(false);
         setSelectedLicenseType(null);
         setApiErrors({});
-    };
+    }, [registerForm]);
 
-    const resetPasswordForm = () => {
+    const resetPasswordForm = useCallback(() => {
         setSelectedUser(null);
         loginForm.reset();
         setLoginPassword('');
         setApiErrors({});
-    };
+    }, [loginForm]);
 
     // Handle Android back button to close modals instead of navigating
     useEffect(() => {
@@ -484,7 +485,7 @@ export default function UserSelection({ users }: Props) {
 
         window.addEventListener('popstate', handlePopState);
         return () => window.removeEventListener('popstate', handlePopState);
-    }, [isCreating, selectedUser]);
+    }, [isCreating, selectedUser, resetCreateForm, resetPasswordForm]);
 
     // Determine processing state
     const isLoginProcessing = isNative ? apiProcessing : loginForm.processing;

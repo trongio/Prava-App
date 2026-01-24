@@ -3,23 +3,7 @@ import { ChevronRight, Clock, Play } from 'lucide-react';
 
 import { getLicenseTypeIcon } from '@/components/license-type-select';
 import { Card, CardContent } from '@/components/ui/card';
-
-interface LicenseType {
-    id: number;
-    code: string;
-    name: string;
-    children?: { id: number; code: string }[];
-}
-
-interface ActiveTest {
-    id: number;
-    test_type: string;
-    status: string;
-    total_questions: number;
-    answered_count: number;
-    remaining_time_seconds: number;
-    license_type: LicenseType | null;
-}
+import type { ActiveTest } from '@/types/models';
 
 interface ActiveTestCardProps {
     activeTest: ActiveTest;

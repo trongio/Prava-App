@@ -1,5 +1,4 @@
 import { Head, router } from '@inertiajs/react';
-import axios from 'axios';
 import {
     Bookmark,
     Check,
@@ -32,93 +31,33 @@ import {
     SheetTitle,
     SheetTrigger,
 } from '@/components/ui/sheet';
+import { useBookmark } from '@/hooks/use-bookmark';
+import { useQuestionAnswer } from '@/hooks/use-question-answer';
 import MobileLayout from '@/layouts/mobile-layout';
+import type {
+    FilterSign,
+    LicenseType,
+    PaginatedResponse,
+    QuestionCategory,
+    QuestionFilters,
+    QuestionStats,
+    UserProgress,
+} from '@/types/models';
 
-interface QuestionCategory {
-    id: number;
-    name: string;
-}
-
-interface LicenseType {
-    id: number;
-    code: string;
-    name: string;
-    is_parent: boolean;
-    children: LicenseType[];
-}
-
-// Question type is imported from question-card.tsx
-// Extended with required fields for this page
+// Extended Question type with required fields for this page
 interface PageQuestion extends Question {
     is_active: boolean;
-    question_category: QuestionCategory;
-}
-
-interface UserProgress {
-    question_id: number;
-    times_correct: number;
-    times_wrong: number;
-    is_bookmarked: boolean;
-}
-
-interface PaginatedQuestions {
-    data: PageQuestion[];
-    current_page: number;
-    last_page: number;
-    per_page: number;
-    total: number;
-    links: { url: string | null; label: string; active: boolean }[];
-}
-
-interface Filters {
-    license_type: number | null;
-    categories: number[];
-    show_inactive: boolean;
-    bookmarked: boolean;
-    wrong_only: boolean;
-    correct_only: boolean;
-    unanswered: boolean;
-    per_page: number;
-    sign_id: number | null;
-}
-
-interface FilterSign {
-    id: number;
-    title: string;
-    image: string;
-}
-
-interface Stats {
-    total: number;
-    answered: number;
-    filtered: number;
 }
 
 interface Props {
-    questions: PaginatedQuestions;
+    questions: PaginatedResponse<PageQuestion>;
     userProgress: Record<number, UserProgress>;
     licenseTypes: LicenseType[];
     categories: QuestionCategory[];
     categoryCounts: Record<number, number>;
-    filters: Filters;
+    filters: QuestionFilters;
     filterSign: FilterSign | null;
-    stats: Stats;
-    debug?: {
-        hasFilterParams: boolean;
-        raw_categories: unknown;
-        query_string: string;
-        savedPreferences: Record<string, unknown>;
-        processedCategoryIds: number[];
-        categoryCount: number;
-    };
-}
-
-interface AnswerState {
-    questionId: number;
-    selectedAnswerId: number | null;
-    correctAnswerId: number | null;
-    isCorrect: boolean | null;
-    explanation: string | null;
+    stats: QuestionStats;
 }
 
 // Generate page numbers to display
@@ -258,48 +197,50 @@ export default function QuestionsIndex({
     categoryCounts,
     filters,
     filterSign,
-    debug,
 }: Props) {
-    // Debug: Log what filters are received from server
-    console.log('=== [SERVER DEBUG] ===');
-    console.log('[SERVER] debug object:', debug);
-    console.log('[SERVER] hasFilterParams:', debug?.hasFilterParams);
-    console.log('[SERVER] raw_categories:', debug?.raw_categories);
-    console.log('[SERVER] query_string:', debug?.query_string);
-    console.log('[SERVER] savedPreferences:', debug?.savedPreferences);
-    console.log('[SERVER] processedCategoryIds:', debug?.processedCategoryIds);
-    console.log('[SERVER] categoryCount:', debug?.categoryCount);
-    console.log('=== [FRONTEND] ===');
-    console.log('[FRONTEND] filters.categories:', filters.categories);
-    console.log('[FRONTEND] Total questions:', questions.total);
+    // Use custom hooks for answer and bookmark state management
+    const {
+        answerStates,
+        submittingQuestions,
+        submitAnswer,
+        sessionScore,
+        sessionCorrectIds,
+        sessionWrongIds,
+    } = useQuestionAnswer();
 
-    const [answerStates, setAnswerStates] = useState<
-        Record<number, AnswerState>
-    >({});
-    const [bookmarkedQuestions, setBookmarkedQuestions] = useState<
-        Record<number, boolean>
-    >(
-        Object.fromEntries(
-            Object.entries(userProgress).map(([qId, p]) => [
-                qId,
-                p.is_bookmarked,
-            ]),
-        ),
+    // Initialize bookmarks from userProgress
+    const initialBookmarks = useMemo(
+        () =>
+            Object.fromEntries(
+                Object.entries(userProgress).map(([qId, p]) => [
+                    qId,
+                    p.is_bookmarked,
+                ]),
+            ),
+        [userProgress],
     );
-    const [sessionScore, setSessionScore] = useState({ correct: 0, wrong: 0 });
-    const [sessionCorrectIds, setSessionCorrectIds] = useState<number[]>([]);
-    const [sessionWrongIds, setSessionWrongIds] = useState<number[]>([]);
+
+    const { isBookmarked, toggleBookmark, setBookmarks } = useBookmark({
+        initialBookmarks,
+    });
+
+    // Sync bookmarks when userProgress changes (page navigation)
+    useEffect(() => {
+        setBookmarks(
+            Object.fromEntries(
+                Object.entries(userProgress).map(([qId, p]) => [
+                    Number(qId),
+                    p.is_bookmarked,
+                ]),
+            ),
+        );
+    }, [userProgress, setBookmarks]);
+
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [categorySearch, setCategorySearch] = useState('');
-    const [localFilters, setLocalFilters] = useState<Filters>(filters);
+    const [localFilters, setLocalFilters] = useState<QuestionFilters>(filters);
     const [signsModalQuestion, setSignsModalQuestion] =
         useState<Question | null>(null);
-    const [submittingQuestions, setSubmittingQuestions] = useState<Set<number>>(
-        new Set(),
-    );
-
-    // Ref to track pending answer submissions to prevent race conditions
-    const pendingAnswersRef = useRef<Set<number>>(new Set());
 
     // Refs for accessing state in event handlers
     const isFilterOpenRef = useRef(isFilterOpen);
@@ -313,7 +254,7 @@ export default function QuestionsIndex({
 
     // Helper to format filters for request (converts categories array to string)
     const formatFiltersForRequest = useCallback(
-        (filtersToFormat: Filters) => ({
+        (filtersToFormat: QuestionFilters) => ({
             license_type: filtersToFormat.license_type,
             categories: filtersToFormat.categories.join(','),
             show_inactive: filtersToFormat.show_inactive,
@@ -341,23 +282,12 @@ export default function QuestionsIndex({
 
     // Sync localFilters with server filters when they change
     // Don't sync while filter sheet is open (preserves user's selections)
+    // Using queueMicrotask to avoid synchronous setState in effect body
     useEffect(() => {
         if (!isFilterOpen) {
-            setLocalFilters(filters);
+            queueMicrotask(() => setLocalFilters(filters));
         }
     }, [filters, isFilterOpen]);
-
-    // Sync bookmarkedQuestions with userProgress when page data changes
-    useEffect(() => {
-        setBookmarkedQuestions(
-            Object.fromEntries(
-                Object.entries(userProgress).map(([qId, p]) => [
-                    qId,
-                    p.is_bookmarked,
-                ]),
-            ),
-        );
-    }, [userProgress]);
 
     // Handle Android back button to close filter sheet instead of navigating
     useEffect(() => {
@@ -408,74 +338,6 @@ export default function QuestionsIndex({
 
     // Seed for deterministic answer shuffling (generated once per page load)
     const [shuffleSeed] = useState(() => Math.random());
-
-    const handleAnswer = useCallback(
-        async (question: Question, answerId: number) => {
-            // Check if already answered
-            if (answerStates[question.id]?.selectedAnswerId) return;
-
-            // Prevent duplicate submissions using ref (handles rapid clicks)
-            if (pendingAnswersRef.current.has(question.id)) return;
-            pendingAnswersRef.current.add(question.id);
-
-            // Update UI to show loading state
-            setSubmittingQuestions((prev) => new Set(prev).add(question.id));
-
-            try {
-                const { data } = await axios.post(
-                    `/questions/${question.id}/answer`,
-                    { answer_id: answerId },
-                );
-
-                setAnswerStates((prev) => ({
-                    ...prev,
-                    [question.id]: {
-                        questionId: question.id,
-                        selectedAnswerId: answerId,
-                        correctAnswerId: data.correct_answer_id,
-                        isCorrect: data.is_correct,
-                        explanation: data.explanation,
-                    },
-                }));
-
-                setSessionScore((prev) => ({
-                    correct: prev.correct + (data.is_correct ? 1 : 0),
-                    wrong: prev.wrong + (data.is_correct ? 0 : 1),
-                }));
-
-                // Track question IDs for session-based filtering
-                if (data.is_correct) {
-                    setSessionCorrectIds((prev) => [...prev, question.id]);
-                } else {
-                    setSessionWrongIds((prev) => [...prev, question.id]);
-                }
-            } catch (error) {
-                console.error('Failed to submit answer:', error);
-            } finally {
-                pendingAnswersRef.current.delete(question.id);
-                setSubmittingQuestions((prev) => {
-                    const next = new Set(prev);
-                    next.delete(question.id);
-                    return next;
-                });
-            }
-        },
-        [answerStates],
-    );
-
-    const handleBookmark = useCallback(async (questionId: number) => {
-        try {
-            const { data } = await axios.post(
-                `/questions/${questionId}/bookmark`,
-            );
-            setBookmarkedQuestions((prev) => ({
-                ...prev,
-                [questionId]: data.is_bookmarked,
-            }));
-        } catch (error) {
-            console.error('Failed to toggle bookmark:', error);
-        }
-    }, []);
 
     // Toggle inactive questions filter
     const toggleInactiveFilter = useCallback(() => {
@@ -907,10 +769,10 @@ export default function QuestionsIndex({
                         }
                         shuffleSeed={shuffleSeed}
                         answerState={answerStates[question.id]}
-                        isBookmarked={bookmarkedQuestions[question.id] || false}
+                        isBookmarked={isBookmarked(question.id)}
                         isSubmitting={submittingQuestions.has(question.id)}
-                        onAnswer={handleAnswer}
-                        onBookmark={handleBookmark}
+                        onAnswer={submitAnswer}
+                        onBookmark={toggleBookmark}
                         onInfoClick={setSignsModalQuestion}
                     />
                 ))}

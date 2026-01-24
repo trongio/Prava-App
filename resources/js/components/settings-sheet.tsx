@@ -653,6 +653,7 @@ function ProfileView({
             off(photoEvent, handlePhotoTaken);
             off(mediaEvent, handleMediaSelected);
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- Event listeners set up once on mount; handlers use current refs
     }, []);
 
     const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {

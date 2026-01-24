@@ -1,12 +1,9 @@
 import { Check, Clock, X } from 'lucide-react';
 
 import { getLicenseTypeIcon } from '@/components/license-type-select';
-import {
-    formatTime,
-    getTestTypeName,
-    type LicenseType,
-} from '@/lib/test-utils';
+import { formatTime, getTestTypeName } from '@/lib/test-utils';
 import { cn } from '@/lib/utils';
+import type { LicenseType } from '@/types/models';
 
 interface TestResultBannerProps {
     isPassed: boolean;

@@ -18,13 +18,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-
-interface LicenseType {
-    id: number;
-    code: string;
-    name: string;
-    children?: LicenseType[];
-}
+import type { LicenseType } from '@/types/models';
 
 interface LicenseTypeSelectProps {
     value: number | null;
