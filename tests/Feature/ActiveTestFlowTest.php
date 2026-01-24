@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\TestStatus;
 use App\Models\Answer;
 use App\Models\Question;
 use App\Models\QuestionCategory;
@@ -77,7 +78,7 @@ beforeEach(function () {
         'correct_count' => 0,
         'wrong_count' => 0,
         'score_percentage' => 0,
-        'status' => TestResult::STATUS_IN_PROGRESS,
+        'status' => TestStatus::InProgress,
         'started_at' => now(),
         'current_question_index' => 0,
         'answers_given' => [],
@@ -250,7 +251,7 @@ describe('Test Pause Functionality', function () {
             ->assertJson(['success' => true]);
 
         $this->testResult->refresh();
-        expect($this->testResult->status)->toBe(TestResult::STATUS_PAUSED);
+        expect($this->testResult->status)->toBe(TestStatus::Paused);
         expect($this->testResult->current_question_index)->toBe(1);
         expect($this->testResult->remaining_time_seconds)->toBe(150);
     });
@@ -282,7 +283,7 @@ describe('Test Complete Functionality', function () {
             ->assertJsonStructure(['redirect_url']);
 
         $this->testResult->refresh();
-        expect($this->testResult->status)->toBe(TestResult::STATUS_PASSED);
+        expect($this->testResult->status)->toBe(TestStatus::Passed);
         expect($this->testResult->finished_at)->not->toBeNull();
     });
 
@@ -310,7 +311,7 @@ describe('Test Complete Functionality', function () {
             ]);
 
         $this->testResult->refresh();
-        expect($this->testResult->status)->toBe(TestResult::STATUS_FAILED);
+        expect($this->testResult->status)->toBe(TestStatus::Failed);
     });
 
     it('returns redirect for non-AJAX requests', function () {
@@ -323,7 +324,7 @@ describe('Test Complete Functionality', function () {
     });
 
     it('prevents completing an already completed test', function () {
-        $this->testResult->update(['status' => TestResult::STATUS_PASSED]);
+        $this->testResult->update(['status' => TestStatus::Passed]);
 
         $response = $this->actingAs($this->user)
             ->postJson("/test/{$this->testResult->id}/complete", [
@@ -338,7 +339,7 @@ describe('Test Complete Functionality', function () {
 describe('Test Results Page', function () {
     it('shows results for completed test', function () {
         $this->testResult->update([
-            'status' => TestResult::STATUS_PASSED,
+            'status' => TestStatus::Passed,
             'finished_at' => now(),
             'score_percentage' => 100,
             'time_taken_seconds' => 60,

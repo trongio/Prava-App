@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\TestStatus;
 use App\Models\Question;
 use App\Models\QuestionCategory;
 use App\Models\TestResult;
@@ -128,7 +129,7 @@ describe('Resume position logic', function () {
 
         $testResult->refresh();
         expect($testResult->current_question_index)->toBe(3);
-        expect($testResult->status)->toBe('paused');
+        expect($testResult->status)->toBe(TestStatus::Paused);
     });
 
     it('tracks answered questions correctly', function () {
@@ -474,7 +475,7 @@ describe('Test restart with auto_advance', function () {
         $this->actingAs($user)->post("/test/{$testResult->id}/complete");
 
         $testResult->refresh();
-        expect($testResult->status)->toBeIn(['completed', 'passed', 'failed']);
+        expect($testResult->status)->toBeIn([TestStatus::Completed, TestStatus::Passed, TestStatus::Failed]);
 
         // Restart the test (using new-similar route)
         $response = $this->actingAs($user)->post("/test/{$testResult->id}/new-similar");

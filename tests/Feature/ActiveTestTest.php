@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\TestStatus;
 use App\Models\Answer;
 use App\Models\Question;
 use App\Models\QuestionCategory;
@@ -43,7 +44,7 @@ describe('Active Test Model', function () {
             'correct_count' => 0,
             'wrong_count' => 0,
             'score_percentage' => 0,
-            'status' => TestResult::STATUS_IN_PROGRESS,
+            'status' => TestStatus::InProgress,
             'started_at' => now(),
             'current_question_index' => 0,
             'answers_given' => [],
@@ -60,7 +61,7 @@ describe('Active Test Model', function () {
             'correct_count' => 0,
             'wrong_count' => 0,
             'score_percentage' => 0,
-            'status' => TestResult::STATUS_PAUSED,
+            'status' => TestStatus::Paused,
             'started_at' => now(),
             'current_question_index' => 0,
             'answers_given' => [],
@@ -78,7 +79,7 @@ describe('Active Test Model', function () {
             'correct_count' => 3,
             'wrong_count' => 2,
             'score_percentage' => 60,
-            'status' => TestResult::STATUS_PASSED,
+            'status' => TestStatus::Passed,
             'started_at' => now()->subMinutes(10),
             'finished_at' => now(),
             'current_question_index' => 5,
@@ -102,7 +103,7 @@ describe('Active Test Model', function () {
             'correct_count' => 2,
             'wrong_count' => 1,
             'score_percentage' => 0,
-            'status' => TestResult::STATUS_IN_PROGRESS,
+            'status' => TestStatus::InProgress,
             'started_at' => now(),
             'current_question_index' => 3,
             'answers_given' => [],
@@ -113,7 +114,7 @@ describe('Active Test Model', function () {
         $result = $test->abandon();
 
         expect($result)->toBeTrue();
-        expect($test->fresh()->status)->toBe(TestResult::STATUS_ABANDONED);
+        expect($test->fresh()->status)->toBe(TestStatus::Abandoned);
         expect($test->fresh()->finished_at)->not->toBeNull();
         expect($test->fresh()->isAbandoned())->toBeTrue();
     });
@@ -128,7 +129,7 @@ describe('Active Test Model', function () {
             'correct_count' => 3,
             'wrong_count' => 2,
             'score_percentage' => 60,
-            'status' => TestResult::STATUS_PASSED,
+            'status' => TestStatus::Passed,
             'started_at' => now()->subMinutes(10),
             'finished_at' => now(),
             'current_question_index' => 5,
@@ -140,7 +141,7 @@ describe('Active Test Model', function () {
         $result = $test->abandon();
 
         expect($result)->toBeFalse();
-        expect($test->fresh()->status)->toBe(TestResult::STATUS_PASSED);
+        expect($test->fresh()->status)->toBe(TestStatus::Passed);
     });
 
     it('scopes active tests correctly', function () {
@@ -154,7 +155,7 @@ describe('Active Test Model', function () {
             'correct_count' => 0,
             'wrong_count' => 0,
             'score_percentage' => 0,
-            'status' => TestResult::STATUS_IN_PROGRESS,
+            'status' => TestStatus::InProgress,
             'started_at' => now(),
             'current_question_index' => 0,
             'answers_given' => [],
@@ -172,7 +173,7 @@ describe('Active Test Model', function () {
             'correct_count' => 3,
             'wrong_count' => 2,
             'score_percentage' => 60,
-            'status' => TestResult::STATUS_PASSED,
+            'status' => TestStatus::Passed,
             'started_at' => now()->subMinutes(10),
             'finished_at' => now(),
             'current_question_index' => 5,
@@ -183,7 +184,7 @@ describe('Active Test Model', function () {
 
         $activeTests = TestResult::forUser($this->user->id)->active()->get();
         expect($activeTests)->toHaveCount(1);
-        expect($activeTests->first()->status)->toBe(TestResult::STATUS_IN_PROGRESS);
+        expect($activeTests->first()->status)->toBe(TestStatus::InProgress);
     });
 });
 
@@ -199,7 +200,7 @@ describe('Test Creation with Active Test', function () {
             'correct_count' => 2,
             'wrong_count' => 1,
             'score_percentage' => 0,
-            'status' => TestResult::STATUS_IN_PROGRESS,
+            'status' => TestStatus::InProgress,
             'started_at' => now(),
             'current_question_index' => 3,
             'answers_given' => [],
@@ -221,7 +222,7 @@ describe('Test Creation with Active Test', function () {
             ]);
 
         // Verify active test still exists
-        expect($activeTest->fresh()->status)->toBe(TestResult::STATUS_IN_PROGRESS);
+        expect($activeTest->fresh()->status)->toBe(TestStatus::InProgress);
     });
 
     it('abandons active test when abandon_active is true', function () {
@@ -235,7 +236,7 @@ describe('Test Creation with Active Test', function () {
             'correct_count' => 2,
             'wrong_count' => 1,
             'score_percentage' => 0,
-            'status' => TestResult::STATUS_IN_PROGRESS,
+            'status' => TestStatus::InProgress,
             'started_at' => now(),
             'current_question_index' => 3,
             'answers_given' => [],
@@ -255,7 +256,7 @@ describe('Test Creation with Active Test', function () {
         $response->assertRedirect();
 
         // Verify old test was abandoned
-        expect($activeTest->fresh()->status)->toBe(TestResult::STATUS_ABANDONED);
+        expect($activeTest->fresh()->status)->toBe(TestStatus::Abandoned);
         expect($activeTest->fresh()->isAbandoned())->toBeTrue();
 
         // Verify new test was created
@@ -292,7 +293,7 @@ describe('Quick Test with Active Test', function () {
             'correct_count' => 0,
             'wrong_count' => 0,
             'score_percentage' => 0,
-            'status' => TestResult::STATUS_IN_PROGRESS,
+            'status' => TestStatus::InProgress,
             'started_at' => now(),
             'current_question_index' => 0,
             'answers_given' => [],
@@ -320,7 +321,7 @@ describe('Quick Test with Active Test', function () {
             'correct_count' => 1,
             'wrong_count' => 0,
             'score_percentage' => 0,
-            'status' => TestResult::STATUS_IN_PROGRESS,
+            'status' => TestStatus::InProgress,
             'started_at' => now(),
             'current_question_index' => 1,
             'answers_given' => [],
@@ -334,7 +335,7 @@ describe('Quick Test with Active Test', function () {
         $response->assertRedirect();
 
         // Verify old test was abandoned
-        expect($activeTest->fresh()->status)->toBe(TestResult::STATUS_ABANDONED);
+        expect($activeTest->fresh()->status)->toBe(TestStatus::Abandoned);
 
         // Verify new test was created (quickStart creates a 'thematic' test with default settings)
         $newTest = TestResult::forUser($this->user->id)->active()->first();
@@ -354,7 +355,7 @@ describe('Test Index Page with Active Test', function () {
             'correct_count' => 5,
             'wrong_count' => 2,
             'score_percentage' => 0,
-            'status' => TestResult::STATUS_IN_PROGRESS,
+            'status' => TestStatus::InProgress,
             'started_at' => now(),
             'current_question_index' => 7,
             'answers_given' => array_fill(0, 7, ['answer_id' => 1]),

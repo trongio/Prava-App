@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\TestStatus;
 use App\Models\Answer;
 use App\Models\Question;
 use App\Models\QuestionCategory;
@@ -74,7 +75,7 @@ beforeEach(function () {
         'correct_count' => 3,
         'wrong_count' => 2,
         'score_percentage' => 60,
-        'status' => TestResult::STATUS_PASSED,
+        'status' => TestStatus::Passed,
         'started_at' => now()->subMinutes(5),
         'finished_at' => now(),
         'current_question_index' => 5,
@@ -109,7 +110,7 @@ describe('History Index Page', function () {
             'correct_count' => 1,
             'wrong_count' => 4,
             'score_percentage' => 20,
-            'status' => TestResult::STATUS_FAILED,
+            'status' => TestStatus::Failed,
             'started_at' => now()->subMinutes(10),
             'finished_at' => now()->subMinutes(5),
             'current_question_index' => 5,
@@ -190,7 +191,7 @@ describe('History Show Page', function () {
             'correct_count' => 0,
             'wrong_count' => 0,
             'score_percentage' => 0,
-            'status' => TestResult::STATUS_IN_PROGRESS,
+            'status' => TestStatus::InProgress,
             'started_at' => now(),
             'current_question_index' => 0,
             'answers_given' => [],
