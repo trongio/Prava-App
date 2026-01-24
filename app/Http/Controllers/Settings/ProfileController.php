@@ -44,7 +44,28 @@ class ProfileController extends Controller
             $path = $request->file('profile_image')->store('profile-images', 'public');
             $validated['profile_image'] = $path;
         }
-        // Handle NativePHP camera path (mobile)
+        // Handle base64 image from NativePHP (mobile) - preferred method
+        elseif ($request->filled('profile_image_base64')) {
+            $base64Data = $request->input('profile_image_base64');
+
+            // Parse data URL: data:image/jpeg;base64,/9j/4AAQ...
+            if (preg_match('/^data:image\/(\w+);base64,(.+)$/', $base64Data, $matches)) {
+                // Delete old image if exists
+                if ($user->profile_image) {
+                    Storage::disk('public')->delete($user->profile_image);
+                }
+
+                $extension = $matches[1] === 'jpeg' ? 'jpg' : $matches[1];
+                $contents = base64_decode($matches[2]);
+
+                if ($contents !== false) {
+                    $filename = 'profile-images/'.uniqid().'.'.$extension;
+                    Storage::disk('public')->put($filename, $contents);
+                    $validated['profile_image'] = $filename;
+                }
+            }
+        }
+        // Handle NativePHP camera path (mobile) - fallback for legacy
         elseif ($request->filled('profile_image_path')) {
             $nativePath = $request->input('profile_image_path');
 
@@ -66,8 +87,8 @@ class ProfileController extends Controller
             }
         }
 
-        // Remove profile_image_path from validated data (not a model attribute)
-        unset($validated['profile_image_path']);
+        // Remove non-model attributes from validated data
+        unset($validated['profile_image_path'], $validated['profile_image_base64']);
 
         $user->fill($validated);
         $user->save();
