@@ -438,8 +438,8 @@ function ProfileView({
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+                        Accept: 'application/json',
+                        ...(token ? { Authorization: `Bearer ${token}` } : {}),
                     },
                     body: JSON.stringify({
                         name: user.name,
@@ -473,13 +473,18 @@ function ProfileView({
                             preserveScroll: true,
                             preserveState: true,
                             onSuccess: () => {
-                                console.log('Settings: Image saved successfully via Inertia');
+                                console.log(
+                                    'Settings: Image saved successfully via Inertia',
+                                );
                                 setSavingImage(false);
                                 setImageSaved(true);
                                 setTimeout(() => setImageSaved(false), 3000);
                             },
                             onError: (errors) => {
-                                console.error('Settings: Inertia save error:', errors);
+                                console.error(
+                                    'Settings: Inertia save error:',
+                                    errors,
+                                );
                                 setSavingImage(false);
                             },
                         },
@@ -493,13 +498,18 @@ function ProfileView({
                         preserveScroll: true,
                         preserveState: true,
                         onSuccess: () => {
-                            console.log('Settings: File saved successfully via Inertia');
+                            console.log(
+                                'Settings: File saved successfully via Inertia',
+                            );
                             setSavingImage(false);
                             setImageSaved(true);
                             setTimeout(() => setImageSaved(false), 3000);
                         },
                         onError: (errors) => {
-                            console.error('Settings: Inertia file save error:', errors);
+                            console.error(
+                                'Settings: Inertia file save error:',
+                                errors,
+                            );
                             setSavingImage(false);
                         },
                     });
@@ -519,10 +529,15 @@ function ProfileView({
             const response = await fetch(url);
 
             const data = await response.json();
-            console.log('Settings: Preview response received, dataUrl length:', data.dataUrl?.length);
+            console.log(
+                'Settings: Preview response received, dataUrl length:',
+                data.dataUrl?.length,
+            );
 
             if (data.dataUrl) {
-                console.log('Settings: Setting base64 preview and nativeImagePath');
+                console.log(
+                    'Settings: Setting base64 preview and nativeImagePath',
+                );
                 setNativeImagePath(path);
                 setPreviewUrl(data.dataUrl);
                 console.log('Settings: previewUrl state updated');
@@ -533,7 +548,10 @@ function ProfileView({
                 console.error('Settings: Preview failed:', data.error);
             }
         } catch (error) {
-            console.error('Settings: Failed to load native file preview:', error);
+            console.error(
+                'Settings: Failed to load native file preview:',
+                error,
+            );
         }
     };
 
@@ -616,10 +634,17 @@ function ProfileView({
         // Use Events object if available, fallback to string names
         console.log('Settings: Registering NativePHP event listeners...');
         console.log('Events.Camera.PhotoTaken:', Events?.Camera?.PhotoTaken);
-        console.log('Events.Gallery.MediaSelected:', Events?.Gallery?.MediaSelected);
+        console.log(
+            'Events.Gallery.MediaSelected:',
+            Events?.Gallery?.MediaSelected,
+        );
 
-        const photoEvent = Events?.Camera?.PhotoTaken || 'Native\\Mobile\\Events\\Camera\\PhotoTaken';
-        const mediaEvent = Events?.Gallery?.MediaSelected || 'Native\\Mobile\\Events\\Gallery\\MediaSelected';
+        const photoEvent =
+            Events?.Camera?.PhotoTaken ||
+            'Native\\Mobile\\Events\\Camera\\PhotoTaken';
+        const mediaEvent =
+            Events?.Gallery?.MediaSelected ||
+            'Native\\Mobile\\Events\\Gallery\\MediaSelected';
 
         on(photoEvent, handlePhotoTaken);
         on(mediaEvent, handleMediaSelected);
@@ -708,7 +733,14 @@ function ProfileView({
     const hasPassword = user.has_password ?? false;
 
     // Debug: log the display image source
-    console.log('Settings: Render - previewUrl:', previewUrl ? 'set (base64)' : null, 'user.profile_image_url:', user.profile_image_url, 'displayImage:', displayImage ? 'has value' : 'null');
+    console.log(
+        'Settings: Render - previewUrl:',
+        previewUrl ? 'set (base64)' : null,
+        'user.profile_image_url:',
+        user.profile_image_url,
+        'displayImage:',
+        displayImage ? 'has value' : 'null',
+    );
 
     return (
         <div className="flex h-full flex-col">

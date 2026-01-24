@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { type LicenseType } from '@/types';
+import { type SharedData } from '@/types';
 
 const AUTH_TOKEN_KEY = 'auth_token';
 
@@ -23,10 +23,6 @@ interface UserData {
 
 interface Props {
     users: UserData[];
-}
-
-interface SharedProps {
-    licenseTypes?: LicenseType[];
 }
 
 // Color palette based on name for avatar backgrounds
@@ -79,13 +75,15 @@ async function apiRequest<T>(
 }
 
 export default function UserSelection({ users }: Props) {
-    const { licenseTypes = [] } = usePage<SharedProps>().props;
+    const { licenseTypes } = usePage<SharedData>().props;
     const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
     const [isCreating, setIsCreating] = useState(false);
     const [newImagePreview, setNewImagePreview] = useState<string | null>(null);
     const [showImagePicker, setShowImagePicker] = useState(false);
     const [nativeImagePath, setNativeImagePath] = useState<string | null>(null);
-    const [selectedLicenseType, setSelectedLicenseType] = useState<number | null>(null);
+    const [selectedLicenseType, setSelectedLicenseType] = useState<
+        number | null
+    >(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Mobile-specific state for API-based auth
@@ -352,11 +350,18 @@ export default function UserSelection({ users }: Props) {
         // Register event listeners using NativePHP Events object (v2 API)
         console.log('Registering NativePHP event listeners...');
         console.log('Events.Camera.PhotoTaken:', Events?.Camera?.PhotoTaken);
-        console.log('Events.Gallery.MediaSelected:', Events?.Gallery?.MediaSelected);
+        console.log(
+            'Events.Gallery.MediaSelected:',
+            Events?.Gallery?.MediaSelected,
+        );
 
         // Use Events object if available, fallback to string names
-        const photoEvent = Events?.Camera?.PhotoTaken || 'Native\\Mobile\\Events\\Camera\\PhotoTaken';
-        const mediaEvent = Events?.Gallery?.MediaSelected || 'Native\\Mobile\\Events\\Gallery\\MediaSelected';
+        const photoEvent =
+            Events?.Camera?.PhotoTaken ||
+            'Native\\Mobile\\Events\\Camera\\PhotoTaken';
+        const mediaEvent =
+            Events?.Gallery?.MediaSelected ||
+            'Native\\Mobile\\Events\\Gallery\\MediaSelected';
 
         on(photoEvent, handlePhotoTaken);
         on(mediaEvent, handleMediaSelected);
@@ -384,7 +389,8 @@ export default function UserSelection({ users }: Props) {
                         name: registerName,
                         // Send base64 data instead of path - more reliable on Android
                         profile_image_base64: newImagePreview || undefined,
-                        default_license_type_id: selectedLicenseType || undefined,
+                        default_license_type_id:
+                            selectedLicenseType || undefined,
                     }),
                 });
 
@@ -417,9 +423,15 @@ export default function UserSelection({ users }: Props) {
                 // Need to add license type to form data before posting
                 const formData = new FormData();
                 formData.append('name', registerForm.data.name);
-                formData.append('profile_image', registerForm.data.profile_image);
+                formData.append(
+                    'profile_image',
+                    registerForm.data.profile_image,
+                );
                 if (selectedLicenseType) {
-                    formData.append('default_license_type_id', selectedLicenseType.toString());
+                    formData.append(
+                        'default_license_type_id',
+                        selectedLicenseType.toString(),
+                    );
                 }
                 router.post('/register', formData, {
                     forceFormData: true,
@@ -605,7 +617,7 @@ export default function UserSelection({ users }: Props) {
                                 >
                                     <ArrowLeft className="h-5 w-5" />
                                 </Button>
-                                <CardTitle className="flex-1 text-center text-xl pr-6">
+                                <CardTitle className="flex-1 pr-6 text-center text-xl">
                                     ახალი მომხმარებელი
                                 </CardTitle>
                             </div>
@@ -644,59 +656,6 @@ export default function UserSelection({ users }: Props) {
                                         onChange={handleImageChange}
                                         className="hidden"
                                     />
-
-                                    {/* Native Image Picker Modal */}
-                                    {showImagePicker && (
-                                        <div
-                                            className="fixed inset-0 z-[9999] flex items-end justify-center bg-black/50 p-4"
-                                            onClick={() =>
-                                                setShowImagePicker(false)
-                                            }
-                                        >
-                                            <div
-                                                className="w-full max-w-sm space-y-2 rounded-t-xl bg-background p-4 pb-8"
-                                                onClick={(e) =>
-                                                    e.stopPropagation()
-                                                }
-                                            >
-                                                <p className="mb-4 text-center text-sm text-muted-foreground">
-                                                    აირჩიეთ ფოტოს წყარო
-                                                </p>
-                                                <Button
-                                                    type="button"
-                                                    variant="outline"
-                                                    className="w-full justify-start gap-3"
-                                                    onClick={handleTakePhoto}
-                                                >
-                                                    <Camera className="h-5 w-5" />
-                                                    გადაიღეთ ფოტო
-                                                </Button>
-                                                <Button
-                                                    type="button"
-                                                    variant="outline"
-                                                    className="w-full justify-start gap-3"
-                                                    onClick={
-                                                        handlePickFromGallery
-                                                    }
-                                                >
-                                                    <ImagePlus className="h-5 w-5" />
-                                                    აირჩიეთ გალერიიდან
-                                                </Button>
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    className="mt-2 w-full"
-                                                    onClick={() =>
-                                                        setShowImagePicker(
-                                                            false,
-                                                        )
-                                                    }
-                                                >
-                                                    გაუქმება
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    )}
                                 </div>
 
                                 {/* Name */}
@@ -738,7 +697,9 @@ export default function UserSelection({ users }: Props) {
                                         <Label>კატეგორია</Label>
                                         <LicenseTypeSelect
                                             value={selectedLicenseType}
-                                            onValueChange={setSelectedLicenseType}
+                                            onValueChange={
+                                                setSelectedLicenseType
+                                            }
                                             licenseTypes={licenseTypes}
                                             placeholder="აირჩიეთ კატეგორია"
                                             emptyLabel="მოგვიანებით"
@@ -768,6 +729,49 @@ export default function UserSelection({ users }: Props) {
                             </form>
                         </CardContent>
                     </Card>
+
+                    {/* Native Image Picker Modal - Rendered outside Card for proper z-index on Android */}
+                    {showImagePicker && (
+                        <div
+                            className="fixed inset-0 z-[9999] flex items-end justify-center bg-black/50 p-4"
+                            onClick={() => setShowImagePicker(false)}
+                        >
+                            <div
+                                className="w-full max-w-sm space-y-2 rounded-t-xl bg-background p-4 pb-8"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <p className="mb-4 text-center text-sm text-muted-foreground">
+                                    აირჩიეთ ფოტოს წყარო
+                                </p>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="w-full justify-start gap-3"
+                                    onClick={handleTakePhoto}
+                                >
+                                    <Camera className="h-5 w-5" />
+                                    გადაიღეთ ფოტო
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="w-full justify-start gap-3"
+                                    onClick={handlePickFromGallery}
+                                >
+                                    <ImagePlus className="h-5 w-5" />
+                                    აირჩიეთ გალერიიდან
+                                </Button>
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    className="mt-2 w-full"
+                                    onClick={() => setShowImagePicker(false)}
+                                >
+                                    გაუქმება
+                                </Button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </>
         );

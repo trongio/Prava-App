@@ -392,7 +392,11 @@ export default function QuestionsIndex({
 
         // Push a history state when filter opens to catch browser back
         if (isFilterOpen) {
-            window.history.pushState({ filterOpen: true }, '', window.location.href);
+            window.history.pushState(
+                { filterOpen: true },
+                '',
+                window.location.href,
+            );
         }
 
         window.addEventListener('popstate', handlePopState);
@@ -475,7 +479,10 @@ export default function QuestionsIndex({
 
     // Toggle inactive questions filter
     const toggleInactiveFilter = useCallback(() => {
-        const newFilters = { ...localFilters, show_inactive: !localFilters.show_inactive };
+        const newFilters = {
+            ...localFilters,
+            show_inactive: !localFilters.show_inactive,
+        };
         setLocalFilters(newFilters);
         router.get('/questions', formatFiltersForRequest(newFilters), {
             preserveState: true,
@@ -485,7 +492,10 @@ export default function QuestionsIndex({
 
     // Toggle bookmarked questions filter
     const toggleBookmarkFilter = useCallback(() => {
-        const newFilters = { ...localFilters, bookmarked: !localFilters.bookmarked };
+        const newFilters = {
+            ...localFilters,
+            bookmarked: !localFilters.bookmarked,
+        };
         setLocalFilters(newFilters);
 
         const requestParams = {
@@ -505,7 +515,12 @@ export default function QuestionsIndex({
             preserveState: true,
             preserveScroll: true,
         });
-    }, [localFilters, formatFiltersForRequest, sessionCorrectIds, sessionWrongIds]);
+    }, [
+        localFilters,
+        formatFiltersForRequest,
+        sessionCorrectIds,
+        sessionWrongIds,
+    ]);
 
     // Toggle answer status filter (correct/wrong) - only one can be active
     // Uses session-based IDs for filtering (comma-separated for NativePHP compatibility)
@@ -539,7 +554,12 @@ export default function QuestionsIndex({
                 preserveScroll: true,
             });
         },
-        [localFilters, formatFiltersForRequest, sessionCorrectIds, sessionWrongIds],
+        [
+            localFilters,
+            formatFiltersForRequest,
+            sessionCorrectIds,
+            sessionWrongIds,
+        ],
     );
 
     const goToPage = useCallback(
@@ -786,7 +806,10 @@ export default function QuestionsIndex({
                                                               (id) =>
                                                                   id !== cat.id,
                                                           )
-                                                        : [...f.categories, cat.id],
+                                                        : [
+                                                              ...f.categories,
+                                                              cat.id,
+                                                          ],
                                                 }));
                                             }}
                                             className={`flex w-full items-center justify-between gap-3 rounded-lg border p-4 text-left transition-colors ${

@@ -735,7 +735,7 @@ export default function TestIndex({
                                     კითხვების რაოდენობა
                                 </Label>
                                 <div className="flex shrink-0 items-center gap-1">
-                                    <span className="text-xs font-medium ">
+                                    <span className="text-xs font-medium">
                                         {form.data.question_count}/
                                         {maxAvailableQuestions}
                                     </span>

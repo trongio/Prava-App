@@ -389,7 +389,10 @@ export default function ActiveTest({ testResult, userSettings }: Props) {
                             setCurrentIndex(firstUnansweredIndex);
                         }
                     }, 200);
-                } else if (!isNextSequentialAvailable && firstUnansweredIndex !== -1) {
+                } else if (
+                    !isNextSequentialAvailable &&
+                    firstUnansweredIndex !== -1
+                ) {
                     // Manual mode: if at end or reviewing skipped, go to first unanswered
                     setCurrentIndex(firstUnansweredIndex);
                 }
@@ -615,7 +618,11 @@ export default function ActiveTest({ testResult, userSettings }: Props) {
                         variant="outline"
                         size="sm"
                         onClick={handleSkip}
-                        disabled={isAnswered || isSubmitting || skippedIds.includes(currentQuestion.id)}
+                        disabled={
+                            isAnswered ||
+                            isSubmitting ||
+                            skippedIds.includes(currentQuestion.id)
+                        }
                         className="h-8 gap-1 px-2 text-xs"
                     >
                         <Redo2 className="h-3.5 w-3.5" />
