@@ -80,6 +80,7 @@ class AuthController extends Controller
             'profile_image' => ['nullable', 'image', 'max:2048'],
             'profile_image_base64' => ['nullable', 'string'], // NativePHP base64 image
             'profile_image_path' => ['nullable', 'string'], // NativePHP camera path (legacy)
+            'default_license_type_id' => ['nullable', 'exists:license_types,id'],
         ]);
 
         $profileImagePath = null;
@@ -126,6 +127,7 @@ class AuthController extends Controller
             'password' => $request->password ? Hash::make($request->password) : null,
             'has_password' => (bool) $request->password,
             'profile_image' => $profileImagePath,
+            'default_license_type_id' => $request->default_license_type_id,
         ]);
 
         // Create Sanctum token

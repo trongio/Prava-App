@@ -67,6 +67,7 @@ class UserSelectionController extends Controller
             'password' => ['nullable', 'string', 'min:4'],
             'profile_image' => ['nullable', 'image', 'max:2048'],
             'profile_image_path' => ['nullable', 'string'], // NativePHP camera path
+            'default_license_type_id' => ['nullable', 'exists:license_types,id'],
         ]);
 
         $profileImagePath = null;
@@ -97,6 +98,7 @@ class UserSelectionController extends Controller
             'password' => $request->password ? Hash::make($request->password) : null,
             'has_password' => (bool) $request->password,
             'profile_image' => $profileImagePath,
+            'default_license_type_id' => $request->default_license_type_id,
         ]);
 
         // Login and remember the new user

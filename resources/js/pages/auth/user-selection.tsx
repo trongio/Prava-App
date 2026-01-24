@@ -1,14 +1,16 @@
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, router, useForm, usePage } from '@inertiajs/react';
 import { ArrowLeft, Camera, ImagePlus, Lock, Plus, User } from 'lucide-react';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 
 // NativePHP imports for camera access and secure storage
 import { camera, Events, isMobile, off, on, secureStorage } from '#nativephp';
+import { LicenseTypeSelect } from '@/components/license-type-select';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { type LicenseType } from '@/types';
 
 const AUTH_TOKEN_KEY = 'auth_token';
 
@@ -21,6 +23,10 @@ interface UserData {
 
 interface Props {
     users: UserData[];
+}
+
+interface SharedProps {
+    licenseTypes?: LicenseType[];
 }
 
 // Color palette based on name for avatar backgrounds
@@ -73,11 +79,13 @@ async function apiRequest<T>(
 }
 
 export default function UserSelection({ users }: Props) {
+    const { licenseTypes = [] } = usePage<SharedProps>().props;
     const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
     const [isCreating, setIsCreating] = useState(false);
     const [newImagePreview, setNewImagePreview] = useState<string | null>(null);
     const [showImagePicker, setShowImagePicker] = useState(false);
     const [nativeImagePath, setNativeImagePath] = useState<string | null>(null);
+    const [selectedLicenseType, setSelectedLicenseType] = useState<number | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Mobile-specific state for API-based auth
@@ -112,18 +120,15 @@ export default function UserSelection({ users }: Props) {
     // Registration form
     const registerForm = useForm<{
         name: string;
-        password: string;
         profile_image: File | null;
     }>({
         name: '',
-        password: '',
         profile_image: null,
     });
 
     // Local state for API-based forms
     const [loginPassword, setLoginPassword] = useState('');
     const [registerName, setRegisterName] = useState('');
-    const [registerPassword, setRegisterPassword] = useState('');
 
     const handleUserClick = async (user: UserData) => {
         console.log(
@@ -377,9 +382,9 @@ export default function UserSelection({ users }: Props) {
                     method: 'POST',
                     body: JSON.stringify({
                         name: registerName,
-                        password: registerPassword || undefined,
                         // Send base64 data instead of path - more reliable on Android
                         profile_image_base64: newImagePreview || undefined,
+                        default_license_type_id: selectedLicenseType || undefined,
                     }),
                 });
 
@@ -405,15 +410,25 @@ export default function UserSelection({ users }: Props) {
             if (nativeImagePath) {
                 router.post('/register', {
                     name: registerForm.data.name,
-                    password: registerForm.data.password,
                     profile_image_path: nativeImagePath,
+                    default_license_type_id: selectedLicenseType,
                 });
             } else if (registerForm.data.profile_image) {
-                registerForm.post('/register', {
+                // Need to add license type to form data before posting
+                const formData = new FormData();
+                formData.append('name', registerForm.data.name);
+                formData.append('profile_image', registerForm.data.profile_image);
+                if (selectedLicenseType) {
+                    formData.append('default_license_type_id', selectedLicenseType.toString());
+                }
+                router.post('/register', formData, {
                     forceFormData: true,
                 });
             } else {
-                registerForm.post('/register');
+                router.post('/register', {
+                    name: registerForm.data.name,
+                    default_license_type_id: selectedLicenseType,
+                });
             }
         }
     };
@@ -422,10 +437,10 @@ export default function UserSelection({ users }: Props) {
         setIsCreating(false);
         registerForm.reset();
         setRegisterName('');
-        setRegisterPassword('');
         setNewImagePreview(null);
         setNativeImagePath(null);
         setShowImagePicker(false);
+        setSelectedLicenseType(null);
         setApiErrors({});
     };
 
@@ -476,7 +491,6 @@ export default function UserSelection({ users }: Props) {
         ? apiErrors
         : {
               name: registerForm.errors.name,
-              password: registerForm.errors.password,
           };
 
     // Password prompt modal
@@ -521,7 +535,7 @@ export default function UserSelection({ users }: Props) {
                                 onSubmit={handlePasswordSubmit}
                                 className="space-y-4"
                             >
-                                <div className="space-y-2">
+                                <div>
                                     <Label htmlFor="password">პაროლი</Label>
                                     <Input
                                         id="password"
@@ -581,24 +595,25 @@ export default function UserSelection({ users }: Props) {
                 <Head title="ახალი მომხმარებელი" />
                 <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
                     <Card className="w-full max-w-sm">
-                        <CardHeader className="pb-4">
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={resetCreateForm}
-                                className="mb-2 -ml-2 w-fit gap-1"
-                            >
-                                <ArrowLeft className="h-4 w-4" />
-                                უკან
-                            </Button>
-                            <CardTitle className="text-center text-xl">
-                                ახალი მომხმარებელი
-                            </CardTitle>
+                        <CardHeader className="pb-2">
+                            <div className="flex items-center">
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={resetCreateForm}
+                                    className="-ml-2 h-8 w-8"
+                                >
+                                    <ArrowLeft className="h-5 w-5" />
+                                </Button>
+                                <CardTitle className="flex-1 text-center text-xl pr-6">
+                                    ახალი მომხმარებელი
+                                </CardTitle>
+                            </div>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="pt-2">
                             <form
                                 onSubmit={handleCreateUser}
-                                className="space-y-4"
+                                className="space-y-6"
                             >
                                 {/* Profile Image */}
                                 <div className="flex flex-col items-center gap-2">
@@ -629,9 +644,6 @@ export default function UserSelection({ users }: Props) {
                                         onChange={handleImageChange}
                                         className="hidden"
                                     />
-                                    <p className="text-sm text-muted-foreground">
-                                        დაამატეთ ფოტო (არასავალდებულო)
-                                    </p>
 
                                     {/* Native Image Picker Modal */}
                                     {showImagePicker && (
@@ -688,7 +700,7 @@ export default function UserSelection({ users }: Props) {
                                 </div>
 
                                 {/* Name */}
-                                <div className="space-y-2">
+                                <div>
                                     <Label htmlFor="name">
                                         სახელი / მეტსახელი
                                     </Label>
@@ -720,43 +732,24 @@ export default function UserSelection({ users }: Props) {
                                     )}
                                 </div>
 
-                                {/* Password (optional) */}
-                                <div className="space-y-2">
-                                    <Label htmlFor="reg-password">
-                                        პაროლი (არასავალდებულო)
-                                    </Label>
-                                    <Input
-                                        id="reg-password"
-                                        type="password"
-                                        value={
-                                            isNative
-                                                ? registerPassword
-                                                : registerForm.data.password
-                                        }
-                                        onChange={(e) => {
-                                            if (isNative) {
-                                                setRegisterPassword(
-                                                    e.target.value,
-                                                );
-                                            } else {
-                                                registerForm.setData(
-                                                    'password',
-                                                    e.target.value,
-                                                );
-                                            }
-                                        }}
-                                        placeholder="შეიყვანეთ პაროლი"
-                                    />
-                                    {registerErrors.password && (
-                                        <p className="text-sm text-destructive">
-                                            {registerErrors.password}
+                                {/* License Type */}
+                                {licenseTypes.length > 0 && (
+                                    <div>
+                                        <Label>კატეგორია</Label>
+                                        <LicenseTypeSelect
+                                            value={selectedLicenseType}
+                                            onValueChange={setSelectedLicenseType}
+                                            licenseTypes={licenseTypes}
+                                            placeholder="აირჩიეთ კატეგორია"
+                                            emptyLabel="მოგვიანებით"
+                                            triggerClassName="w-full"
+                                        />
+                                        <p className="mt-2 text-xs text-muted-foreground">
+                                            აირჩიეთ მოწმობის კატეგორია რომლის
+                                            ჩაბარებასაც გეგმავთ
                                         </p>
-                                    )}
-                                    <p className="text-xs text-muted-foreground">
-                                        პაროლი საჭიროა მხოლოდ თუ გსურთ თქვენი
-                                        ანგარიშის დაცვა
-                                    </p>
-                                </div>
+                                    </div>
+                                )}
 
                                 <Button
                                     type="submit"
