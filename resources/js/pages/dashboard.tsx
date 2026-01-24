@@ -253,14 +253,12 @@ export default function Dashboard({
                 {!activeTest && (
                     <div className="grid grid-cols-2 gap-2">
                         <Button
-                            asChild
                             className="h-auto flex-col gap-1 py-4"
                             variant="outline"
+                            onClick={() => router.post('/test/quick')}
                         >
-                            <Link href="/test">
-                                <Zap className="h-5 w-5 text-amber-500" />
-                                <span className="text-sm">სწრაფი ტესტი</span>
-                            </Link>
+                            <Zap className="h-5 w-5 text-amber-500" />
+                            <span className="text-sm">სწრაფი ტესტი</span>
                         </Button>
                         <Button
                             asChild
