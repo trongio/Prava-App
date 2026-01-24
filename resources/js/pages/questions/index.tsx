@@ -301,6 +301,32 @@ export default function QuestionsIndex({
     // Ref to track pending answer submissions to prevent race conditions
     const pendingAnswersRef = useRef<Set<number>>(new Set());
 
+    // Refs for accessing state in event handlers
+    const isFilterOpenRef = useRef(isFilterOpen);
+    const localFiltersRef = useRef(localFilters);
+    useEffect(() => {
+        isFilterOpenRef.current = isFilterOpen;
+    }, [isFilterOpen]);
+    useEffect(() => {
+        localFiltersRef.current = localFilters;
+    }, [localFilters]);
+
+    // Close filter sheet and apply filters
+    const closeFilterSheet = useCallback(() => {
+        setCategorySearch('');
+        setIsFilterOpen(false);
+        // Apply filters
+        const currentFilters = localFiltersRef.current;
+        router.get(
+            '/questions',
+            {
+                ...currentFilters,
+                categories: currentFilters.categories.join(','),
+            },
+            { preserveState: true, preserveScroll: true },
+        );
+    }, []);
+
     // Sync localFilters with server filters when they change
     // Don't sync while filter sheet is open (preserves user's selections)
     useEffect(() => {
@@ -322,12 +348,6 @@ export default function QuestionsIndex({
     }, [userProgress]);
 
     // Handle Android back button to close filter sheet instead of navigating
-    // Use a ref to track the current state since Inertia events can't access React state
-    const isFilterOpenRef = useRef(isFilterOpen);
-    useEffect(() => {
-        isFilterOpenRef.current = isFilterOpen;
-    }, [isFilterOpen]);
-
     useEffect(() => {
         // Use Inertia's router events to intercept navigation BEFORE it happens
         const removeBeforeListener = router.on('before', (event) => {
@@ -343,7 +363,7 @@ export default function QuestionsIndex({
 
                 // Cancel navigation to different pages and close the sheet instead
                 event.preventDefault();
-                setIsFilterOpen(false);
+                closeFilterSheet();
                 return false;
             }
         });
@@ -352,7 +372,7 @@ export default function QuestionsIndex({
         const handlePopState = (e: PopStateEvent) => {
             if (isFilterOpenRef.current) {
                 e.preventDefault();
-                setIsFilterOpen(false);
+                closeFilterSheet();
                 // Re-push state to prevent actual navigation
                 window.history.pushState(null, '', window.location.href);
             }
@@ -368,7 +388,7 @@ export default function QuestionsIndex({
             removeBeforeListener();
             window.removeEventListener('popstate', handlePopState);
         };
-    }, [isFilterOpen]);
+    }, [isFilterOpen, closeFilterSheet]);
 
     // Seed for deterministic answer shuffling (generated once per page load)
     const [shuffleSeed] = useState(() => Math.random());
@@ -658,20 +678,11 @@ export default function QuestionsIndex({
                     <Sheet
                         open={isFilterOpen}
                         onOpenChange={(open) => {
-                            if (!open) {
-                                setCategorySearch('');
-                                // Apply filters when closing the sheet
-                                const requestParams = {
-                                    ...localFilters,
-                                    categories:
-                                        localFilters.categories.join(','),
-                                };
-                                router.get('/questions', requestParams, {
-                                    preserveState: true,
-                                    preserveScroll: true,
-                                });
+                            if (open) {
+                                setIsFilterOpen(true);
+                            } else {
+                                closeFilterSheet();
                             }
-                            setIsFilterOpen(open);
                         }}
                     >
                         <SheetTrigger asChild>
