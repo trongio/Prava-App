@@ -3,7 +3,7 @@ import { ArrowLeft, Camera, ImagePlus, Lock, Plus, User } from 'lucide-react';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 
 // NativePHP imports for camera access and secure storage
-import { camera, isMobile, off, on, secureStorage } from '#nativephp';
+import { camera, Events, isMobile, off, on, secureStorage } from '#nativephp';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -87,21 +87,16 @@ export default function UserSelection({ users }: Props) {
 
     // Check if running in NativePHP mobile
     useEffect(() => {
-        // Check if NativePHP bridge is available before calling isMobile()
-        // This prevents the 503 error on web browsers
-        const hasNativeBridge =
-            typeof window !== 'undefined' &&
-            ('nativephp' in window ||
-                ('webkit' in window &&
-                    (window as any).webkit?.messageHandlers?.nativephp));
-
-        if (hasNativeBridge) {
-            isMobile()
-                .then(setIsNative)
-                .catch(() => setIsNative(false));
-        } else {
-            setIsNative(false);
-        }
+        // Try calling isMobile() and catch any errors for web environments
+        isMobile()
+            .then((result) => {
+                console.log('isMobile() result:', result);
+                setIsNative(result);
+            })
+            .catch((error) => {
+                console.log('isMobile() error (likely web browser):', error);
+                setIsNative(false);
+            });
     }, []);
 
     // Login form - include 'error' for general auth errors from Laravel
@@ -261,21 +256,38 @@ export default function UserSelection({ users }: Props) {
 
     // Handle native camera photo capture
     const handleTakePhoto = async () => {
+        console.log('handleTakePhoto called');
         setShowImagePicker(false);
-        await camera.getPhoto().id('profile-photo');
+        try {
+            console.log('Calling camera.getPhoto()...');
+            await camera.getPhoto().id('profile-photo');
+            console.log('camera.getPhoto() completed');
+        } catch (error) {
+            console.error('camera.getPhoto() error:', error);
+        }
     };
 
     // Handle native gallery picker
     const handlePickFromGallery = async () => {
+        console.log('handlePickFromGallery called');
         setShowImagePicker(false);
-        await camera.pickImages().images().id('profile-gallery');
+        try {
+            console.log('Calling camera.pickImages()...');
+            await camera.pickImages().images().id('profile-gallery');
+            console.log('camera.pickImages() completed');
+        } catch (error) {
+            console.error('camera.pickImages() error:', error);
+        }
     };
 
     // Handle click on avatar - show native picker or file input
     const handleAvatarClick = async () => {
+        console.log('handleAvatarClick - isNative:', isNative);
         if (isNative) {
+            console.log('Showing native image picker');
             setShowImagePicker(true);
         } else {
+            console.log('Falling back to file input');
             fileInputRef.current?.click();
         }
     };
@@ -332,11 +344,15 @@ export default function UserSelection({ users }: Props) {
             }
         };
 
-        // Register event listeners using full event class names
-        const photoEvent = 'Native\\Mobile\\Events\\Camera\\PhotoTaken';
-        const mediaEvent = 'Native\\Mobile\\Events\\Gallery\\MediaSelected';
-
+        // Register event listeners using NativePHP Events object (v2 API)
         console.log('Registering NativePHP event listeners...');
+        console.log('Events.Camera.PhotoTaken:', Events?.Camera?.PhotoTaken);
+        console.log('Events.Gallery.MediaSelected:', Events?.Gallery?.MediaSelected);
+
+        // Use Events object if available, fallback to string names
+        const photoEvent = Events?.Camera?.PhotoTaken || 'Native\\Mobile\\Events\\Camera\\PhotoTaken';
+        const mediaEvent = Events?.Gallery?.MediaSelected || 'Native\\Mobile\\Events\\Gallery\\MediaSelected';
+
         on(photoEvent, handlePhotoTaken);
         on(mediaEvent, handleMediaSelected);
 
@@ -362,7 +378,8 @@ export default function UserSelection({ users }: Props) {
                     body: JSON.stringify({
                         name: registerName,
                         password: registerPassword || undefined,
-                        profile_image_path: nativeImagePath || undefined,
+                        // Send base64 data instead of path - more reliable on Android
+                        profile_image_base64: newImagePreview || undefined,
                     }),
                 });
 
@@ -619,7 +636,7 @@ export default function UserSelection({ users }: Props) {
                                     {/* Native Image Picker Modal */}
                                     {showImagePicker && (
                                         <div
-                                            className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4"
+                                            className="fixed inset-0 z-[9999] flex items-end justify-center bg-black/50 p-4"
                                             onClick={() =>
                                                 setShowImagePicker(false)
                                             }

@@ -78,7 +78,8 @@ class AuthController extends Controller
             'name' => ['required', 'string', 'max:255', 'unique:users,name'],
             'password' => ['nullable', 'string', 'min:4'],
             'profile_image' => ['nullable', 'image', 'max:2048'],
-            'profile_image_path' => ['nullable', 'string'], // NativePHP camera path
+            'profile_image_base64' => ['nullable', 'string'], // NativePHP base64 image
+            'profile_image_path' => ['nullable', 'string'], // NativePHP camera path (legacy)
         ]);
 
         $profileImagePath = null;
@@ -87,7 +88,23 @@ class AuthController extends Controller
         if ($request->hasFile('profile_image')) {
             $profileImagePath = $request->file('profile_image')->store('profile-images', 'public');
         }
-        // Handle NativePHP camera path (mobile)
+        // Handle base64 image from NativePHP (mobile) - preferred method
+        elseif ($request->filled('profile_image_base64')) {
+            $base64Data = $request->input('profile_image_base64');
+
+            // Parse data URL: data:image/jpeg;base64,/9j/4AAQ...
+            if (preg_match('/^data:image\/(\w+);base64,(.+)$/', $base64Data, $matches)) {
+                $extension = $matches[1] === 'jpeg' ? 'jpg' : $matches[1];
+                $contents = base64_decode($matches[2]);
+
+                if ($contents !== false) {
+                    $filename = 'profile-images/'.uniqid().'.'.$extension;
+                    Storage::disk('public')->put($filename, $contents);
+                    $profileImagePath = $filename;
+                }
+            }
+        }
+        // Handle NativePHP camera path (mobile) - fallback for legacy
         elseif ($request->filled('profile_image_path')) {
             $nativePath = $request->input('profile_image_path');
 
@@ -158,6 +175,65 @@ class AuthController extends Controller
                 'name' => $user->name,
                 'profile_image_url' => $user->profile_image_url,
                 'has_password' => $user->has_password,
+            ],
+        ]);
+    }
+
+    /**
+     * Update user profile (for NativePHP mobile).
+     */
+    public function updateProfile(Request $request): JsonResponse
+    {
+        $request->validate([
+            'name' => ['sometimes', 'string', 'max:255'],
+            'profile_image_base64' => ['nullable', 'string'],
+            'default_license_type_id' => ['nullable', 'exists:license_types,id'],
+        ]);
+
+        $user = $request->user();
+
+        // Handle base64 image from NativePHP (mobile)
+        if ($request->filled('profile_image_base64')) {
+            $base64Data = $request->input('profile_image_base64');
+
+            // Parse data URL: data:image/jpeg;base64,/9j/4AAQ...
+            if (preg_match('/^data:image\/(\w+);base64,(.+)$/', $base64Data, $matches)) {
+                // Delete old image if exists
+                if ($user->profile_image) {
+                    Storage::disk('public')->delete($user->profile_image);
+                }
+
+                $extension = $matches[1] === 'jpeg' ? 'jpg' : $matches[1];
+                $contents = base64_decode($matches[2]);
+
+                if ($contents !== false) {
+                    $filename = 'profile-images/'.uniqid().'.'.$extension;
+                    Storage::disk('public')->put($filename, $contents);
+                    $user->profile_image = $filename;
+                }
+            }
+        }
+
+        // Update name if provided
+        if ($request->filled('name')) {
+            $user->name = $request->input('name');
+        }
+
+        // Update default license type if provided
+        if ($request->has('default_license_type_id')) {
+            $user->default_license_type_id = $request->input('default_license_type_id');
+        }
+
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'profile_image_url' => $user->profile_image_url,
+                'has_password' => $user->has_password,
+                'default_license_type_id' => $user->default_license_type_id,
             ],
         ]);
     }

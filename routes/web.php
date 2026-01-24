@@ -31,13 +31,28 @@ Route::get('/auth/logout', function () {
 Route::get('/native-file/preview', function () {
     $path = request()->query('path');
 
+    \Log::info('Native file preview request', ['path' => $path]);
+
     if (! $path || ! file_exists($path)) {
+        \Log::error('Native file not found', ['path' => $path]);
+
         return response()->json(['error' => 'File not found', 'path' => $path], 404);
     }
 
-    // Only allow files from app cache directory for security
-    if (! str_contains($path, '/cache/')) {
-        return response()->json(['error' => 'Access denied'], 403);
+    // Only allow files from app directories for security (cache, files, or tmp)
+    $allowedPatterns = ['/cache/', '/files/', '/tmp/', '/Pictures/', '/DCIM/'];
+    $isAllowed = false;
+    foreach ($allowedPatterns as $pattern) {
+        if (str_contains($path, $pattern)) {
+            $isAllowed = true;
+            break;
+        }
+    }
+
+    if (! $isAllowed) {
+        \Log::error('Native file access denied', ['path' => $path]);
+
+        return response()->json(['error' => 'Access denied', 'path' => $path], 403);
     }
 
     try {
@@ -45,10 +60,14 @@ Route::get('/native-file/preview', function () {
         $mimeType = mime_content_type($path) ?: 'image/jpeg';
         $base64 = base64_encode($contents);
 
+        \Log::info('Native file loaded successfully', ['path' => $path, 'mimeType' => $mimeType, 'size' => strlen($contents)]);
+
         return response()->json([
             'dataUrl' => "data:{$mimeType};base64,{$base64}",
         ]);
     } catch (\Exception $e) {
+        \Log::error('Native file read error', ['path' => $path, 'error' => $e->getMessage()]);
+
         return response()->json(['error' => $e->getMessage()], 500);
     }
 })->name('native.file.preview');

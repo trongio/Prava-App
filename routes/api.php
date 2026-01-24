@@ -14,5 +14,6 @@ Route::middleware('web')->group(function () {
 // Protected routes (token required)
 Route::middleware(['web', 'auth:sanctum'])->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
+    Route::post('/profile', [AuthController::class, 'updateProfile']);
     Route::post('/logout', [AuthController::class, 'logout']);
 });

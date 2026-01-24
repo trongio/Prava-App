@@ -1,7 +1,7 @@
 import { Transition } from '@headlessui/react';
 import { router, useForm, usePage } from '@inertiajs/react';
-import { logout } from '@/routes/auth';
 import {
+    ArrowLeft,
     Camera,
     Check,
     ChevronRight,
@@ -16,9 +16,10 @@ import {
 import { useEffect, useRef, useState } from 'react';
 
 // NativePHP imports for camera access
-import { camera, isMobile, off, on } from '#nativephp';
+import { camera, Events, isMobile, off, on, secureStorage } from '#nativephp';
 import { type Appearance, useAppearance } from '@/hooks/use-appearance';
 import { cn } from '@/lib/utils';
+import { logout } from '@/routes/auth';
 import { type LicenseType, type SharedData } from '@/types';
 
 import InputError from './input-error';
@@ -141,7 +142,11 @@ export function SettingsSheet({ open, onOpenChange }: SettingsSheetProps) {
 
     return (
         <Sheet open={open} onOpenChange={handleOpenChange}>
-            <SheetContent side="right" className="flex w-full flex-col p-0">
+            <SheetContent
+                side="right"
+                className="flex w-full flex-col p-0"
+                hideClose={currentView !== 'main'}
+            >
                 {currentView === 'main' && (
                     <MainView
                         user={user}
@@ -313,7 +318,7 @@ function MainView({
 
     return (
         <div className="flex h-full flex-col">
-            <SheetHeader className="border-b px-4 pb-4">
+            <SheetHeader className="flex-row items-center gap-3 border-b px-4 pb-4 pl-14">
                 <SheetTitle className="text-xl">პარამეტრები</SheetTitle>
             </SheetHeader>
 
@@ -414,88 +419,167 @@ function ProfileView({
         password: '',
     });
 
-    // Auto-save image to server
-    const saveImage = (file: File | null, nativePath: string | null) => {
+    // Auto-save image to server using API (same pattern as registration)
+    const saveImage = async (file: File | null, base64Data: string | null) => {
         setSavingImage(true);
         setImageSaved(false);
 
-        const onSuccess = () => {
+        try {
+            const isNative = await isMobile();
+            console.log('Settings: saveImage - isNative:', isNative);
+
+            if (isNative && base64Data) {
+                // Use API with Sanctum token (like registration does)
+                console.log('Settings: Saving via API with token...');
+                const token = await secureStorage.get('auth_token');
+                console.log('Settings: Got token:', token ? 'yes' : 'no');
+
+                const response = await fetch('/api/profile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+                    },
+                    body: JSON.stringify({
+                        name: user.name,
+                        profile_image_base64: base64Data,
+                    }),
+                });
+
+                const data = await response.json();
+                console.log('Settings: API response:', response.status, data);
+
+                if (response.ok && data.success) {
+                    console.log('Settings: Image saved successfully via API');
+                    setSavingImage(false);
+                    setImageSaved(true);
+                    setTimeout(() => setImageSaved(false), 3000);
+                } else {
+                    console.error('Settings: API save error:', data);
+                    setSavingImage(false);
+                }
+            } else {
+                // Web: Use Inertia router (works with session auth)
+                console.log('Settings: Saving via Inertia router...');
+                if (base64Data) {
+                    router.post(
+                        '/settings/profile',
+                        {
+                            name: user.name,
+                            profile_image_base64: base64Data,
+                        },
+                        {
+                            preserveScroll: true,
+                            preserveState: true,
+                            onSuccess: () => {
+                                console.log('Settings: Image saved successfully via Inertia');
+                                setSavingImage(false);
+                                setImageSaved(true);
+                                setTimeout(() => setImageSaved(false), 3000);
+                            },
+                            onError: (errors) => {
+                                console.error('Settings: Inertia save error:', errors);
+                                setSavingImage(false);
+                            },
+                        },
+                    );
+                } else if (file) {
+                    const formData = new FormData();
+                    formData.append('name', user.name);
+                    formData.append('profile_image', file);
+
+                    router.post('/settings/profile', formData, {
+                        preserveScroll: true,
+                        preserveState: true,
+                        onSuccess: () => {
+                            console.log('Settings: File saved successfully via Inertia');
+                            setSavingImage(false);
+                            setImageSaved(true);
+                            setTimeout(() => setImageSaved(false), 3000);
+                        },
+                        onError: (errors) => {
+                            console.error('Settings: Inertia file save error:', errors);
+                            setSavingImage(false);
+                        },
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Settings: saveImage error:', error);
             setSavingImage(false);
-            setImageSaved(true);
-            // Reset saved message after 3 seconds
-            setTimeout(() => setImageSaved(false), 3000);
-        };
-
-        const onError = () => {
-            setSavingImage(false);
-        };
-
-        if (nativePath) {
-            router.post(
-                '/settings/profile',
-                {
-                    name: user.name,
-                    profile_image_path: nativePath,
-                },
-                { preserveScroll: true, onSuccess, onError },
-            );
-        } else if (file) {
-            const formData = new FormData();
-            formData.append('name', user.name);
-            formData.append('profile_image', file);
-
-            router.post('/settings/profile', formData, {
-                preserveScroll: true,
-                onSuccess,
-                onError,
-            });
         }
     };
 
     // Convert native file to base64 data URL for preview (GET to avoid NativePHP POST interception)
     const loadNativeFilePreview = async (path: string) => {
         try {
-            console.log('Loading preview for:', path);
+            console.log('Settings: Loading preview for:', path);
             const url = `/native-file/preview?path=${encodeURIComponent(path)}`;
             const response = await fetch(url);
 
             const data = await response.json();
-            console.log('Preview response:', data);
+            console.log('Settings: Preview response received, dataUrl length:', data.dataUrl?.length);
 
             if (data.dataUrl) {
-                console.log('Setting base64 preview');
+                console.log('Settings: Setting base64 preview and nativeImagePath');
                 setNativeImagePath(path);
                 setPreviewUrl(data.dataUrl);
+                console.log('Settings: previewUrl state updated');
                 profileForm.setData('profile_image', null);
-                // Auto-save the native image
-                saveImage(null, path);
+                // Auto-save the native image using base64 data
+                saveImage(null, data.dataUrl);
             } else {
-                console.error('Preview failed:', data.error);
+                console.error('Settings: Preview failed:', data.error);
             }
         } catch (error) {
-            console.error('Failed to load native file preview:', error);
+            console.error('Settings: Failed to load native file preview:', error);
         }
     };
 
     // Handle native camera photo capture
     const handleTakePhoto = async () => {
+        console.log('Settings: handleTakePhoto called');
         setShowImagePicker(false);
-        await camera.getPhoto().id('settings-photo');
+        try {
+            console.log('Settings: Calling camera.getPhoto()...');
+            await camera.getPhoto().id('settings-photo');
+            console.log('Settings: camera.getPhoto() completed');
+        } catch (error) {
+            console.error('Settings: camera.getPhoto() error:', error);
+        }
     };
 
     // Handle native gallery picker
     const handlePickFromGallery = async () => {
+        console.log('Settings: handlePickFromGallery called');
         setShowImagePicker(false);
-        await camera.pickImages().images().id('settings-gallery');
+        try {
+            console.log('Settings: Calling camera.pickImages()...');
+            await camera.pickImages().images().id('settings-gallery');
+            console.log('Settings: camera.pickImages() completed');
+        } catch (error) {
+            console.error('Settings: camera.pickImages() error:', error);
+        }
     };
 
     // Handle click on avatar - show native picker or file input
     const handleAvatarClick = async () => {
-        const isNative = await isMobile();
+        console.log('Settings: handleAvatarClick called');
+        try {
+            const isNative = await isMobile();
+            console.log('Settings: isMobile() returned:', isNative);
 
-        if (isNative) {
-            setShowImagePicker(true);
-        } else {
+            if (isNative) {
+                console.log('Settings: Showing native image picker');
+                setShowImagePicker(true);
+            } else {
+                console.log('Settings: Falling back to file input');
+                fileInputRef.current?.click();
+            }
+        } catch (error) {
+            console.error('Settings: isMobile() error:', error);
+            // Fallback to file input on error
             fileInputRef.current?.click();
         }
     };
@@ -529,8 +613,13 @@ function ProfileView({
             }
         };
 
-        const photoEvent = 'Native\\Mobile\\Events\\Camera\\PhotoTaken';
-        const mediaEvent = 'Native\\Mobile\\Events\\Gallery\\MediaSelected';
+        // Use Events object if available, fallback to string names
+        console.log('Settings: Registering NativePHP event listeners...');
+        console.log('Events.Camera.PhotoTaken:', Events?.Camera?.PhotoTaken);
+        console.log('Events.Gallery.MediaSelected:', Events?.Gallery?.MediaSelected);
+
+        const photoEvent = Events?.Camera?.PhotoTaken || 'Native\\Mobile\\Events\\Camera\\PhotoTaken';
+        const mediaEvent = Events?.Gallery?.MediaSelected || 'Native\\Mobile\\Events\\Gallery\\MediaSelected';
 
         on(photoEvent, handlePhotoTaken);
         on(mediaEvent, handleMediaSelected);
@@ -555,11 +644,11 @@ function ProfileView({
     const handleProfileSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        // If we have a native image path, send it as profile_image_path
-        if (nativeImagePath) {
+        // If we have a native image (indicated by nativeImagePath), send base64 data
+        if (nativeImagePath && previewUrl) {
             router.post('/settings/profile', {
                 name: profileForm.data.name,
-                profile_image_path: nativeImagePath,
+                profile_image_base64: previewUrl,
             });
         } else if (profileForm.data.profile_image) {
             profileForm.post('/settings/profile', {
@@ -618,19 +707,19 @@ function ProfileView({
     const displayImage = previewUrl || user.profile_image_url;
     const hasPassword = user.has_password ?? false;
 
+    // Debug: log the display image source
+    console.log('Settings: Render - previewUrl:', previewUrl ? 'set (base64)' : null, 'user.profile_image_url:', user.profile_image_url, 'displayImage:', displayImage ? 'has value' : 'null');
+
     return (
         <div className="flex h-full flex-col">
-            <SheetHeader className="border-b px-4 pb-4">
-                <div className="flex items-center gap-2">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={onBack}
-                        className="-ml-2"
-                    >
-                        უკან
-                    </Button>
-                </div>
+            <SheetHeader className="flex-row items-center gap-3 border-b px-4 pb-4">
+                <button
+                    type="button"
+                    onClick={onBack}
+                    className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-muted"
+                >
+                    <ArrowLeft className="h-5 w-5" />
+                </button>
                 <SheetTitle className="text-xl">პროფილი</SheetTitle>
             </SheetHeader>
 
@@ -688,7 +777,7 @@ function ProfileView({
                         {/* Native Image Picker Modal */}
                         {showImagePicker && (
                             <div
-                                className="fixed inset-0 z-[100] flex items-end justify-center bg-black/50 p-4"
+                                className="fixed inset-0 z-[9999] flex items-end justify-center bg-black/50 p-4"
                                 onClick={() => setShowImagePicker(false)}
                             >
                                 <div
