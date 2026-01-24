@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "laravel-boost": {
+      "command": "/usr/bin/php8.3",
+      "args": [
+        "/home/azael/Documents/GitHub/Laravel-Template/artisan",
+        "boost:mcp"
+      ]
+    }
+  }
+}
