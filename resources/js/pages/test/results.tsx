@@ -1,4 +1,5 @@
 import { Head, router } from '@inertiajs/react';
+import axios from 'axios';
 import {
     Check,
     Copy,
@@ -88,11 +89,7 @@ export default function TestResults({ testResult }: Props) {
             category_ids: [],
         };
 
-        await fetch('/templates', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-        });
+        await axios.post('/templates', payload);
 
         setShowTemplateDialog(false);
         setTemplateName('');

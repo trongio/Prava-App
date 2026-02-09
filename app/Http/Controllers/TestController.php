@@ -519,9 +519,12 @@ class TestController extends Controller
         $wrongCount = $testResult->wrong_count;
         $scorePercentage = $totalQuestions > 0 ? ($correctCount / $totalQuestions) * 100 : 0;
 
-        // Determine pass/fail
+        // Determine pass/fail - unanswered questions count as wrong
+        $answeredCount = $correctCount + $wrongCount;
+        $unansweredCount = $totalQuestions - $answeredCount;
+        $effectiveWrongCount = $wrongCount + $unansweredCount;
         $allowedWrong = $testResult->getAllowedWrong();
-        $passed = $wrongCount <= $allowedWrong;
+        $passed = $effectiveWrongCount <= $allowedWrong;
 
         // Calculate time taken
         $startedAt = $testResult->started_at;
