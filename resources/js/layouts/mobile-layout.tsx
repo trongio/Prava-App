@@ -150,7 +150,7 @@ export default function MobileLayout({
                         const Icon = item.icon;
                         // Dashboard and test pages need fresh data (activeTest), so don't cache them
                         const shouldCache =
-                            item.id !== 'home' && item.id !== 'test';
+                            item.id !== 'home' && item.id !== 'test' && item.id !== 'history';
 
                         return (
                             <Link
