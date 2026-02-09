@@ -8,6 +8,7 @@ import {
     ImagePlus,
     ExternalLink,
     LogOut,
+    ShieldCheck,
     Monitor,
     Moon,
     Sun,
@@ -373,7 +374,9 @@ function MainView({
             {/* GitHub contribute link */}
             <button
                 type="button"
-                onClick={() => browser.open('https://github.com/trongio/Prava-App')}
+                onClick={() =>
+                    browser.open('https://github.com/trongio/Prava-App')
+                }
                 className="flex w-full items-center gap-3 border-t px-4 py-3 text-sm font-medium transition-colors hover:bg-muted/50"
             >
                 <svg
@@ -386,6 +389,24 @@ function MainView({
                 <div className="min-w-0 flex-1 text-left">
                     <span>trongio</span>
                     <p className="text-xs text-muted-foreground">კონტრიბუცია</p>
+                </div>
+                <ExternalLink className="h-4 w-4 text-muted-foreground" />
+            </button>
+
+            {/* Privacy Policy link */}
+            <button
+                type="button"
+                onClick={() =>
+                    browser.open(
+                        'https://raw.githubusercontent.com/trongio/Prava-App/refs/heads/main/PRIVACY_POLICY.md',
+                    )
+                }
+                className="flex w-full items-center gap-3 border-t px-4 py-3 text-sm font-medium transition-colors hover:bg-muted/50"
+            >
+                <ShieldCheck className="h-5 w-5" />
+                <div className="min-w-0 flex-1 text-left">
+                    <span>კონფიდენციალურობა</span>
+                    <p className="text-xs text-muted-foreground">პოლიტიკა</p>
                 </div>
                 <ExternalLink className="h-4 w-4 text-muted-foreground" />
             </button>
