@@ -1,14 +1,19 @@
 {
     "agents": [
         "claude_code",
-        "copilot",
-        "phpstorm"
+        "copilot"
     ],
-    "editors": [
-        "claude_code",
-        "phpstorm"
+    "guidelines": true,
+    "herd_mcp": false,
+    "mcp": true,
+    "packages": [
+        "nativephp/mobile"
     ],
-    "guidelines": [
-        "laravel/fortify"
+    "sail": false,
+    "skills": [
+        "wayfinder-development",
+        "pest-testing",
+        "inertia-react-development",
+        "tailwindcss-development"
     ]
 }
