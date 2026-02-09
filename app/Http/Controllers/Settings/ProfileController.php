@@ -108,6 +108,9 @@ class ProfileController extends Controller
             Storage::disk('public')->delete($user->profile_image);
         }
 
+        // Revoke all Sanctum tokens
+        $user->tokens()->delete();
+
         Auth::logout();
 
         $user->delete();
