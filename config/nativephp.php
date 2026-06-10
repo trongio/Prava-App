@@ -262,8 +262,8 @@ return [
         'push_notifications' => false,
         'location' => false,
         'vibrate' => false,
-        'storage_read' => true,
-        'storage_write' => true,
+        'storage_read' => false,
+        'storage_write' => false,
         'scanner' => false,
         'network_state' => true,
     ],
@@ -311,9 +311,9 @@ return [
         ],
         'android' => [
             'portrait' => true,
-            'upside_down' => false,
-            'landscape_left' => false,
-            'landscape_right' => false,
+            'upside_down' => true,
+            'landscape_left' => true,
+            'landscape_right' => true,
         ],
     ],
 ];

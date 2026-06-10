@@ -103,14 +103,6 @@ interface Props {
     filters: Filters;
     filterSign: FilterSign | null;
     stats: Stats;
-    debug?: {
-        hasFilterParams: boolean;
-        raw_categories: unknown;
-        query_string: string;
-        savedPreferences: Record<string, unknown>;
-        processedCategoryIds: number[];
-        categoryCount: number;
-    };
 }
 
 interface AnswerState {
@@ -258,21 +250,7 @@ export default function QuestionsIndex({
     categoryCounts,
     filters,
     filterSign,
-    debug,
 }: Props) {
-    // Debug: Log what filters are received from server
-    console.log('=== [SERVER DEBUG] ===');
-    console.log('[SERVER] debug object:', debug);
-    console.log('[SERVER] hasFilterParams:', debug?.hasFilterParams);
-    console.log('[SERVER] raw_categories:', debug?.raw_categories);
-    console.log('[SERVER] query_string:', debug?.query_string);
-    console.log('[SERVER] savedPreferences:', debug?.savedPreferences);
-    console.log('[SERVER] processedCategoryIds:', debug?.processedCategoryIds);
-    console.log('[SERVER] categoryCount:', debug?.categoryCount);
-    console.log('=== [FRONTEND] ===');
-    console.log('[FRONTEND] filters.categories:', filters.categories);
-    console.log('[FRONTEND] Total questions:', questions.total);
-
     const [answerStates, setAnswerStates] = useState<
         Record<number, AnswerState>
     >({});

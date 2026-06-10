@@ -136,7 +136,7 @@ class TestController extends Controller
         $request->validate([
             'test_type' => 'required|in:thematic,bookmarked',
             'license_type_id' => 'nullable|exists:license_types,id',
-            'question_count' => 'required|integer|min:5|max:1000',
+            'question_count' => 'required|integer|min:1|max:1000',
             'time_per_question' => 'required|integer|min:30|max:180',
             'failure_threshold' => 'required|integer|min:1|max:50',
             'category_ids' => 'nullable|array',
@@ -238,8 +238,9 @@ class TestController extends Controller
             ])->values()->toArray(),
         ])->values()->toArray();
 
-        // Calculate total time
-        $totalTime = $request->question_count * $request->time_per_question;
+        // Calculate total time from the actual number of questions selected,
+        // which may be fewer than requested (e.g. limited bookmarks or filters).
+        $totalTime = count($questionsWithAnswers) * $request->time_per_question;
 
         // Create test result
         $testResult = TestResult::create([
@@ -531,6 +532,13 @@ class TestController extends Controller
         $remainingTime = $request->input('remaining_time', $testResult->remaining_time_seconds);
         $totalTime = ($testResult->configuration['question_count'] ?? 30) * ($testResult->configuration['time_per_question'] ?? 60);
         $timeTaken = $totalTime - $remainingTime;
+
+        // Enforce the time limit server-side: a test that ran out of time is a
+        // failure regardless of the mistake count, matching the on-screen warning.
+        $serverElapsed = $startedAt ? $startedAt->diffInSeconds(now()) : null;
+        if ($remainingTime <= 0 || ($serverElapsed !== null && $serverElapsed > $totalTime)) {
+            $passed = false;
+        }
 
         $testResult->update([
             'status' => $passed ? TestResult::STATUS_PASSED : TestResult::STATUS_FAILED,

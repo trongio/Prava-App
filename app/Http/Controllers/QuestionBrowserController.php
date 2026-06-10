@@ -9,6 +9,7 @@ use App\Models\Sign;
 use App\Models\UserQuestionProgress;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -18,8 +19,10 @@ class QuestionBrowserController extends Controller
     {
         $user = $request->user();
 
-        // Check if user has filter params in URL (not just page)
-        $hasFilterParams = $request->hasAny(['license_type', 'categories', 'show_inactive', 'bookmarked', 'wrong_only', 'correct_only', 'unanswered', 'per_page', 'sign_id']);
+        // Check if user has filter params in URL (not just page). sign_id is a
+        // session-only filter (from the signs page) and must NOT count here, or
+        // it would overwrite the user's saved filter preferences.
+        $hasFilterParams = $request->hasAny(['license_type', 'categories', 'show_inactive', 'bookmarked', 'wrong_only', 'correct_only', 'unanswered', 'per_page']);
 
         // Sign filter (not saved to preferences, used when coming from signs page)
         $signId = $request->input('sign_id');
@@ -32,14 +35,6 @@ class QuestionBrowserController extends Controller
         $licenseTypeId = $hasFilterParams
             ? $request->input('license_type')
             : ($savedPreferences['license_type'] ?? $user?->default_license_type_id);
-
-        // Debug: Collect debug info to send to frontend
-        $debug = [
-            'hasFilterParams' => $hasFilterParams,
-            'raw_categories' => $request->input('categories'),
-            'query_string' => $request->getQueryString(),
-            'savedPreferences' => $savedPreferences,
-        ];
 
         // Parse categories - support both comma-separated string (NativePHP) and array (web)
         $rawCategories = $request->input('categories', '');
@@ -68,10 +63,6 @@ class QuestionBrowserController extends Controller
                 ->values()
                 ->toArray();
         }
-
-        // Add processed categories to debug
-        $debug['processedCategoryIds'] = $categoryIds;
-        $debug['categoryCount'] = count($categoryIds);
 
         $showInactive = $hasFilterParams
             ? $request->boolean('show_inactive', false)
@@ -240,19 +231,20 @@ class QuestionBrowserController extends Controller
                 'answered' => $answeredCount,
                 'filtered' => $questions->total(),
             ],
-            // Debug info - remove after debugging
-            'debug' => $debug,
         ]);
     }
 
     public function answer(Request $request, Question $question): JsonResponse
     {
         $request->validate([
-            'answer_id' => 'required|exists:answers,id',
+            'answer_id' => [
+                'required',
+                Rule::exists('answers', 'id')->where('question_id', $question->id),
+            ],
         ]);
 
         $user = $request->user();
-        $answer = $question->answers()->find($request->answer_id);
+        $answer = $question->answers()->findOrFail($request->answer_id);
         $isCorrect = $answer->is_correct;
 
         // Update or create user progress

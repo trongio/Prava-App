@@ -240,8 +240,11 @@ export default function TestIndex({
             setShowAbandonDialog(true);
             return;
         }
-        // Set the test type before posting
-        form.setData('test_type', testType);
+        // Inject the current test type at submit time. Using transform (rather
+        // than setData, which is async) guarantees the value is applied, and it
+        // overrides any lingering transform from the abandon flow so a normal
+        // start never carries an unintended abandon_active flag.
+        form.transform((data) => ({ ...data, test_type: testType }));
         form.post('/test');
     };
 

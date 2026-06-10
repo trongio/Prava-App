@@ -17,6 +17,7 @@ export interface TestConfiguration {
     question_count: number;
     time_per_question: number;
     failure_threshold: number;
+    category_ids?: number[];
     shuffle_seed?: number;
 }
 

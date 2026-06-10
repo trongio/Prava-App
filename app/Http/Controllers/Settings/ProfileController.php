@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Settings;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ProfileDeleteRequest;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
+use App\Support\NativeMediaFile;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -46,41 +47,33 @@ class ProfileController extends Controller
         }
         // Handle base64 image from NativePHP (mobile) - preferred method
         elseif ($request->filled('profile_image_base64')) {
-            $base64Data = $request->input('profile_image_base64');
+            $decoded = NativeMediaFile::decodeImageDataUrl($request->input('profile_image_base64'));
 
-            // Parse data URL: data:image/jpeg;base64,/9j/4AAQ...
-            if (preg_match('/^data:image\/(\w+);base64,(.+)$/', $base64Data, $matches)) {
+            if ($decoded !== null) {
                 // Delete old image if exists
                 if ($user->profile_image) {
                     Storage::disk('public')->delete($user->profile_image);
                 }
 
-                $extension = $matches[1] === 'jpeg' ? 'jpg' : $matches[1];
-                $contents = base64_decode($matches[2]);
-
-                if ($contents !== false) {
-                    $filename = 'profile-images/'.uniqid().'.'.$extension;
-                    Storage::disk('public')->put($filename, $contents);
-                    $validated['profile_image'] = $filename;
-                }
+                $filename = 'profile-images/'.uniqid().'.'.$decoded['extension'];
+                Storage::disk('public')->put($filename, $decoded['contents']);
+                $validated['profile_image'] = $filename;
             }
         }
         // Handle NativePHP camera path (mobile) - fallback for legacy
         elseif ($request->filled('profile_image_path')) {
-            $nativePath = $request->input('profile_image_path');
+            $resolved = NativeMediaFile::resolveImage($request->input('profile_image_path'));
 
-            // Copy the native file to our storage
-            if (file_exists($nativePath)) {
-                // Delete old image if exists
-                if ($user->profile_image) {
-                    Storage::disk('public')->delete($user->profile_image);
-                }
-
-                $extension = pathinfo($nativePath, PATHINFO_EXTENSION) ?: 'jpg';
-                $filename = 'profile-images/'.uniqid().'.'.$extension;
-                $contents = file_get_contents($nativePath);
+            if ($resolved !== null) {
+                $contents = file_get_contents($resolved['path']);
 
                 if ($contents !== false) {
+                    // Delete old image if exists
+                    if ($user->profile_image) {
+                        Storage::disk('public')->delete($user->profile_image);
+                    }
+
+                    $filename = 'profile-images/'.uniqid().'.'.$resolved['extension'];
                     Storage::disk('public')->put($filename, $contents);
                     $validated['profile_image'] = $filename;
                 }

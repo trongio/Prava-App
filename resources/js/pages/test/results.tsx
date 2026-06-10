@@ -86,7 +86,7 @@ export default function TestResults({ testResult }: Props) {
             question_count: testResult.configuration.question_count,
             time_per_question: testResult.configuration.time_per_question,
             failure_threshold: testResult.configuration.failure_threshold,
-            category_ids: [],
+            category_ids: testResult.configuration.category_ids ?? [],
         };
 
         await axios.post('/templates', payload);

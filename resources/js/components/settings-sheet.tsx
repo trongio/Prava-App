@@ -437,6 +437,12 @@ function ProfileView({
     onClose: () => void;
 }) {
     const fileInputRef = useRef<HTMLInputElement>(null);
+    // Always hold the latest name so the native camera/gallery listeners (which
+    // capture this render's closure) don't post a stale name and revert a rename.
+    const userNameRef = useRef(user.name);
+    useEffect(() => {
+        userNameRef.current = user.name;
+    }, [user.name]);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [showPasswordForm, setShowPasswordForm] = useState(false);
     const [deleteStep, setDeleteStep] = useState<0 | 1 | 2>(0);
@@ -484,7 +490,7 @@ function ProfileView({
                         ...(token ? { Authorization: `Bearer ${token}` } : {}),
                     },
                     body: JSON.stringify({
-                        name: user.name,
+                        name: userNameRef.current,
                         profile_image_base64: base64Data,
                     }),
                 });
@@ -508,7 +514,7 @@ function ProfileView({
                     router.post(
                         '/settings/profile',
                         {
-                            name: user.name,
+                            name: userNameRef.current,
                             profile_image_base64: base64Data,
                         },
                         {
@@ -533,7 +539,7 @@ function ProfileView({
                     );
                 } else if (file) {
                     const formData = new FormData();
-                    formData.append('name', user.name);
+                    formData.append('name', userNameRef.current);
                     formData.append('profile_image', file);
 
                     router.post('/settings/profile', formData, {

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Support\NativeMediaFile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -78,15 +79,13 @@ class UserSelectionController extends Controller
         }
         // Handle NativePHP camera path (mobile)
         elseif ($request->filled('profile_image_path')) {
-            $nativePath = $request->input('profile_image_path');
+            $resolved = NativeMediaFile::resolveImage($request->input('profile_image_path'));
 
-            // Copy the native file to our storage
-            if (file_exists($nativePath)) {
-                $extension = pathinfo($nativePath, PATHINFO_EXTENSION) ?: 'jpg';
-                $filename = 'profile-images/'.uniqid().'.'.$extension;
-                $contents = file_get_contents($nativePath);
+            if ($resolved !== null) {
+                $contents = file_get_contents($resolved['path']);
 
                 if ($contents !== false) {
+                    $filename = 'profile-images/'.uniqid().'.'.$resolved['extension'];
                     Storage::disk('public')->put($filename, $contents);
                     $profileImagePath = $filename;
                 }

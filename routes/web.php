@@ -8,6 +8,7 @@ use App\Http\Controllers\TestController;
 use App\Http\Controllers\TestHistoryController;
 use App\Http\Controllers\TestTemplateController;
 use App\Http\Controllers\UserSelectionController;
+use App\Support\NativeMediaFile;
 use Illuminate\Support\Facades\Route;
 
 // User Selection (Login/Register)
@@ -27,49 +28,26 @@ Route::get('/auth/logout', function () {
     return redirect('/');
 })->name('auth.logout');
 
-// Convert native file to base64 data URL for preview (GET to avoid NativePHP POST interception)
+// Convert native camera/gallery image to a base64 data URL for preview
+// (GET to avoid NativePHP POST interception). The supplied path is resolved
+// and validated as an image inside an allowed device location to prevent
+// arbitrary file disclosure / path traversal.
 Route::get('/native-file/preview', function () {
-    $path = request()->query('path');
+    $resolved = NativeMediaFile::resolveImage(request()->query('path'));
 
-    \Log::info('Native file preview request', ['path' => $path]);
-
-    if (! $path || ! file_exists($path)) {
-        \Log::error('Native file not found', ['path' => $path]);
-
-        return response()->json(['error' => 'File not found', 'path' => $path], 404);
+    if ($resolved === null) {
+        return response()->json(['error' => 'File not found or not an allowed image'], 404);
     }
 
-    // Only allow files from app directories for security (cache, files, or tmp)
-    $allowedPatterns = ['/cache/', '/files/', '/tmp/', '/Pictures/', '/DCIM/'];
-    $isAllowed = false;
-    foreach ($allowedPatterns as $pattern) {
-        if (str_contains($path, $pattern)) {
-            $isAllowed = true;
-            break;
-        }
+    $contents = file_get_contents($resolved['path']);
+
+    if ($contents === false) {
+        return response()->json(['error' => 'Unable to read file'], 500);
     }
 
-    if (! $isAllowed) {
-        \Log::error('Native file access denied', ['path' => $path]);
-
-        return response()->json(['error' => 'Access denied', 'path' => $path], 403);
-    }
-
-    try {
-        $contents = file_get_contents($path);
-        $mimeType = mime_content_type($path) ?: 'image/jpeg';
-        $base64 = base64_encode($contents);
-
-        \Log::info('Native file loaded successfully', ['path' => $path, 'mimeType' => $mimeType, 'size' => strlen($contents)]);
-
-        return response()->json([
-            'dataUrl' => "data:{$mimeType};base64,{$base64}",
-        ]);
-    } catch (\Exception $e) {
-        \Log::error('Native file read error', ['path' => $path, 'error' => $e->getMessage()]);
-
-        return response()->json(['error' => $e->getMessage()], 500);
-    }
+    return response()->json([
+        'dataUrl' => "data:{$resolved['mime']};base64,".base64_encode($contents),
+    ]);
 })->name('native.file.preview');
 
 Route::middleware(['auth'])->group(function () {
