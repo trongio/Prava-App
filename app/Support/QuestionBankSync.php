@@ -109,6 +109,34 @@ class QuestionBankSync
     }
 
     /**
+     * The version a pack declares, without applying it.
+     *
+     * Lets a caller decide whether the pack has already been applied before
+     * paying for the sync. Returns null when the pack cannot be read.
+     */
+    public function declaredVersion(string $packPath): ?string
+    {
+        if (! is_file($packPath) || ! is_readable($packPath)) {
+            return null;
+        }
+
+        try {
+            $pack = $this->connectToPack($packPath);
+
+            return $this->resolveVersion($pack, $packPath);
+        } catch (Throwable $e) {
+            Log::warning('Could not read question bank pack version', [
+                'pack' => $packPath,
+                'error' => $e->getMessage(),
+            ]);
+
+            return null;
+        } finally {
+            DB::purge(self::PACK_CONNECTION);
+        }
+    }
+
+    /**
      * Apply a content pack, returning a summary of what changed.
      *
      * Never throws: a malformed or unreadable pack leaves the existing bank

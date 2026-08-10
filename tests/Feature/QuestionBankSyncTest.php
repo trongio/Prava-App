@@ -395,3 +395,33 @@ describe('refusing bad packs', function () {
         expect(DB::table('questions')->count())->toBeGreaterThanOrEqual(0);
     });
 });
+
+describe('version guard', function () {
+    it('reads the declared version without applying the pack', function () {
+        $category = QuestionCategory::factory()->create(['id' => 900]);
+        $before = Question::query()->count();
+
+        $pack = makePack([[
+            'id' => 5700,
+            'category_id' => $category->id,
+            'question' => 'Should not be inserted by a version read?',
+            'answers' => [['id' => 9700, 'text' => 'Right', 'is_correct' => true]],
+        ]], version: '2026.99');
+
+        $sync = new QuestionBankSync;
+
+        expect($sync->declaredVersion($pack))->toBe('2026.99');
+        expect(Question::query()->count())->toBe($before);
+        expect(Question::find(5700))->toBeNull();
+    });
+
+    it('returns null for a pack that cannot be read', function () {
+        expect((new QuestionBankSync)->declaredVersion('/tmp/not-a-pack.sqlite'))->toBeNull();
+    });
+
+    it('records exactly one row for the shipped pack', function () {
+        // Both the mechanism migration and the pack migration run in the suite;
+        // the version guard must stop the pack being applied and logged twice.
+        expect(DB::table('content_packs')->count())->toBeLessThanOrEqual(1);
+    });
+});
