@@ -18,6 +18,6 @@ return [
     |
     */
 
-    'file' => env('CONTENT_PACK_FILE', ''),
+    'file' => env('CONTENT_PACK_FILE', 'question-bank-2026-08.sqlite'),
 
 ];
