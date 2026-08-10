@@ -17,8 +17,44 @@ export interface TestConfiguration {
     question_count: number;
     time_per_question: number;
     failure_threshold: number;
+    allowed_wrong?: number;
     category_ids?: number[];
     shuffle_seed?: number;
+}
+
+/**
+ * The official exam specification for a licence category, as published by
+ * Georgia's Service Agency and resolved server-side by App\Support\ExamRules.
+ *
+ * `code` is null when the category has no published rules and the default
+ * specification was applied.
+ */
+export interface ExamSpec {
+    code: string | null;
+    question_count: number;
+    allowed_wrong: number;
+    correct_to_pass: number;
+    time_per_question: number;
+    total_time_seconds: number;
+    failure_threshold: number;
+}
+
+/**
+ * Mistake allowance for a self-configured practice test.
+ *
+ * Only for the custom flow, where the percentage slider is the user's own input
+ * and there is nothing to ask the server about before the test exists. It
+ * mirrors the legacy branch of TestResult::getAllowedWrong() exactly, and is the
+ * single place that formula is duplicated on the client.
+ *
+ * Official exams do not use this: their allowance comes from the server as
+ * `allowed_wrong` and must never be recomputed here.
+ */
+export function deriveAllowedWrong(
+    questionCount: number,
+    failureThreshold: number,
+): number {
+    return Math.floor(questionCount * (failureThreshold / 100));
 }
 
 export interface TestResultData {

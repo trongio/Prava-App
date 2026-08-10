@@ -62,6 +62,7 @@ import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import MobileLayout from '@/layouts/mobile-layout';
+import { deriveAllowedWrong, type ExamSpec } from '@/lib/test-utils';
 
 interface LicenseType {
     id: number;
@@ -111,6 +112,8 @@ interface Props {
         license_type_id: number | null;
         auto_advance: boolean;
     };
+    /** Official exam specs keyed by licence code, plus a `default` entry. */
+    examRules: Record<string, ExamSpec>;
     prefilled: {
         license_type: number | null;
         categories: number[];
@@ -158,6 +161,7 @@ export default function TestIndex({
     bookmarkedCount,
     userDefaults,
     prefilled,
+    examRules,
 }: Props) {
     const [testType, setTestType] = useState<'thematic' | 'bookmarked'>(
         'thematic',
@@ -186,12 +190,32 @@ export default function TestIndex({
         auto_advance: userDefaults.auto_advance ?? true,
     });
 
-    // Calculate allowed mistakes based on question count and threshold
+    // Allowed mistakes for the custom test the user is configuring. The
+    // percentage slider is their own input, so this is derived client-side via
+    // the shared helper that mirrors the server formula.
     const allowedMistakes = useMemo(() => {
-        return Math.floor(
-            form.data.question_count * (form.data.failure_threshold / 100),
+        return deriveAllowedWrong(
+            form.data.question_count,
+            form.data.failure_threshold,
         );
     }, [form.data.question_count, form.data.failure_threshold]);
+
+    // The official exam for the user's own licence category. Comes straight from
+    // the server so the quick test can never disagree with how it will be marked.
+    const officialSpec = useMemo(() => {
+        const code = licenseTypes.find(
+            (type) => type.id === userDefaults.license_type_id,
+        )?.code;
+
+        // Matched case-insensitively, mirroring ExamRules::forCode().
+        const matched = code
+            ? Object.entries(examRules).find(
+                  ([key]) => key.toLowerCase() === code.toLowerCase(),
+              )?.[1]
+            : undefined;
+
+        return matched ?? examRules.default;
+    }, [examRules, licenseTypes, userDefaults.license_type_id]);
 
     // Total time estimate
     const totalTimeMinutes = useMemo(() => {
@@ -366,15 +390,23 @@ export default function TestIndex({
         <MobileLayout>
             <Head title="ტესტი" />
             <div className="flex flex-col gap-4 p-4">
-                {/* Quick Test Button */}
-                <Button
-                    size="lg"
-                    className="w-full gap-2"
-                    onClick={handleQuickTest}
-                >
-                    <Zap className="h-5 w-5" />
-                    სწრაფი ტესტი
-                </Button>
+                {/* Quick Test Button - runs the official exam for the user's category */}
+                <div className="flex flex-col gap-1.5">
+                    <Button
+                        size="lg"
+                        className="w-full gap-2"
+                        onClick={handleQuickTest}
+                    >
+                        <Zap className="h-5 w-5" />
+                        სწრაფი ტესტი
+                    </Button>
+                    <p className="text-center text-xs text-muted-foreground">
+                        {officialSpec.question_count} კითხვა ·{' '}
+                        {officialSpec.correct_to_pass} სწორი პასუხი ·{' '}
+                        {officialSpec.allowed_wrong} შეცდომა დასაშვებია ·{' '}
+                        {Math.round(officialSpec.total_time_seconds / 60)} წუთი
+                    </p>
+                </div>
 
                 {/* Continue Section - Active test */}
                 {activeTest && (

@@ -8,7 +8,9 @@ use App\Models\QuestionCategory;
 use App\Models\TestResult;
 use App\Models\TestTemplate;
 use App\Models\UserQuestionProgress;
+use App\Support\ExamRules;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -119,6 +121,7 @@ class TestController extends Controller
                 'license_type_id' => $user->default_license_type_id,
                 'auto_advance' => $user->test_auto_advance,
             ],
+            'examRules' => ExamRules::all(),
             'prefilled' => [
                 'license_type' => $prefilledLicenseType,
                 'categories' => $prefilledCategories,
@@ -131,7 +134,7 @@ class TestController extends Controller
     /**
      * Start a new test (create TestResult in progress).
      */
-    public function store(Request $request): \Illuminate\Http\RedirectResponse|JsonResponse
+    public function store(Request $request): RedirectResponse|JsonResponse
     {
         $request->validate([
             'test_type' => 'required|in:thematic,bookmarked',
@@ -139,6 +142,7 @@ class TestController extends Controller
             'question_count' => 'required|integer|min:1|max:1000',
             'time_per_question' => 'required|integer|min:30|max:180',
             'failure_threshold' => 'required|integer|min:1|max:50',
+            'allowed_wrong' => 'nullable|integer|min:0|max:1000',
             'category_ids' => 'nullable|array',
             'category_ids.*' => 'integer|exists:question_categories,id',
             'auto_advance' => 'boolean',
@@ -240,7 +244,9 @@ class TestController extends Controller
 
         // Calculate total time from the actual number of questions selected,
         // which may be fewer than requested (e.g. limited bookmarks or filters).
-        $totalTime = count($questionsWithAnswers) * $request->time_per_question;
+        $questionCount = count($questionsWithAnswers);
+        $totalTime = $questionCount * $request->time_per_question;
+        $allowedWrong = $this->resolveAllowedWrong($request, $questionCount);
 
         // Create test result
         $testResult = TestResult::create([
@@ -248,9 +254,10 @@ class TestController extends Controller
             'test_type' => $request->test_type,
             'license_type_id' => $request->license_type_id,
             'configuration' => [
-                'question_count' => count($questionsWithAnswers),
+                'question_count' => $questionCount,
                 'time_per_question' => $request->time_per_question,
                 'failure_threshold' => $request->failure_threshold,
+                'allowed_wrong' => $allowedWrong,
                 'category_ids' => $request->category_ids ?? [],
                 'auto_advance' => $request->has('auto_advance') ? $request->boolean('auto_advance') : ($user->test_auto_advance ?? true),
                 'shuffle_seed' => mt_rand() / mt_getrandmax(),
@@ -258,7 +265,7 @@ class TestController extends Controller
             'questions_with_answers' => $questionsWithAnswers,
             'correct_count' => 0,
             'wrong_count' => 0,
-            'total_questions' => count($questionsWithAnswers),
+            'total_questions' => $questionCount,
             'score_percentage' => 0,
             'status' => TestResult::STATUS_IN_PROGRESS,
             'started_at' => now(),
@@ -272,9 +279,26 @@ class TestController extends Controller
     }
 
     /**
+     * Resolve the mistake allowance to persist on a new test.
+     *
+     * An explicit `allowed_wrong` comes from the official exam rules of a
+     * licence category (quick start). Custom and practice tests send only the
+     * percentage slider, so the legacy formula still derives their allowance,
+     * which keeps their scoring byte-for-byte identical to before.
+     */
+    private function resolveAllowedWrong(Request $request, int $questionCount): int
+    {
+        $allowedWrong = $request->filled('allowed_wrong')
+            ? (int) $request->input('allowed_wrong')
+            : (int) floor($questionCount * ((int) $request->failure_threshold / 100));
+
+        return max(0, min($allowedWrong, $questionCount));
+    }
+
+    /**
      * Display active test screen / resume paused test.
      */
-    public function show(Request $request, TestResult $testResult): Response|\Illuminate\Http\RedirectResponse
+    public function show(Request $request, TestResult $testResult): Response|RedirectResponse
     {
         $user = $request->user();
 
@@ -487,7 +511,7 @@ class TestController extends Controller
     /**
      * Complete the test (finish and calculate results).
      */
-    public function complete(Request $request, TestResult $testResult): JsonResponse|\Illuminate\Http\RedirectResponse
+    public function complete(Request $request, TestResult $testResult): JsonResponse|RedirectResponse
     {
         $request->validate([
             'remaining_time' => 'nullable|integer',
@@ -562,7 +586,7 @@ class TestController extends Controller
     /**
      * Display test results page.
      */
-    public function results(Request $request, TestResult $testResult): Response|\Illuminate\Http\RedirectResponse
+    public function results(Request $request, TestResult $testResult): Response|RedirectResponse
     {
         $user = $request->user();
 
@@ -602,19 +626,21 @@ class TestController extends Controller
     }
 
     /**
-     * Quick test - start with default settings.
+     * Quick test - start with the official exam rules of the user's category.
      */
-    public function quickStart(Request $request): \Illuminate\Http\RedirectResponse|JsonResponse
+    public function quickStart(Request $request): RedirectResponse|JsonResponse
     {
         $user = $request->user();
 
-        // Default settings: 30 questions, 1 min per question, 10% failure threshold
+        $spec = ExamRules::forLicenseTypeId($user->default_license_type_id);
+
         $fakeRequest = new Request([
             'test_type' => 'thematic',
             'license_type_id' => $user->default_license_type_id,
-            'question_count' => 30,
-            'time_per_question' => 60,
-            'failure_threshold' => 10,
+            'question_count' => $spec['question_count'],
+            'time_per_question' => $spec['time_per_question'],
+            'failure_threshold' => $spec['failure_threshold'],
+            'allowed_wrong' => $spec['allowed_wrong'],
             'category_ids' => [],
             'auto_advance' => $user->test_auto_advance ?? true,
             'abandon_active' => $request->boolean('abandon_active'),
@@ -629,7 +655,7 @@ class TestController extends Controller
     /**
      * Redo the same test (exact same questions, same order).
      */
-    public function redoSame(Request $request, TestResult $testResult): \Illuminate\Http\RedirectResponse|JsonResponse
+    public function redoSame(Request $request, TestResult $testResult): RedirectResponse|JsonResponse
     {
         $user = $request->user();
 
@@ -685,7 +711,7 @@ class TestController extends Controller
     /**
      * Create a new similar test (same config, random questions).
      */
-    public function newSimilar(Request $request, TestResult $testResult): \Illuminate\Http\RedirectResponse|JsonResponse
+    public function newSimilar(Request $request, TestResult $testResult): RedirectResponse|JsonResponse
     {
         $user = $request->user();
 
@@ -702,6 +728,7 @@ class TestController extends Controller
             'question_count' => $config['question_count'] ?? 30,
             'time_per_question' => $config['time_per_question'] ?? 60,
             'failure_threshold' => $config['failure_threshold'] ?? 10,
+            'allowed_wrong' => $config['allowed_wrong'] ?? null,
             'category_ids' => $config['category_ids'] ?? [],
             'auto_advance' => (bool) ($config['auto_advance'] ?? true),
             'abandon_active' => $request->boolean('abandon_active'),

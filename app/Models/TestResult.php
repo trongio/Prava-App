@@ -166,9 +166,23 @@ class TestResult extends Model
         return null;
     }
 
+    /**
+     * The number of mistakes allowed before this test is failed.
+     *
+     * An explicit `allowed_wrong` in the stored configuration wins: it carries
+     * the legal mistake allowance of the licence category the test was started
+     * for. Tests saved before that key existed only have the legacy percentage
+     * `failure_threshold`, so those keep being scored with the old formula and
+     * their historical results never shift.
+     */
     public function getAllowedWrong(): int
     {
         $config = $this->configuration ?? [];
+
+        if (isset($config['allowed_wrong']) && is_numeric($config['allowed_wrong'])) {
+            return (int) $config['allowed_wrong'];
+        }
+
         $questionCount = $config['question_count'] ?? $this->total_questions ?? 30;
         $threshold = $config['failure_threshold'] ?? 10;
 
