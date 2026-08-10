@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Answer;
 use App\Models\Question;
 use App\Models\QuestionCategory;
 use App\Models\TestResult;
@@ -9,11 +10,26 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    // Create a category and questions for testing
+    // Create a category and questions for testing. Every question needs answers:
+    // the test database also contains the seeded bank, so a question created
+    // without answers can still be drawn at random and blow up on ['answers'][0].
     $category = QuestionCategory::factory()->create();
+
     Question::factory()->count(10)->create([
         'question_category_id' => $category->id,
-    ]);
+    ])->each(function (Question $question) {
+        Answer::factory()->correct()->create([
+            'question_id' => $question->id,
+            'position' => 1,
+        ]);
+
+        for ($position = 2; $position <= 4; $position++) {
+            Answer::factory()->create([
+                'question_id' => $question->id,
+                'position' => $position,
+            ]);
+        }
+    });
 });
 
 describe('Auto-advance defaults', function () {
