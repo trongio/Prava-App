@@ -120,6 +120,7 @@ export default function HistoryShow({ testResult }: Props) {
                 timeTakenSeconds={testResult.time_taken_seconds}
                 testType={testResult.test_type}
                 licenseType={testResult.license_type}
+                allowedWrong={testResult.allowed_wrong}
             />
 
             {/* Action Buttons */}

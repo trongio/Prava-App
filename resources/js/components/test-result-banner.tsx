@@ -17,6 +17,8 @@ interface TestResultBannerProps {
     timeTakenSeconds: number;
     testType?: string;
     licenseType?: LicenseType | null;
+    /** Mistake budget this test was marked against, as resolved by the server. */
+    allowedWrong?: number;
     withTopPadding?: boolean;
 }
 
@@ -29,11 +31,16 @@ export function TestResultBanner({
     timeTakenSeconds,
     testType,
     licenseType,
+    allowedWrong,
     withTopPadding = false,
 }: TestResultBannerProps) {
     const isOvertime = timeTakenSeconds < 0;
     const showAnsweredCount =
         answeredCount !== undefined && answeredCount < totalQuestions;
+
+    // Unanswered questions count against you, which is how the server marks the
+    // test, so the mistake total is everything that was not answered correctly.
+    const effectiveWrong = totalQuestions - correctCount;
 
     return (
         <div
@@ -84,6 +91,12 @@ export function TestResultBanner({
                     </span>
                 )}
             </p>
+
+            {allowedWrong !== undefined && (
+                <p className="text-sm text-muted-foreground">
+                    შეცდომები: {effectiveWrong} / დასაშვები {allowedWrong}
+                </p>
+            )}
 
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
                 <span

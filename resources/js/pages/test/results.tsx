@@ -133,6 +133,7 @@ export default function TestResults({ testResult }: Props) {
                 timeTakenSeconds={testResult.time_taken_seconds}
                 testType={testResult.test_type}
                 licenseType={testResult.license_type}
+                allowedWrong={testResult.allowed_wrong}
                 withTopPadding
             />
 

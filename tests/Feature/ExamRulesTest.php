@@ -342,3 +342,38 @@ describe('Exam rules reach the test configuration screen', function () {
             );
     });
 });
+
+describe('Results report the allowance they were marked against', function () {
+    it('sends the official allowance to the results screen', function () {
+        $licenseType = LicenseType::query()->where('code', 'B')->firstOrFail();
+        $user = User::factory()->create(['default_license_type_id' => $licenseType->id]);
+
+        $testResult = TestResult::create([
+            'user_id' => $user->id,
+            'test_type' => 'thematic',
+            'license_type_id' => $licenseType->id,
+            'configuration' => [
+                'question_count' => 30,
+                'time_per_question' => 60,
+                'failure_threshold' => 17,
+                'allowed_wrong' => 5,
+            ],
+            'questions_with_answers' => [],
+            'correct_count' => 26,
+            'wrong_count' => 4,
+            'total_questions' => 30,
+            'score_percentage' => 86.7,
+            'status' => TestResult::STATUS_PASSED,
+            'started_at' => now()->subMinutes(20),
+            'finished_at' => now(),
+        ]);
+
+        $this->actingAs($user)
+            ->get("/test/{$testResult->id}/results")
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('testResult.allowed_wrong', 5)
+                ->where('testResult.status', TestResult::STATUS_PASSED)
+            );
+    });
+});
