@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\DB;
  * @param  list<array{id: int, category_id: int, question: string, answers: list<array{id: int, text: string, is_correct: bool}>}>  $questions
  * @param  list<array{id: int, name: string}>  $categories
  */
-function makePack(array $questions, array $categories = [], ?string $version = null): string
+function makePack(array $questions, array $categories = [], ?string $version = null, array $licenceLinks = []): string
 {
     $path = tempnam(sys_get_temp_dir(), 'pack_').'.sqlite';
     $pdo = new PDO('sqlite:'.$path);
@@ -46,6 +46,14 @@ function makePack(array $questions, array $categories = [], ?string $version = n
         foreach ($question['answers'] as $position => $answer) {
             $pdo->prepare('INSERT INTO answers (id, question_id, text, is_correct, position) VALUES (?, ?, ?, ?, ?)')
                 ->execute([$answer['id'], $question['id'], $answer['text'], (int) $answer['is_correct'], $position + 1]);
+        }
+    }
+
+    if ($licenceLinks !== []) {
+        $pdo->exec('CREATE TABLE license_type_question (license_type_id integer not null, question_id integer not null, primary key (license_type_id, question_id))');
+        foreach ($licenceLinks as [$licenseTypeId, $questionId]) {
+            $pdo->prepare('INSERT INTO license_type_question (license_type_id, question_id) VALUES (?, ?)')
+                ->execute([$licenseTypeId, $questionId]);
         }
     }
 
@@ -180,6 +188,34 @@ describe('applying a pack', function () {
 
         expect(Answer::find(9030))->not->toBeNull();
         expect(Answer::find(9031))->toBeNull();
+    });
+});
+
+describe('pivot tables', function () {
+    it('re-applies licence links that already exist without failing', function () {
+        $category = QuestionCategory::factory()->create(['id' => 900]);
+        $question = Question::factory()->create(['id' => 5600, 'question_category_id' => $category->id]);
+        $licenseTypeId = DB::table('license_types')->value('id');
+
+        DB::table('license_type_question')->insert([
+            'license_type_id' => $licenseTypeId,
+            'question_id' => $question->id,
+        ]);
+
+        $pack = makePack([[
+            'id' => $question->id,
+            'category_id' => $category->id,
+            'question' => 'Linked to a licence?',
+            'answers' => [['id' => 9600, 'text' => 'Yes', 'is_correct' => true]],
+        ]], licenceLinks: [[$licenseTypeId, $question->id]]);
+
+        $result = (new QuestionBankSync)->apply($pack);
+
+        // A pivot is all key and has nothing to update, so a plain insert would
+        // collide with the row already present.
+        expect($result['applied'])->toBeTrue();
+        expect(DB::table('license_type_question')
+            ->where('question_id', $question->id)->count())->toBe(1);
     });
 });
 

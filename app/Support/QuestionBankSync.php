@@ -265,7 +265,15 @@ class QuestionBankSync
             ->chunk(self::CHUNK_SIZE, function ($rows) use ($table, $primaryKey, $updatable, &$written): void {
                 $payload = $rows->map(fn (object $row): array => (array) $row)->all();
 
-                DB::table($table)->upsert($payload, $primaryKey, $updatable);
+                if ($updatable === []) {
+                    // A pivot table is all key and has nothing to update. Laravel's
+                    // upsert() degrades to a plain insert when the update list is
+                    // empty, which collides with rows that already exist.
+                    DB::table($table)->insertOrIgnore($payload);
+                } else {
+                    DB::table($table)->upsert($payload, $primaryKey, $updatable);
+                }
+
                 $written += count($payload);
             });
 
