@@ -5,12 +5,12 @@ import {
     Camera,
     Check,
     ChevronRight,
-    ImagePlus,
     ExternalLink,
+    ImagePlus,
     LogOut,
-    ShieldCheck,
     Monitor,
     Moon,
+    ShieldCheck,
     Sun,
     Trash2,
     User,
@@ -18,7 +18,15 @@ import {
 import { useEffect, useRef, useState } from 'react';
 
 // NativePHP imports for camera access
-import { browser, camera, Events, isMobile, off, on, secureStorage } from '#nativephp';
+import {
+    browser,
+    camera,
+    Events,
+    isMobile,
+    off,
+    on,
+    secureStorage,
+} from '#nativephp';
 import { type Appearance, useAppearance } from '@/hooks/use-appearance';
 import { cn } from '@/lib/utils';
 import { logout } from '@/routes/auth';
