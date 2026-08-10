@@ -26,6 +26,7 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+.playwright-mcp
 
 # Credential files (keystores, private keys, etc.)
 /credentials/
