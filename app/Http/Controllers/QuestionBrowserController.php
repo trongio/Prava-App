@@ -15,6 +15,29 @@ use Inertia\Response;
 
 class QuestionBrowserController extends Controller
 {
+    private const DEFAULT_PER_PAGE = 20;
+
+    /**
+     * Largest page the browser will serve. Matches the largest option the UI
+     * offers (10, 20, 50, 100), so clamping cannot affect legitimate use.
+     */
+    private const MAX_PER_PAGE = 100;
+
+    /**
+     * Coerce a requested page size into a size this device can afford to render.
+     *
+     * Anything non-numeric falls back to the default rather than to zero, since
+     * a zero page size makes the paginator return every row.
+     */
+    private static function clampPerPage(mixed $requested): int
+    {
+        if (! is_numeric($requested)) {
+            return self::DEFAULT_PER_PAGE;
+        }
+
+        return max(1, min((int) $requested, self::MAX_PER_PAGE));
+    }
+
     public function index(Request $request): Response
     {
         $user = $request->user();
@@ -85,9 +108,14 @@ class QuestionBrowserController extends Controller
         $showUnanswered = $hasFilterParams
             ? $request->boolean('unanswered', false)
             : ($savedPreferences['unanswered'] ?? false);
-        $perPage = $hasFilterParams
-            ? $request->input('per_page', 20)
-            : ($savedPreferences['per_page'] ?? 20);
+        // Clamped, not trusted. The page size reaches paginate() directly and is
+        // persisted to the user's saved preferences, so an out-of-range value
+        // would load the whole question bank into memory on every later visit.
+        // The app runs its PHP runtime on the device, where memory is scarce and
+        // exhausting it aborts the process rather than returning an error.
+        $perPage = self::clampPerPage($hasFilterParams
+            ? $request->input('per_page', self::DEFAULT_PER_PAGE)
+            : ($savedPreferences['per_page'] ?? self::DEFAULT_PER_PAGE));
 
         // Save preferences when user applies filters (excluding session-only filters)
         if ($hasFilterParams && $user) {
