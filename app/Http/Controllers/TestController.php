@@ -136,13 +136,28 @@ class TestController extends Controller
      */
     public function store(Request $request): RedirectResponse|JsonResponse
     {
+        // A request from the client never carries a mistake allowance: it is
+        // either derived from the requested threshold or handed in by an
+        // internal caller that resolved the official rules server-side.
+        return $this->createTest($request, null);
+    }
+
+    /**
+     * Create a test, optionally with a mistake allowance the server resolved.
+     *
+     * `$officialAllowedWrong` may only ever come from trusted server-side state
+     * (the official exam rules for a licence category, or the configuration of a
+     * test the user already sat). It is deliberately a parameter rather than a
+     * request field so a client cannot post itself an unfailable exam.
+     */
+    private function createTest(Request $request, ?int $officialAllowedWrong): RedirectResponse|JsonResponse
+    {
         $request->validate([
             'test_type' => 'required|in:thematic,bookmarked',
             'license_type_id' => 'nullable|exists:license_types,id',
             'question_count' => 'required|integer|min:1|max:1000',
             'time_per_question' => 'required|integer|min:30|max:180',
             'failure_threshold' => 'required|integer|min:1|max:50',
-            'allowed_wrong' => 'nullable|integer|min:0|max:1000',
             'category_ids' => 'nullable|array',
             'category_ids.*' => 'integer|exists:question_categories,id',
             'auto_advance' => 'boolean',
@@ -246,7 +261,7 @@ class TestController extends Controller
         // which may be fewer than requested (e.g. limited bookmarks or filters).
         $questionCount = count($questionsWithAnswers);
         $totalTime = $questionCount * $request->time_per_question;
-        $allowedWrong = $this->resolveAllowedWrong($request, $questionCount);
+        $allowedWrong = $this->resolveAllowedWrong($request, $questionCount, $officialAllowedWrong);
 
         // Create test result
         $testResult = TestResult::create([
@@ -281,16 +296,20 @@ class TestController extends Controller
     /**
      * Resolve the mistake allowance to persist on a new test.
      *
-     * An explicit `allowed_wrong` comes from the official exam rules of a
-     * licence category (quick start). Custom and practice tests send only the
+     * A server-resolved allowance wins: it carries the official exam rules of a
+     * licence category (quick start), or the rules a previous sitting was marked
+     * against (new similar test). Custom and practice tests have only the
      * percentage slider, so the legacy formula still derives their allowance,
      * which keeps their scoring byte-for-byte identical to before.
+     *
+     * The request itself is never a source for the allowance. Trusting it would
+     * let a client post `allowed_wrong` equal to the question count and pass an
+     * exam with every answer wrong.
      */
-    private function resolveAllowedWrong(Request $request, int $questionCount): int
+    private function resolveAllowedWrong(Request $request, int $questionCount, ?int $officialAllowedWrong): int
     {
-        $allowedWrong = $request->filled('allowed_wrong')
-            ? (int) $request->input('allowed_wrong')
-            : (int) floor($questionCount * ((int) $request->failure_threshold / 100));
+        $allowedWrong = $officialAllowedWrong
+            ?? (int) floor($questionCount * ((int) $request->failure_threshold / 100));
 
         return max(0, min($allowedWrong, $questionCount));
     }
@@ -640,7 +659,6 @@ class TestController extends Controller
             'question_count' => $spec['question_count'],
             'time_per_question' => $spec['time_per_question'],
             'failure_threshold' => $spec['failure_threshold'],
-            'allowed_wrong' => $spec['allowed_wrong'],
             'category_ids' => [],
             'auto_advance' => $user->test_auto_advance ?? true,
             'abandon_active' => $request->boolean('abandon_active'),
@@ -649,7 +667,7 @@ class TestController extends Controller
         $fakeRequest->setUserResolver(fn () => $user);
         $fakeRequest->headers->set('Accept', $request->header('Accept'));
 
-        return $this->store($fakeRequest);
+        return $this->createTest($fakeRequest, $spec['allowed_wrong']);
     }
 
     /**
@@ -728,7 +746,6 @@ class TestController extends Controller
             'question_count' => $config['question_count'] ?? 30,
             'time_per_question' => $config['time_per_question'] ?? 60,
             'failure_threshold' => $config['failure_threshold'] ?? 10,
-            'allowed_wrong' => $config['allowed_wrong'] ?? null,
             'category_ids' => $config['category_ids'] ?? [],
             'auto_advance' => (bool) ($config['auto_advance'] ?? true),
             'abandon_active' => $request->boolean('abandon_active'),
@@ -737,6 +754,13 @@ class TestController extends Controller
         $fakeRequest->setUserResolver(fn () => $user);
         $fakeRequest->headers->set('Accept', $request->header('Accept'));
 
-        return $this->store($fakeRequest);
+        // The stored configuration was written by this controller, so its
+        // allowance is the one the previous sitting was actually marked against.
+        $storedAllowance = $config['allowed_wrong'] ?? null;
+
+        return $this->createTest(
+            $fakeRequest,
+            is_numeric($storedAllowance) ? (int) $storedAllowance : null
+        );
     }
 }

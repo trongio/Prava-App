@@ -296,7 +296,7 @@ describe('Custom tests keep their own rules', function () {
             ->and($testResult->getAllowedWrong())->toBe(2);
     });
 
-    it('never allows more mistakes than there are questions', function () {
+    it('never lets the client widen its own mistake allowance', function () {
         $user = User::factory()->create();
 
         $this->actingAs($user)->postJson('/test', [
@@ -309,7 +309,8 @@ describe('Custom tests keep their own rules', function () {
 
         $testResult = TestResult::forUser($user->id)->active()->firstOrFail();
 
-        expect($testResult->getAllowedWrong())->toBe(5);
+        // Derived from the threshold, so the posted allowance changes nothing.
+        expect($testResult->getAllowedWrong())->toBe(0);
     });
 });
 
