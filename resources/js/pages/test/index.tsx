@@ -20,7 +20,7 @@ import {
     Undo2,
     Zap,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useEffectEvent, useMemo, useState } from 'react';
 
 import { ActiveTestCard } from '@/components/active-test-card';
 import {
@@ -239,14 +239,22 @@ export default function TestIndex({
         return categories.reduce((sum, c) => sum + c.questions_count, 0);
     }, [testType, form.data.category_ids, categories, bookmarkedCount]);
 
-    // Auto-adjust question count when max changes
-    useEffect(() => {
+    // Auto-adjust question count when max changes. This has to stay a one-way
+    // clamp that fires only as the available pool shrinks: `useForm` hands back
+    // a new `form` object every render, so depending on it would re-run the
+    // clamp continuously and fight the user's own slider input. An effect event
+    // reads the current form data without becoming a dependency.
+    const clampQuestionCountToPool = useEffectEvent(() => {
         if (
             maxAvailableQuestions > 0 &&
             form.data.question_count > maxAvailableQuestions
         ) {
             form.setData('question_count', Math.max(1, maxAvailableQuestions));
         }
+    });
+
+    useEffect(() => {
+        clampQuestionCountToPool();
     }, [maxAvailableQuestions]);
 
     const handleQuickTest = () => {

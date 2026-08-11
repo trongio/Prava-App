@@ -10,7 +10,14 @@ import {
     SkipForward,
     X,
 } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+    useCallback,
+    useEffect,
+    useEffectEvent,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
 
 import { QuestionCard } from '@/components/question-card';
 import { SignsInfoDialog } from '@/components/signs-info-dialog';
@@ -279,24 +286,6 @@ export default function ActiveTest({ testResult, userSettings }: Props) {
         };
     }, [hasTimeExpired]);
 
-    // Auto-pause when navigating away
-    useEffect(() => {
-        const handleVisibilityChange = () => {
-            if (document.hidden) {
-                handlePause();
-            }
-        };
-
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-
-        return () => {
-            document.removeEventListener(
-                'visibilitychange',
-                handleVisibilityChange,
-            );
-        };
-    }, [currentIndex, remainingTime]);
-
     // Handle back button during test
     useEffect(() => {
         const handlePopState = (e: PopStateEvent) => {
@@ -468,6 +457,31 @@ export default function ActiveTest({ testResult, userSettings }: Props) {
             isPausedRef.current = false;
         }
     }, [testResult.id, currentIndex, remainingTime]);
+
+    // Auto-pause when navigating away. `handlePause` is rebuilt on every timer
+    // tick (it captures `remainingTime`), so reading it through an effect event
+    // keeps the listener registered once for the lifetime of the screen while
+    // still pausing with the current index and clock.
+    const pauseOnHide = useEffectEvent(() => {
+        handlePause();
+    });
+
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                pauseOnHide();
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            document.removeEventListener(
+                'visibilitychange',
+                handleVisibilityChange,
+            );
+        };
+    }, []);
 
     const handleComplete = useCallback(async () => {
         try {

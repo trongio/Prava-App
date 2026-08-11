@@ -146,10 +146,14 @@ export default function SignsIndex({ categories, totalSigns }: Props) {
     // Header should be visible when at top or scrolling up
     const isHeaderVisible = isAtTop || direction === 'up';
 
-    // Scroll to selected sign - position it in visible area between header and info panel
+    // Scroll to selected sign - position it in visible area between header and
+    // info panel. Keyed on the id alone so re-selecting the same sign from a
+    // freshly built list object does not re-trigger the scroll.
+    const selectedSignId = selectedSign?.id;
+
     useEffect(() => {
-        if (selectedSign && scrollContainerRef.current) {
-            const element = signRefs.current.get(selectedSign.id);
+        if (selectedSignId && scrollContainerRef.current) {
+            const element = signRefs.current.get(selectedSignId);
             if (element) {
                 const container = scrollContainerRef.current;
                 const elementRect = element.getBoundingClientRect();
@@ -179,7 +183,7 @@ export default function SignsIndex({ categories, totalSigns }: Props) {
                 });
             }
         }
-    }, [selectedSign?.id]);
+    }, [selectedSignId]);
 
     // Get selected category
     const selectedCategory = useMemo(

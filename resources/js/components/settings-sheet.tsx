@@ -15,7 +15,7 @@ import {
     Trash2,
     User,
 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 
 // NativePHP imports for camera access
 import {
@@ -577,8 +577,12 @@ function ProfileView({
         }
     };
 
-    // Convert native file to base64 data URL for preview (GET to avoid NativePHP POST interception)
-    const loadNativeFilePreview = async (path: string) => {
+    // Convert native file to base64 data URL for preview (GET to avoid NativePHP POST interception).
+    // Declared as an effect event because it is only ever called from the
+    // camera/gallery listeners below, which are registered once on mount: this
+    // keeps them calling the current version (current form and save handler)
+    // without dragging a per-render function into the listener effect's deps.
+    const loadNativeFilePreview = useEffectEvent(async (path: string) => {
         try {
             console.log('Settings: Loading preview for:', path);
             const url = `/native-file/preview?path=${encodeURIComponent(path)}`;
@@ -609,7 +613,7 @@ function ProfileView({
                 error,
             );
         }
-    };
+    });
 
     // Handle native camera photo capture
     const handleTakePhoto = async () => {

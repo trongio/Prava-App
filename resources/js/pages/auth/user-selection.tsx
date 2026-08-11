@@ -1,6 +1,12 @@
 import { Head, router, useForm, usePage } from '@inertiajs/react';
 import { ArrowLeft, Camera, ImagePlus, Lock, Plus, User } from 'lucide-react';
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import {
+    useEffect,
+    useEffectEvent,
+    useRef,
+    useState,
+    type FormEvent,
+} from 'react';
 
 // NativePHP imports for camera access and secure storage
 import { camera, Events, isMobile, off, on, secureStorage } from '#nativephp';
@@ -295,8 +301,12 @@ export default function UserSelection({ users }: Props) {
         }
     };
 
-    // Convert native file to base64 data URL for preview (GET to avoid NativePHP POST interception)
-    const loadNativeFilePreview = async (path: string) => {
+    // Convert native file to base64 data URL for preview (GET to avoid NativePHP POST interception).
+    // Declared as an effect event because it is only ever called from the
+    // camera/gallery listeners below, which are registered once on mount: this
+    // keeps them calling the current version without dragging a per-render
+    // function into the listener effect's deps.
+    const loadNativeFilePreview = useEffectEvent(async (path: string) => {
         try {
             console.log('Loading preview for:', path);
             const url = `/native-file/preview?path=${encodeURIComponent(path)}`;
@@ -316,7 +326,7 @@ export default function UserSelection({ users }: Props) {
         } catch (error) {
             console.error('Failed to load native file preview:', error);
         }
-    };
+    });
 
     // Set up NativePHP event listeners for camera and gallery
     useEffect(() => {
@@ -463,18 +473,26 @@ export default function UserSelection({ users }: Props) {
         setApiErrors({});
     };
 
-    // Handle Android back button to close modals instead of navigating
+    // Handle Android back button to close modals instead of navigating.
+    // The reset helpers are rebuilt every render (they close over the Inertia
+    // forms), so they are reached through an effect event. Depending on them
+    // directly would re-run the effect on every render and push a new history
+    // entry each time a form is open.
+    const closeOpenFormOnBack = useEffectEvent((e: PopStateEvent) => {
+        if (isCreating) {
+            e.preventDefault();
+            resetCreateForm();
+            window.history.pushState(null, '', window.location.href);
+        } else if (selectedUser) {
+            e.preventDefault();
+            resetPasswordForm();
+            window.history.pushState(null, '', window.location.href);
+        }
+    });
+
     useEffect(() => {
         const handlePopState = (e: PopStateEvent) => {
-            if (isCreating) {
-                e.preventDefault();
-                resetCreateForm();
-                window.history.pushState(null, '', window.location.href);
-            } else if (selectedUser) {
-                e.preventDefault();
-                resetPasswordForm();
-                window.history.pushState(null, '', window.location.href);
-            }
+            closeOpenFormOnBack(e);
         };
 
         // Push initial state when modal/form opens
