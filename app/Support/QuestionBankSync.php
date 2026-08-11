@@ -188,8 +188,10 @@ class QuestionBankSync
     }
 
     /**
-     * A pack must carry the core tables and at least one question. An empty
-     * questions table would otherwise deactivate the entire live bank.
+     * A pack must carry the core tables, at least one question and at least one
+     * answer. An empty questions table would otherwise deactivate the entire
+     * live bank, and an empty answers table would strip every answer from the
+     * questions the pack ships, leaving an unanswerable bank on the device.
      */
     private function packLooksValid(ConnectionInterface $pack): bool
     {
@@ -201,10 +203,12 @@ class QuestionBankSync
             }
         }
 
-        if ($pack->table('questions')->count() === 0) {
-            Log::warning('Question bank pack contains no questions, refusing to sync');
+        foreach (['questions', 'answers'] as $table) {
+            if ($pack->table($table)->count() === 0) {
+                Log::warning('Question bank pack table is empty, refusing to sync', ['table' => $table]);
 
-            return false;
+                return false;
+            }
         }
 
         return true;
@@ -227,7 +231,7 @@ class QuestionBankSync
             }
 
             foreach (self::QUESTION_OWNED_TABLES as $table => $questionColumn) {
-                if ($this->columnsFor($pack, $table) !== []) {
+                if ($this->packShipsRowsFor($pack, $table)) {
                     $this->pruneQuestionOwnedRows($pack, $table, $questionColumn);
                 }
             }
@@ -306,6 +310,29 @@ class QuestionBankSync
             });
 
         return $written;
+    }
+
+    /**
+     * Whether the pack actually ships rows for a question-owned table.
+     *
+     * A table that is missing, or present but empty, means the pack has nothing
+     * to say about it. Pruning against an empty staging table would instead
+     * delete every answer or licence link of every question the pack ships,
+     * which is unrecoverable content loss on an installed device.
+     */
+    private function packShipsRowsFor(ConnectionInterface $pack, string $table): bool
+    {
+        if ($this->columnsFor($pack, $table) === []) {
+            return false;
+        }
+
+        if ($pack->table($table)->count() === 0) {
+            Log::warning('Question bank pack ships an empty table, leaving the live rows alone', ['table' => $table]);
+
+            return false;
+        }
+
+        return true;
     }
 
     /**

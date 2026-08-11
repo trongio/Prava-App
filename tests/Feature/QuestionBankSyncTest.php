@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\DB;
  * @param  list<array{id: int, category_id: int, question: string, answers: list<array{id: int, text: string, is_correct: bool}>}>  $questions
  * @param  list<array{id: int, name: string}>  $categories
  */
-function makePack(array $questions, array $categories = [], ?string $version = null, array $licenceLinks = []): string
+function makePack(array $questions, array $categories = [], ?string $version = null, ?array $licenceLinks = null): string
 {
     $path = tempnam(sys_get_temp_dir(), 'pack_').'.sqlite';
     $pdo = new PDO('sqlite:'.$path);
@@ -49,12 +49,32 @@ function makePack(array $questions, array $categories = [], ?string $version = n
         }
     }
 
-    if ($licenceLinks !== []) {
+    // A null link list ships no pivot table at all; an empty one ships the table
+    // with no rows, which is a different and far more dangerous shape.
+    if ($licenceLinks !== null) {
         $pdo->exec('CREATE TABLE license_type_question (license_type_id integer not null, question_id integer not null, primary key (license_type_id, question_id))');
         foreach ($licenceLinks as [$licenseTypeId, $questionId]) {
             $pdo->prepare('INSERT INTO license_type_question (license_type_id, question_id) VALUES (?, ?)')
                 ->execute([$licenseTypeId, $questionId]);
         }
+    }
+
+    return $path;
+}
+
+/**
+ * Build a pack from raw SQL, for shapes the tidy helper cannot express.
+ *
+ * @param  list<string>  $statements
+ */
+function makeRawPack(array $statements): string
+{
+    $path = tempnam(sys_get_temp_dir(), 'raw_pack_').'.sqlite';
+    $pdo = new PDO('sqlite:'.$path);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    foreach ($statements as $statement) {
+        $pdo->exec($statement);
     }
 
     return $path;
@@ -379,6 +399,47 @@ describe('refusing bad packs', function () {
         expect(Question::where('is_active', true)->count())->toBe($activeBefore);
     });
 
+    it('refuses a pack whose questions carry no answers', function () {
+        $category = QuestionCategory::factory()->create(['id' => 900]);
+        $question = Question::factory()->create(['id' => 5800, 'question_category_id' => $category->id]);
+        Answer::factory()->create(['id' => 9800, 'question_id' => $question->id, 'position' => 1]);
+
+        $result = (new QuestionBankSync)->apply(makePack([[
+            'id' => $question->id,
+            'category_id' => $category->id,
+            'question' => 'Shipped with no answers at all?',
+            'answers' => [],
+        ]]));
+
+        // Applying it would delete every answer of every question it ships,
+        // leaving an unanswerable bank on the device.
+        expect($result['applied'])->toBeFalse();
+        expect($result['reason'])->toBe('pack_invalid');
+        expect(Answer::find(9800))->not->toBeNull();
+    });
+
+    it('does not strip licence links when the pack ships an empty pivot table', function () {
+        $category = QuestionCategory::factory()->create(['id' => 900]);
+        $question = Question::factory()->create(['id' => 5900, 'question_category_id' => $category->id]);
+        $licenseTypeId = DB::table('license_types')->value('id');
+
+        DB::table('license_type_question')->insert([
+            'license_type_id' => $licenseTypeId,
+            'question_id' => $question->id,
+        ]);
+
+        $result = (new QuestionBankSync)->apply(makePack([[
+            'id' => $question->id,
+            'category_id' => $category->id,
+            'question' => 'Still linked to a licence?',
+            'answers' => [['id' => 9900, 'text' => 'Yes', 'is_correct' => true]],
+        ]], licenceLinks: []));
+
+        expect($result['applied'])->toBeTrue();
+        expect(DB::table('license_type_question')
+            ->where('question_id', $question->id)->count())->toBe(1);
+    });
+
     it('skips a file that is not a usable pack without throwing', function () {
         $path = tempnam(sys_get_temp_dir(), 'junk_').'.sqlite';
         file_put_contents($path, 'this is not a database');
@@ -393,6 +454,80 @@ describe('refusing bad packs', function () {
         (new QuestionBankSync)->apply('/tmp/definitely-not-a-pack.sqlite');
 
         expect(DB::table('questions')->count())->toBeGreaterThanOrEqual(0);
+    });
+});
+
+describe('hostile and broken packs', function () {
+    it('cannot be made to run SQL through a crafted column name', function () {
+        $category = QuestionCategory::factory()->create(['id' => 900]);
+        Question::factory()->create(['id' => 7000, 'question_category_id' => $category->id]);
+        $user = User::factory()->create();
+
+        // Column names are read from the pack's own schema, so a pack controls
+        // them. Quoted with a doubled quote here so the pack itself is valid.
+        $evil = '"x"" ); DROP TABLE users; --"';
+
+        $pack = makeRawPack([
+            'CREATE TABLE question_categories (id integer primary key, name varchar)',
+            "CREATE TABLE questions (id integer primary key, question_category_id integer, question text, {$evil} text, is_active integer default 1)",
+            "CREATE TABLE answers (id integer primary key, question_id integer, text text, is_correct integer, position integer, {$evil} text)",
+            "INSERT INTO question_categories (id, name) VALUES (900, 'Pack')",
+            "INSERT INTO questions (id, question_category_id, question, is_active) VALUES (7000, 900, 'Injected?', 1)",
+            "INSERT INTO answers (id, question_id, text, is_correct, position) VALUES (9700, 7000, 'A', 1, 1)",
+        ]);
+
+        expect((new QuestionBankSync)->apply($pack)['applied'])->toBeTrue();
+
+        // Only columns the live schema also has are ever named in SQL, so the
+        // crafted one is dropped rather than executed.
+        expect(User::find($user->id))->not->toBeNull();
+        expect(Question::find(7000)?->question)->toBe('Injected?');
+    });
+
+    it('rolls a failed sync back and still applies the next one', function () {
+        $category = QuestionCategory::factory()->create(['id' => 900]);
+        $existing = Question::factory()->create([
+            'id' => 7100,
+            'question_category_id' => $category->id,
+            'question' => 'Untouched?',
+            'is_active' => true,
+        ]);
+        Answer::factory()->create(['id' => 9710, 'question_id' => $existing->id, 'position' => 1]);
+
+        // The second question violates the live NOT NULL on questions.question,
+        // so the copy throws after the first one has already been written.
+        $broken = makeRawPack([
+            'CREATE TABLE question_categories (id integer primary key, name varchar)',
+            'CREATE TABLE questions (id integer primary key, question_category_id integer, question text, is_active integer default 1)',
+            'CREATE TABLE answers (id integer primary key, question_id integer, text text, is_correct integer, position integer)',
+            "INSERT INTO question_categories (id, name) VALUES (900, 'Pack')",
+            "INSERT INTO questions (id, question_category_id, question, is_active) VALUES (7101, 900, 'Fine', 1)",
+            'INSERT INTO questions (id, question_category_id, question, is_active) VALUES (7102, 900, NULL, 1)',
+            "INSERT INTO answers (id, question_id, text, is_correct, position) VALUES (9711, 7101, 'A', 1, 1)",
+        ]);
+
+        $failed = (new QuestionBankSync)->apply($broken);
+
+        expect($failed['applied'])->toBeFalse();
+        expect($failed['reason'])->toBe('sync_failed');
+        expect(Question::find(7101))->toBeNull();
+        expect(Question::find(7100)?->question)->toBe('Untouched?');
+        expect((bool) Question::find(7100)->is_active)->toBeTrue();
+
+        // Staging tables outlive a rolled back sync, so the next one must not
+        // inherit them.
+        $good = makeRawPack([
+            'CREATE TABLE question_categories (id integer primary key, name varchar)',
+            'CREATE TABLE questions (id integer primary key, question_category_id integer, question text, is_active integer default 1)',
+            'CREATE TABLE answers (id integer primary key, question_id integer, text text, is_correct integer, position integer)',
+            "INSERT INTO question_categories (id, name) VALUES (900, 'Pack')",
+            "INSERT INTO questions (id, question_category_id, question, is_active) VALUES (7103, 900, 'Recovered', 1)",
+            "INSERT INTO answers (id, question_id, text, is_correct, position) VALUES (9712, 7103, 'A', 1, 1)",
+        ]);
+
+        expect((new QuestionBankSync)->apply($good)['applied'])->toBeTrue();
+        expect(Question::find(7103)?->question)->toBe('Recovered');
+        expect(Answer::find(9712))->not->toBeNull();
     });
 });
 
