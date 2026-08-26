@@ -131,6 +131,40 @@ form.post('/register', { forceFormData: true }); // Data arrives EMPTY!
 
 **Debugging**: Use `dd($request->all())` in controllers to see what data is received. In NativePHP, `dd()` output displays in the WebView.
 
+## Google Play Console: API access
+
+This project has a Google Play service account, so Play Console work is done from the
+command line rather than by clicking through the web UI. Two different Google APIs are
+involved and they cover different things:
+
+| Need | API |
+| --- | --- |
+| Upload AAB, change rollout %, publish/halt, reviews | `androidpublisher.googleapis.com` |
+| Crash + ANR rates, **error stack traces** | `playdeveloperreporting.googleapis.com` |
+
+- Key: `~/.config/play/trongio-key.json` (mode 0600, never commit it, never print its contents)
+- Service account: `calude@prava-play-api.iam.gserviceaccount.com`, Cloud project `prava-play-api`
+- Both APIs need **both** OAuth scopes. With only the `androidpublisher` scope the token
+  still mints, but every reporting call fails with "insufficient authentication scopes".
+- Package `com.prava.trongio`, developer id `8007123209084828794`, app id `4974527165639474794`
+
+Helper scripts live next to the key (uv PEP 723 scripts, run them directly):
+
+```bash
+~/.config/play/verify_play_key.py ~/.config/play/trongio-key.json   # check both APIs
+~/.config/play/play_crashes.py 28 9        # crash issues: last 28 days, versionCode 9
+~/.config/play/play_report.py <issueId>    # sample stack traces for one issue
+```
+
+### Do not trust the Play Console crash UI's default filter
+
+The Crashes and ANRs page defaults to `isUserPerceived=true`, which **hides crashes that
+happen while the app is backgrounded**. That filter concealed the app's single largest
+crash (52 reports, 33 distinct users, ~34% of users) behind a list of much smaller
+`libphp.so` ones, and led to a wrong conclusion that every crash was PHP memory
+exhaustion. Query the reporting API instead - it returns everything and includes real
+stack traces, which the console cannot give for stripped native libraries.
+
 ---
 
 <laravel-boost-guidelines>
