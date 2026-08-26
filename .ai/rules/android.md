@@ -23,3 +23,8 @@ It applies three things:
 3. Strips keepDebugSymbols so Play actually gets debug symbols (see the debug symbol rule).
 
 Extraction is longest right after an app update, because that is when the bundle is re-extracted, so every version bump widens the crash window. Not covered by the script: the generated tree also carries a hand-applied edge-to-edge patch (dropping the deprecated window.statusBarColor / navigationBarColor setters in MainActivity). That one WILL be lost on the next regenerate - fold it into the script or re-apply it by hand.
+
+## native:package burns a version code from .env on every run
+`php artisan native:package android` builds with the current NATIVEPHP_APP_VERSION_CODE and then increments it in .env for next time. Every build consumes a code, including throwaway ones, so the number drifts well ahead of what is actually on Play. That is harmless (Play only needs the code to exceed the last uploaded one) but it means .env is not a record of what shipped - check the Play track for that. 1.1.1 was uploaded as code 18; two local rebuilds later .env was at 20.
+
+Also note `native:install --force` leaves placeholders (REPLACE_APP_ID, REPLACEMECODE, REPLACE_MINIFY_ENABLED, REPLACE_STATUS_BAR_STYLE) in the generated tree. They are substituted by native:run / native:package, so a freshly installed tree is not buildable by Gradle directly. Verified 2026-08-26: install --force wipes all local patches, scripts/patch-nativephp-android.py restores them, and the resulting bundle builds and carries the fixes and the debug symbols.

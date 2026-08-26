@@ -33,6 +33,23 @@ GUARD = '''            Handler(Looper.getMainLooper()).post {
                 onReady()
             }'''
 
+EDGE_OLD = """    @Suppress("DEPRECATION")
+    private fun configureStatusBar() {
+        val windowInsetsController = WindowInsetsControllerCompat(window, window.decorView)
+
+        // Make status bar and navigation bar transparent for edge-to-edge
+        window.statusBarColor = android.graphics.Color.TRANSPARENT
+        window.navigationBarColor = android.graphics.Color.TRANSPARENT
+"""
+
+EDGE_NEW = """    private fun configureStatusBar() {
+        val windowInsetsController = WindowInsetsControllerCompat(window, window.decorView)
+
+        // System bars are transparent automatically in edge-to-edge mode
+        // (setDecorFitsSystemWindows(false)); the deprecated window.statusBarColor /
+        // navigationBarColor setters are intentionally omitted for Android 15+.
+"""
+
 PATCHES = [
     {
         "name": "NativeActionCoordinator: commit without state-loss check",
@@ -51,6 +68,16 @@ PATCHES = [
         "applied": "skipping onReady",
         "why": "onReady() sets up the WebView and loads a URL; none of it is valid "
                "on a dead Activity.",
+    },
+    {
+        "name": "MainActivity: drop the deprecated edge-to-edge setters",
+        "path": JAVA / "ui/MainActivity.kt",
+        "old": EDGE_OLD,
+        "new": EDGE_NEW,
+        "applied": "navigationBarColor setters are intentionally omitted",
+        "why": "Play flags these as deprecated APIs for edge-to-edge. "
+               "setDecorFitsSystemWindows(false) already makes the bars transparent "
+               "on Android 15+, so the setters are dead weight and the @Suppress with them.",
     },
 ]
 
