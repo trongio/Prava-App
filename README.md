@@ -1,10 +1,31 @@
-# Driving Test App
+# მართვის მოწმობა - Prava
 
-A mobile driving test application built with Laravel 12, React 19, and NativePHP Mobile. This app can be compiled to native iOS and Android applications.
+Georgian driving-theory practice app: the full official question bank for every licence
+category, per-category exam rules, road signs, and progress tracking. Built with Laravel 12,
+React 19 and NativePHP Mobile, and shipped as a native Android app.
+
+<p align="center">
+  <a href="https://play.google.com/store/apps/details?id=com.prava.trongio">
+    <img src="docs/play-store-qr.png" alt="Scan to install from Google Play" width="180">
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://play.google.com/store/apps/details?id=com.prava.trongio"><b>Get it on Google Play</b></a><br>
+  <sub>or scan the code above</sub>
+</p>
+
+## Features
+
+- The complete official question bank, covering B/B1, A/A1/A2, C/C1, D/D1, T/S, Tram, Mil and AM
+- Per-category exam rules: each licence has its own question count, time limit and mistake allowance
+- Practice by topic or by licence category, with bookmarks and notes
+- Road sign reference with the questions that use each sign
+- Test history and per-question progress, stored locally on the device
 
 ## Tech Stack
 
-- **Backend**: Laravel 12, PHP 8.2+
+- **Backend**: Laravel 12, PHP 8.3
 - **Frontend**: React 19, TypeScript, Inertia.js v2
 - **Styling**: Tailwind CSS v4
 - **Mobile**: NativePHP Mobile
@@ -14,7 +35,7 @@ A mobile driving test application built with Laravel 12, React 19, and NativePHP
 
 ## Requirements
 
-- PHP 8.2+
+- PHP 8.3
 - Node.js 18+
 - Composer
 
@@ -22,8 +43,8 @@ A mobile driving test application built with Laravel 12, React 19, and NativePHP
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/PHPNative-DrivingTest-app.git
-cd PHPNative-DrivingTest-app
+git clone https://github.com/trongio/Prava-App.git
+cd Prava-App
 
 # Run the setup script (installs dependencies, creates .env, runs migrations, builds assets)
 composer run setup
