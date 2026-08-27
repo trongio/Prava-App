@@ -139,13 +139,6 @@ export default function TestResults({ testResult, reviewPrompt }: Props) {
                 withTopPadding
             />
 
-            {/* Rating invitation, only after a passed test */}
-            {reviewPrompt && (
-                <div className="pt-4">
-                    <ReviewPrompt storeUrl={reviewPrompt.store_url} />
-                </div>
-            )}
-
             {/* Action Buttons */}
             <div className="grid grid-cols-2 gap-2 p-4">
                 <Button
@@ -244,6 +237,9 @@ export default function TestResults({ testResult, reviewPrompt }: Props) {
 
             {/* Safe area bottom padding */}
             <div style={{ height: 'var(--inset-bottom)' }} />
+
+            {/* Rating invitation, only after a passed test */}
+            {reviewPrompt && <ReviewPrompt storeUrl={reviewPrompt.store_url} />}
 
             {/* Template Save Dialog */}
             <Dialog

@@ -1,45 +1,48 @@
 import axios from 'axios';
-import { Star, X } from 'lucide-react';
+import { Star } from 'lucide-react';
 import { useCallback, useState } from 'react';
 
 import { browser } from '#nativephp';
 import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 
 interface Props {
     storeUrl: string;
 }
 
 /**
- * Invitation to rate the app, shown inline on the results screen after a
- * passed test.
+ * Invitation to rate the app, shown once on the results screen after a passed
+ * test.
  *
- * Deliberately not a dialog: the Android back press is swallowed by the
- * WebView history before `popstate` fires, so a modal here would take two
- * presses to close. An inline card is dismissed with one tap and never fights
- * the back button.
- *
- * Either action retires the prompt for good, so the user is only ever asked
- * this once unless they walk away without answering.
+ * Either action retires it for good, so the user is only ever asked this once
+ * unless they walk away without answering. Anyone who dismissed it and later
+ * changes their mind can still rate from the settings sheet.
  *
  * Rating goes through the native Play in-app review overlay where the build
- * supports it, and falls back to opening the store listing where it does not.
- * Neither path can tell whether the user actually left a review: Play does not
- * report that, so nothing here depends on it.
+ * supports it, and falls back to the store listing where it does not. Neither
+ * path can tell whether a review was actually left: Play does not report that,
+ * so nothing here depends on it.
  */
 export function ReviewPrompt({ storeUrl }: Props) {
-    const [isVisible, setIsVisible] = useState(true);
+    const [isOpen, setIsOpen] = useState(true);
 
     const retire = useCallback(() => {
-        setIsVisible(false);
+        setIsOpen(false);
 
-        // Fire and forget. The card is already gone from this screen, and the
-        // worst case for a failed write is that it returns once after the
-        // cooldown rather than never.
+        // Fire and forget. The dialog is already closed, and the worst case for
+        // a failed write is that it returns once after the cooldown, not never.
         void axios.post('/review-prompt/dismiss').catch(() => {});
     }, []);
 
     const handleRate = useCallback(async () => {
-        setIsVisible(false);
+        setIsOpen(false);
 
         // Prefer the native Play overlay, which keeps the user in the app. It is
         // absent on unpatched builds and in the browser during development, and
@@ -55,33 +58,37 @@ export function ReviewPrompt({ storeUrl }: Props) {
         }
     }, [storeUrl]);
 
-    if (!isVisible) {
-        return null;
-    }
-
     return (
-        <div className="mx-4 mb-4 flex items-center gap-3 rounded-lg border bg-card p-4">
-            <Star className="h-5 w-5 shrink-0 text-amber-500" />
-
-            <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium">მოგწონთ აპლიკაცია?</p>
-                <p className="text-xs text-muted-foreground">
-                    შეაფასეთ Google Play-ზე
-                </p>
-            </div>
-
-            <Button size="sm" onClick={handleRate}>
-                შეფასება
-            </Button>
-
-            <button
-                type="button"
-                onClick={retire}
-                aria-label="აღარ მაჩვენო"
-                className="-mr-1 shrink-0 rounded-md p-2 text-muted-foreground transition-colors hover:bg-muted/50"
-            >
-                <X className="h-4 w-4" />
-            </button>
-        </div>
+        <Dialog
+            open={isOpen}
+            onOpenChange={(open) => {
+                if (!open) {
+                    retire();
+                }
+            }}
+        >
+            <DialogContent>
+                <DialogHeader>
+                    <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-950">
+                        <Star className="h-6 w-6 text-amber-500" />
+                    </div>
+                    <DialogTitle className="text-center">
+                        მოგწონთ აპლიკაცია?
+                    </DialogTitle>
+                    <DialogDescription className="text-center">
+                        შეაფასეთ Google Play-ზე და დაგვეხმარეთ გაუმჯობესებაში
+                    </DialogDescription>
+                </DialogHeader>
+                <DialogFooter className="gap-2 sm:justify-center">
+                    <Button variant="outline" onClick={retire}>
+                        არა, გმადლობთ
+                    </Button>
+                    <Button onClick={handleRate} className="gap-2">
+                        <Star className="h-4 w-4" />
+                        შეფასება
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 }

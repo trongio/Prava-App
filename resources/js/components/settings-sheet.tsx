@@ -1,5 +1,6 @@
 import { Transition } from '@headlessui/react';
 import { router, useForm, usePage } from '@inertiajs/react';
+import axios from 'axios';
 import {
     ArrowLeft,
     Camera,
@@ -11,6 +12,7 @@ import {
     Monitor,
     Moon,
     ShieldCheck,
+    Star,
     Sun,
     Trash2,
     User,
@@ -326,6 +328,25 @@ function MainView({
         window.location.href = logout.url();
     };
 
+    /**
+     * Rate the app, preferring the native Play overlay and falling back to the
+     * store listing. Also retires the one-shot prompt on the results screen,
+     * since the user has answered the question by coming here.
+     */
+    const handleRateApp = async () => {
+        try {
+            const { data } = await axios.post('/review-prompt/rate');
+
+            if (!data?.native) {
+                browser.open(data?.store_url);
+            }
+        } catch {
+            browser.open(
+                'https://play.google.com/store/apps/details?id=com.prava.trongio',
+            );
+        }
+    };
+
     return (
         <div className="flex h-full flex-col">
             <SheetHeader className="flex-row items-center gap-3 border-b px-4 pb-4 pl-14">
@@ -378,6 +399,21 @@ function MainView({
                     <ThemeToggle />
                 </div>
             </div>
+
+            {/* Rate the app. Always available, unlike the one-shot prompt on
+                the results screen, so anyone who dismissed that can still rate. */}
+            <button
+                type="button"
+                onClick={handleRateApp}
+                className="flex w-full items-center gap-3 border-t px-4 py-3 text-sm font-medium transition-colors hover:bg-muted/50"
+            >
+                <Star className="h-5 w-5 text-amber-500" />
+                <div className="min-w-0 flex-1 text-left">
+                    <span>შეფასება</span>
+                    <p className="text-xs text-muted-foreground">Google Play</p>
+                </div>
+                <ExternalLink className="h-4 w-4 text-muted-foreground" />
+            </button>
 
             {/* GitHub contribute link */}
             <button
