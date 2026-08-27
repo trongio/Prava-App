@@ -36,11 +36,26 @@ Also note `native:install --force` leaves placeholders (REPLACE_APP_ID, REPLACEM
 ## Play in-app review: Review.Request is ours, and it can never report an outcome
 Upstream NativePHP has no review API, so `Review.Request` is a local bridge function (`scripts/android-patches/ReviewFunctions.kt`). PHP reaches it through `App\Support\NativeReview::request()`, which returns false whenever `nativephp_call` is missing or the function is unregistered, and the app then falls back to `browser.open()` on the store listing. That fallback is what an unpatched build, an iOS build, and a dev browser all get, so the feature degrades instead of breaking.
 
-`BridgeFunction.execute()` is synchronous but the Play flow is not, so Request hands off to `runOnUiThread` and returns `success` immediately. That is not a claim that anything was shown. Play's API deliberately reports nothing about what the user did, and shows no overlay when the quota is spent, when the user already reviewed, or when the build was not installed from Play. Never gate anything on the result.
+`BridgeFunction.execute()` is synchronous but the Play flow is not, so Request hands off to `runOnUiThread` and returns `success` immediately. That is not a claim that anything was shown. Play reports nothing about what the user did, and shows no overlay when the quota is spent or when the user is not eligible. Never gate anything on the result.
 
-Crucially, **`requestReviewFlow()` succeeds in all of those cases anyway**, so `isSuccessful` is useless for detecting them. Verified on an emulator 2026-08-27: PlayCore bound to `com.android.vending/...InAppReviewService`, `onGetLaunchReviewFlowInfo` came back fine, and `launchReviewFlow` completed in **5ms** having drawn nothing. Tapping "rate" therefore did nothing at all, which is a worse outcome than no feature.
+Crucially, **`requestReviewFlow()` succeeds even when nothing is drawn**, so `isSuccessful` cannot detect it. The only usable signal is elapsed time, because a real overlay waits on a human. Request measures `launchReviewFlow` and opens the store listing when it completes under `SHOWN_THRESHOLD_MS` (1s). That is why `store_url` is a bridge-call parameter rather than a PHP decision.
 
-The only available signal is elapsed time, because a real overlay has to wait on a human. Request measures `launchReviewFlow` and, when it completes under `SHOWN_THRESHOLD_MS` (1s), opens the store listing instead. That is why `store_url` is a parameter of the bridge call rather than something PHP decides. The tradeoff is that a user who dismisses a real overlay in under a second also gets the store; that is rare and harmless next to a dead button.
+Measured on a real device (SM-S908E, Android 16) 2026-08-27, tapping rate three times in a row:
+
+| Attempt | `launchReviewFlow` | What happened |
+| --- | --- | --- |
+| 1st | **6947ms** | `com.android.vending/...inappreviewdialog.InAppReviewActivity` really opened; no fallback fired |
+| 2nd | 5ms | quota spent, nothing drawn, store opened |
+| 3rd | 2ms | same |
+
+Three orders of magnitude between shown and not-shown, so the 1s threshold is not a close call. The tradeoff is that dismissing a real overlay in under a second also opens the store; rare, and harmless next to a dead button.
+
+**The quota is spent after a single showing.** Expect the fallback to be the common path for anyone who already saw it.
+
+### What actually gates the overlay is the Google account, not the install source
+The docs read as though the app must be installed from Play, and an earlier version of this rule said so. That is wrong. Verified 2026-08-27 by uninstalling the Play build and sideloading a **debug-signed** APK: `installerPackageName` was `null` and the overlay still appeared, because the signed-in account owned the app from Play.
+
+The emulator, by contrast, drew nothing (`launchReviewFlow` in 1ms) purely because **no Google account was signed in**, despite running a Play Store system image. So a sideloaded build on your own device is a valid way to test this; an emulator without a signed-in account is not.
 
 Play policy also forbids sentiment-gating, so the prompt must go to everyone who hits the trigger. No "enjoying the app? yes leads to the store, no leads to a feedback form" funnel.
 
