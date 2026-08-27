@@ -17,12 +17,13 @@ R8 is off (minify_enabled = false), so there is no mapping.txt and Play's "no de
 ## Run scripts/patch-nativephp-android.py after every native:install --force
 `native:install --force` regenerates nativephp/android from vendor and silently discards local fixes. The directory is gitignored, so nothing warns you. Run `python3 scripts/patch-nativephp-android.py` after every install and before any release build; it is idempotent and reports what it changed.
 
-It applies three things:
+It applies four things:
 1. NativeActionCoordinator.install(): commitNow() -> commitNowAllowingStateLoss(). install() runs from a Handler.post callback after bundle extraction, by which point the Activity may have saved state. This was the app's single largest crash (52 reports / 33 users, ~34% of users, versionCodes 8 and 9): IllegalStateException "Can not perform this action after onSaveInstanceState". onDestroy() in the same file already used commitNowAllowingStateLoss, so this was an upstream oversight. Reproduced on device as `finishing=false destroyed=false stateSaved=true` and confirmed fixed 2026-08-26.
 2. MainActivity.initializeEnvironmentAsync(): skip onReady() when isFinishing || isDestroyed. Covers the rarer "FragmentManager has been destroyed" variant; onReady also builds the WebView and loads a URL, none of it valid on a dead Activity.
-3. Strips keepDebugSymbols so Play actually gets debug symbols (see the debug symbol rule).
+3. MainActivity.configureStatusBar(): drops the deprecated `window.statusBarColor` / `window.navigationBarColor` setters (and the `@Suppress("DEPRECATION")` that came with them). Play flags these as deprecated for edge-to-edge, and `setDecorFitsSystemWindows(false)` already makes both bars transparent on Android 15+, so they were dead weight.
+4. Strips keepDebugSymbols so Play actually gets debug symbols (see the debug symbol rule).
 
-Extraction is longest right after an app update, because that is when the bundle is re-extracted, so every version bump widens the crash window. Not covered by the script: the generated tree also carries a hand-applied edge-to-edge patch (dropping the deprecated window.statusBarColor / navigationBarColor setters in MainActivity). That one WILL be lost on the next regenerate - fold it into the script or re-apply it by hand.
+Extraction is longest right after an app update, because that is when the bundle is re-extracted, so every version bump widens the crash window.
 
 ## native:package burns a version code from .env on every run
 `php artisan native:package android` builds with the current NATIVEPHP_APP_VERSION_CODE and then increments it in .env for next time. Every build consumes a code, including throwaway ones, so the number drifts well ahead of what is actually on Play. That is harmless (Play only needs the code to exceed the last uploaded one) but it means .env is not a record of what shipped - check the Play track for that. 1.1.1 was uploaded as code 18; two local rebuilds later .env was at 20.
