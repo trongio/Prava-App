@@ -31,6 +31,10 @@ Extraction is longest right after an app update, because that is when the bundle
 ## native:package burns a version code from .env on every run
 `php artisan native:package android` builds with the current NATIVEPHP_APP_VERSION_CODE and then increments it in .env for next time. Every build consumes a code, including throwaway ones, so the number drifts well ahead of what is actually on Play. That is harmless (Play only needs the code to exceed the last uploaded one) but it means .env is not a record of what shipped - check the Play track for that. 1.1.1 was uploaded as code 18; two local rebuilds later .env was at 20.
 
+`native:package` needs `--no-tty` in any non-interactive shell (agents, CI). Without it Gradle dies with "TTY mode requires /dev/tty to be read/writable" **after** the version code has already been consumed, so a failed build still burns one: a failed 21 left .env at 22 on 2026-08-27. Check .env after any failed package run and reset it if you care which code ships.
+
+Uploading is `~/.config/play/play_upload.py <aab> <track> <name> <status> [userFraction]`, which creates the edit, uploads the bundle, sets release notes from `~/.config/play/release_notes_ka.txt`, and commits. `status=completed` means 100% and must not carry a `userFraction`; use `inProgress` with one for a staged rollout.
+
 Also note `native:install --force` leaves placeholders (REPLACE_APP_ID, REPLACEMECODE, REPLACE_MINIFY_ENABLED, REPLACE_STATUS_BAR_STYLE) in the generated tree. They are substituted by native:run / native:package, so a freshly installed tree is not buildable by Gradle directly. Verified 2026-08-26: install --force wipes all local patches, scripts/patch-nativephp-android.py restores them, and the resulting bundle builds and carries the fixes and the debug symbols.
 
 ## Play in-app review: Review.Request is ours, and it can never report an outcome
