@@ -162,8 +162,38 @@ it('never prompts again after a dismissal', function () {
     expect(resultsCarryPrompt($this->user->fresh(), finishedTest($this->user)))->toBeFalse();
 });
 
-it('requires authentication to dismiss', function () {
+it('retires the prompt for good when the user chooses to rate', function () {
+    withPassedTests($this->user, 3);
+
+    $this->actingAs($this->user)
+        ->post('/review-prompt/rate')
+        ->assertOk();
+
+    $this->user->refresh();
+    expect($this->user->review_prompt_dismissed_at)->not->toBeNull();
+
+    expect(resultsCarryPrompt($this->user, finishedTest($this->user)))->toBeFalse();
+});
+
+it('falls back to the store listing when the native bridge is absent', function () {
+    config(['review_prompt.store_url' => 'market://details?id=com.example.app']);
+
+    // nativephp_call only exists inside the mobile runtime, so this is the
+    // shape every non-mobile caller sees, including a browser during dev.
+    expect(function_exists('nativephp_call'))->toBeFalse();
+
+    $this->actingAs($this->user)
+        ->post('/review-prompt/rate')
+        ->assertOk()
+        ->assertJson([
+            'native' => false,
+            'store_url' => 'market://details?id=com.example.app',
+        ]);
+});
+
+it('requires authentication to dismiss or rate', function () {
     $this->post('/review-prompt/dismiss')->assertRedirect('/');
+    $this->post('/review-prompt/rate')->assertRedirect('/');
 });
 
 it('one user dismissing does not silence another', function () {

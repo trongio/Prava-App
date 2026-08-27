@@ -95,6 +95,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Play Store rating prompt (dismissal is permanent)
     Route::post('review-prompt/dismiss', [ReviewPromptController::class, 'dismiss'])->name('review-prompt.dismiss');
+    Route::post('review-prompt/rate', [ReviewPromptController::class, 'rate'])->name('review-prompt.rate');
 
     // Profile image update
     Route::post('/profile/image', [UserSelectionController::class, 'updateImage'])->name('profile.image.update');

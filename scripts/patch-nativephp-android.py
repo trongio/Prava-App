@@ -19,6 +19,16 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 ANDROID = ROOT / "nativephp" / "android"
 JAVA = ANDROID / "app/src/main/java/com/nativephp/mobile"
+SOURCES = ROOT / "scripts" / "android-patches"
+
+# Whole files we add to the generated tree, rather than edits to upstream ones.
+FILE_COPIES = [
+    {
+        "name": "ReviewFunctions.kt: Play in-app review bridge function",
+        "src": SOURCES / "ReviewFunctions.kt",
+        "dst": JAVA / "bridge/functions/ReviewFunctions.kt",
+    },
+]
 
 GUARD = '''            Handler(Looper.getMainLooper()).post {
                 // Bundle extraction can outlive this Activity. The user may leave or
@@ -79,11 +89,63 @@ PATCHES = [
                "setDecorFitsSystemWindows(false) already makes the bars transparent "
                "on Android 15+, so the setters are dead weight and the @Suppress with them.",
     },
+    {
+        "name": "BridgeFunctionRegistration: import ReviewFunctions",
+        "path": JAVA / "bridge/BridgeFunctionRegistration.kt",
+        "old": "import com.nativephp.mobile.bridge.functions.QrCodeFunctions\n",
+        "new": "import com.nativephp.mobile.bridge.functions.QrCodeFunctions\n"
+               "import com.nativephp.mobile.bridge.functions.ReviewFunctions\n",
+        "applied": "import com.nativephp.mobile.bridge.functions.ReviewFunctions",
+        "why": "Pairs with the Review.Request registration below.",
+    },
+    {
+        "name": "BridgeFunctionRegistration: register Review.Request",
+        "path": JAVA / "bridge/BridgeFunctionRegistration.kt",
+        "old": '    registry.register("System.OpenAppSettings", SystemFunctions.OpenAppSettings(context))\n',
+        "new": '    registry.register("System.OpenAppSettings", SystemFunctions.OpenAppSettings(context))\n'
+               '    registry.register("Review.Request", ReviewFunctions.Request(activity))\n',
+        "applied": 'registry.register("Review.Request"',
+        "why": "Without this the bridge returns null for Review.Request and the app "
+               "falls back to opening the store listing, which still works but converts worse.",
+    },
+    {
+        "name": "build.gradle.kts: add the Play review library",
+        "path": ANDROID / "app/build.gradle.kts",
+        "old": '    implementation("androidx.camera:camera-view:$camerax_version")\n}\n',
+        "new": '    implementation("androidx.camera:camera-view:$camerax_version")\n\n'
+               '    // Google Play in-app review overlay (local addition, see ReviewFunctions.kt)\n'
+               '    implementation("com.google.android.play:review-ktx:2.0.2")\n}\n',
+        "applied": "com.google.android.play:review-ktx",
+        "why": "ReviewFunctions.kt will not compile without it.",
+    },
 ]
 
 # The Gradle line is a deletion rather than a replacement, handled separately.
 GRADLE = ANDROID / "app/build.gradle.kts"
 KEEP_SYMBOLS = 'keepDebugSymbols.add("**/*.so")'
+
+
+def copy_added_files() -> int:
+    failures = 0
+    for f in FILE_COPIES:
+        src: Path = f["src"]
+        dst: Path = f["dst"]
+
+        if not src.exists():
+            print(f"[MISS] {f['name']}\n       source not found: {src}")
+            failures += 1
+            continue
+
+        wanted = src.read_text()
+        if dst.exists() and dst.read_text() == wanted:
+            print(f"[ ok ] {f['name']} (already copied)")
+            continue
+
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        dst.write_text(wanted)
+        print(f"[ + ] {f['name']}")
+        print(f"       copied from {src.relative_to(ROOT)}")
+    return failures
 
 
 def apply_text_patches() -> int:
@@ -137,7 +199,7 @@ def main() -> int:
         return 1
 
     print(f"Patching {ANDROID.relative_to(ROOT)}\n")
-    failures = apply_text_patches() + strip_keep_debug_symbols()
+    failures = copy_added_files() + apply_text_patches() + strip_keep_debug_symbols()
     print()
     if failures:
         print(f"{failures} patch(es) could not be applied. Do not ship until resolved.")

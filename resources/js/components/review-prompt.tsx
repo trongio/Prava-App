@@ -20,6 +20,11 @@ interface Props {
  *
  * Either action retires the prompt for good, so the user is only ever asked
  * this once unless they walk away without answering.
+ *
+ * Rating goes through the native Play in-app review overlay where the build
+ * supports it, and falls back to opening the store listing where it does not.
+ * Neither path can tell whether the user actually left a review: Play does not
+ * report that, so nothing here depends on it.
  */
 export function ReviewPrompt({ storeUrl }: Props) {
     const [isVisible, setIsVisible] = useState(true);
@@ -33,10 +38,22 @@ export function ReviewPrompt({ storeUrl }: Props) {
         void axios.post('/review-prompt/dismiss').catch(() => {});
     }, []);
 
-    const handleRate = useCallback(() => {
-        retire();
-        browser.open(storeUrl);
-    }, [retire, storeUrl]);
+    const handleRate = useCallback(async () => {
+        setIsVisible(false);
+
+        // Prefer the native Play overlay, which keeps the user in the app. It is
+        // absent on unpatched builds and in the browser during development, and
+        // the server says so, so fall back to the store listing.
+        try {
+            const { data } = await axios.post('/review-prompt/rate');
+
+            if (!data?.native) {
+                browser.open(data?.store_url ?? storeUrl);
+            }
+        } catch {
+            browser.open(storeUrl);
+        }
+    }, [storeUrl]);
 
     if (!isVisible) {
         return null;
