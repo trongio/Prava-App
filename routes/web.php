@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\QuestionBrowserController;
+use App\Http\Controllers\ReviewPromptController;
 use App\Http\Controllers\SignsController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\TestHistoryController;
@@ -91,6 +92,9 @@ Route::middleware(['auth'])->group(function () {
     // Signs Browser
     Route::get('signs', [SignsController::class, 'index'])->name('signs.index');
     Route::get('signs/{sign}', [SignsController::class, 'show'])->name('signs.show');
+
+    // Play Store rating prompt (dismissal is permanent)
+    Route::post('review-prompt/dismiss', [ReviewPromptController::class, 'dismiss'])->name('review-prompt.dismiss');
 
     // Profile image update
     Route::post('/profile/image', [UserSelectionController::class, 'updateImage'])->name('profile.image.update');

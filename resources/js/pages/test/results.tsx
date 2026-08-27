@@ -12,6 +12,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { QuestionList } from '@/components/question-list';
+import { ReviewPrompt } from '@/components/review-prompt';
 import { TestResultBanner } from '@/components/test-result-banner';
 import { Button } from '@/components/ui/button';
 import {
@@ -35,9 +36,10 @@ import {
 
 interface Props {
     testResult: TestResultData;
+    reviewPrompt: { store_url: string } | null;
 }
 
-export default function TestResults({ testResult }: Props) {
+export default function TestResults({ testResult, reviewPrompt }: Props) {
     const [showTemplateDialog, setShowTemplateDialog] = useState(false);
     const [templateName, setTemplateName] = useState('');
 
@@ -136,6 +138,13 @@ export default function TestResults({ testResult }: Props) {
                 allowedWrong={testResult.allowed_wrong}
                 withTopPadding
             />
+
+            {/* Rating invitation, only after a passed test */}
+            {reviewPrompt && (
+                <div className="pt-4">
+                    <ReviewPrompt storeUrl={reviewPrompt.store_url} />
+                </div>
+            )}
 
             {/* Action Buttons */}
             <div className="grid grid-cols-2 gap-2 p-4">

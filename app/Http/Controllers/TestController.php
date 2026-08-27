@@ -9,6 +9,7 @@ use App\Models\TestResult;
 use App\Models\TestTemplate;
 use App\Models\UserQuestionProgress;
 use App\Support\ExamRules;
+use App\Support\ReviewPrompt;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -622,6 +623,15 @@ class TestController extends Controller
         // Load license type relationship
         $testResult->load('licenseType');
 
+        // Invite a rating only after a passed test, and only from a user who
+        // has not already answered the question once. Stamping here starts the
+        // cooldown, so revisiting this screen does not re-ask.
+        $showReviewPrompt = ReviewPrompt::shouldShow($user, $testResult);
+
+        if ($showReviewPrompt) {
+            ReviewPrompt::markShown($user);
+        }
+
         return Inertia::render('test/results', [
             'testResult' => [
                 'id' => $testResult->id,
@@ -641,6 +651,9 @@ class TestController extends Controller
                 'license_type_id' => $testResult->license_type_id,
                 'license_type' => $testResult->licenseType?->only(['id', 'code', 'name']),
             ],
+            'reviewPrompt' => $showReviewPrompt
+                ? ['store_url' => config('review_prompt.store_url')]
+                : null,
         ]);
     }
 

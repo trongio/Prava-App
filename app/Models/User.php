@@ -3,7 +3,9 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -13,7 +15,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable, TwoFactorAuthenticatable;
 
     /**
@@ -76,6 +78,8 @@ class User extends Authenticatable
             'has_password' => 'boolean',
             'question_filter_preferences' => 'array',
             'test_auto_advance' => 'boolean',
+            'review_prompt_dismissed_at' => 'datetime',
+            'review_prompt_last_shown_at' => 'datetime',
         ];
     }
 
@@ -113,7 +117,7 @@ class User extends Authenticatable
         return $this->hasMany(UserQuestionProgress::class)->where('is_bookmarked', true);
     }
 
-    public function defaultLicenseType(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function defaultLicenseType(): BelongsTo
     {
         return $this->belongsTo(LicenseType::class, 'default_license_type_id');
     }
