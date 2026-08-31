@@ -67,3 +67,19 @@ Play policy also forbids sentiment-gating, so the prompt must go to everyone who
 `crashRateMetricSet:query` (and the other metric sets) refuse any window past their freshness date, which runs about three days behind - querying nearer than that returns HTTP 400 "field should be before the current freshness <date>". They are useless for judging a release published hours ago.
 
 `errorIssues:search` and `errorReports:search` have no such lag and returned same-day data during the 1.1.1 rollout. Use those to judge a fresh release, and accept that they give counts without a denominator: there is no per-version active-device count available, so "0 crashes on the new version" has to be read alongside how long it has been live and at what rollout percentage.
+
+## The libphp.so crash zoo is one bug: an unsynchronised, non-thread-safe PHP engine
+The ~100 `libphp.so` crash issues on Play are not PHP memory exhaustion and are not ~100 bugs. Verified 2026-08-31.
+
+Every `_emalloc` SIGABRT aborts at the identical libphp.so offset 0xecab00. Disassembled (NDK llvm-objdump; host objdump cannot do aarch64) it is `fprintf(stderr, "%s\n", "zend_mm_heap corrupted"); abort();` i.e. `zend_mm_panic`. Real exhaustion takes a different path ("Allowed memory size of %zu bytes exhausted") and never aborts. So this is Zend's allocator finding its own heap metadata inconsistent.
+
+Why the heap gets corrupted: the shipped PHP is non-thread-safe (`no-debug-non-zts-20240924`, no `--enable-zts`), the engine is process-global, and `run_php_script_once` does `php_embed_shutdown()` + `php_embed_init()` on **every** request. php_bridge.c contains no mutex at all and `php_initialized` is a plain non-atomic global. Meanwhile several threads enter it:
+- `PHPBridge.phpExecutor` is a **per-instance** single-thread executor, and there are two PHPBridge instances (MainActivity.kt:57 and LaravelEnvironment.kt:21). Serialization is per-instance; the engine is per-process, so it guarantees nothing.
+- `runArtisanCommand` / `nativeExecuteScript` / `initialize` / `shutdown` are raw `external fun` JNI calls that bypass the executor entirely. `LaravelEnvironment.runBaseArtisanCommands()` (optimize:clear, storage:link, migrate --force) runs on the raw `Thread{}` in `MainActivity.initializeEnvironmentAsync`.
+- `onDestroy()` calls `laravelEnv.cleanup()` (which calls shutdown()) **and** `phpBridge.shutdown()` on the main thread, which frees the heap under any request still in flight on phpExecutor.
+
+This explains the whole SIGSEGV zoo (zend_hash_destroy, zend_array_dup, zend_hash_discard, execute_ex, lex_scan, _efree) plus the libsqlite3 ones: all are rug-pull symptoms, and Play groups by top frame, scattering one root cause across ~100 issues of 1-5 reports. Compile frames dominate only because the per-request engine restart means the process spends most of its time compiling. It hits flagships (S25 Ultra) as well as low-end devices, which argues against device OOM.
+
+Do not "fix" this by raising memory_limit or enabling opcache. The fix is one process-wide lock around every native PHP entry point, and not calling shutdown() while a request is in flight.
+
+Note `nativephp/android` is gitignored, so `rg`/`fd` skip it silently. Always pass `-u` / `-I` when searching there or you get false negatives.

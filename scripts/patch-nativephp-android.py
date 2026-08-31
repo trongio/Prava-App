@@ -17,8 +17,11 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-ANDROID = ROOT / "nativephp" / "android"
+# Defaults to the generated tree; a target can be passed for testing against a
+# pristine copy of the upstream template.
+ANDROID = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else ROOT / "nativephp" / "android"
 JAVA = ANDROID / "app/src/main/java/com/nativephp/mobile"
+CPP = ANDROID / "app/src/main/cpp"
 SOURCES = ROOT / "scripts" / "android-patches"
 
 # Whole files we add to the generated tree, rather than edits to upstream ones.
@@ -59,6 +62,213 @@ EDGE_NEW = """    private fun configureStatusBar() {
         // (setDecorFitsSystemWindows(false)); the deprecated window.statusBarColor /
         // navigationBarColor setters are intentionally omitted for Android 15+.
 """
+
+# --- The PHP engine lock ----------------------------------------------------
+# libphp.so is non-thread-safe and every native entry point tears the engine
+# down and rebuilds it, so concurrent entry corrupts the shared Zend heap.
+
+LOCK_OLD = """// Global state
+static int php_initialized = 0;
+"""
+
+LOCK_NEW = """#include <pthread.h>
+
+// One process-global PHP engine, one lock.
+//
+// libphp.so is built non-thread-safe (no-debug-non-zts) and every native entry
+// point below tears the engine down and rebuilds it (php_embed_shutdown +
+// php_embed_init). Two threads inside any of them corrupt the shared Zend heap,
+// which aborts the process with "zend_mm_heap corrupted".
+//
+// PHPBridge's single-thread executor does not prevent this on its own: it was a
+// per-instance field, there are two PHPBridge instances (MainActivity and
+// LaravelEnvironment), and initialize/shutdown/runArtisanCommand are called
+// straight from other threads without going through it at all.
+//
+// Recursive because native_run_artisan_command re-enters the lock through
+// native_initialize and, via CallObjectMethod, native_get_laravel_public_path.
+static pthread_mutex_t g_php_lock;
+
+static void php_lock_init(void) {
+    pthread_mutexattr_t attr;
+    pthread_mutexattr_init(&attr);
+    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+    pthread_mutex_init(&g_php_lock, &attr);
+    pthread_mutexattr_destroy(&attr);
+}
+
+#define PHP_LOCK()   pthread_mutex_lock(&g_php_lock)
+#define PHP_UNLOCK() pthread_mutex_unlock(&g_php_lock)
+
+// Global state
+static int php_initialized = 0;
+"""
+
+TABLE_OLD = """static JNINativeMethod gMethods[] = {
+        // PHPBridge
+        {"nativeExecuteScript", "(Ljava/lang/String;)Ljava/lang/String;", (void *) native_execute_script},
+        {"initialize", "()V", (void *) native_initialize},
+        {"shutdown", "()V", (void *) native_shutdown},
+        {"setRequestInfo", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", (void *) native_set_request_info},
+        {"runArtisanCommand", "(Ljava/lang/String;)Ljava/lang/String;", (void *) native_run_artisan_command},
+        {"getLaravelPublicPath", "()Ljava/lang/String;", (void *) native_get_laravel_public_path},
+        {"getLaravelRootPath", "()Ljava/lang/String;", (void *) native_get_laravel_root_path},
+
+        // LaravelEnvironment
+        {"nativeSetEnv", "(Ljava/lang/String;Ljava/lang/String;I)I", (void *) native_set_env},
+        {"nativeHandleRequestOnce","(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;",(void *) native_handle_request_once}
+};
+"""
+
+TABLE_NEW = """// Every native method that enters the PHP engine is registered through one of
+// these wrappers, so no two threads are ever inside the engine at once. The
+// bodies above are left exactly as upstream wrote them; only the entry points
+// are serialised. The two path getters are exempt and say why at their
+// registration below.
+
+static void JNICALL locked_initialize(JNIEnv *env, jobject thiz) {
+    PHP_LOCK();
+    native_initialize(env, thiz);
+    PHP_UNLOCK();
+}
+
+static void JNICALL locked_shutdown(JNIEnv *env, jobject thiz) {
+    PHP_LOCK();
+    native_shutdown(env, thiz);
+    PHP_UNLOCK();
+}
+
+static void JNICALL locked_set_request_info(JNIEnv *env, jobject thiz,
+                                            jstring method, jstring uri, jstring post_data) {
+    PHP_LOCK();
+    native_set_request_info(env, thiz, method, uri, post_data);
+    PHP_UNLOCK();
+}
+
+static jint JNICALL locked_set_env(JNIEnv *env, jobject thiz,
+                                   jstring name, jstring value, jint overwrite) {
+    PHP_LOCK();
+    jint result = native_set_env(env, thiz, name, value, overwrite);
+    PHP_UNLOCK();
+    return result;
+}
+
+static jstring JNICALL locked_execute_script(JNIEnv *env, jobject thiz, jstring filename) {
+    PHP_LOCK();
+    jstring result = native_execute_script(env, thiz, filename);
+    PHP_UNLOCK();
+    return result;
+}
+
+static jstring JNICALL locked_run_artisan_command(JNIEnv *env, jobject thiz, jstring jcommand) {
+    PHP_LOCK();
+    jstring result = native_run_artisan_command(env, thiz, jcommand);
+    PHP_UNLOCK();
+    return result;
+}
+
+static jstring JNICALL locked_handle_request_once(
+        JNIEnv *env, jobject thiz,
+        jstring jMethod, jstring jUri, jstring jPostData, jstring jScriptPath) {
+    PHP_LOCK();
+    jstring result = native_handle_request_once(env, thiz, jMethod, jUri, jPostData, jScriptPath);
+    PHP_UNLOCK();
+    return result;
+}
+
+static JNINativeMethod gMethods[] = {
+        // PHPBridge
+        {"nativeExecuteScript", "(Ljava/lang/String;)Ljava/lang/String;", (void *) locked_execute_script},
+        {"initialize", "()V", (void *) locked_initialize},
+        {"shutdown", "()V", (void *) locked_shutdown},
+        {"setRequestInfo", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", (void *) locked_set_request_info},
+        {"runArtisanCommand", "(Ljava/lang/String;)Ljava/lang/String;", (void *) locked_run_artisan_command},
+        // Deliberately unlocked: these only read a path out of the Context via JNI
+        // and never enter the PHP engine. PHPWebViewClient calls the first on the
+        // WebView thread for every intercepted request, so locking it would queue
+        // all asset loading behind whatever PHP is doing.
+        {"getLaravelPublicPath", "()Ljava/lang/String;", (void *) native_get_laravel_public_path},
+        {"getLaravelRootPath", "()Ljava/lang/String;", (void *) native_get_laravel_root_path},
+
+        // LaravelEnvironment
+        {"nativeSetEnv", "(Ljava/lang/String;Ljava/lang/String;I)I", (void *) locked_set_env},
+        {"nativeHandleRequestOnce","(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;",(void *) locked_handle_request_once}
+};
+"""
+
+ONLOAD_OLD = """JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
+    g_jvm = vm;
+"""
+
+ONLOAD_NEW = """JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
+    g_jvm = vm;
+
+    // Before any native method can run.
+    php_lock_init();
+"""
+
+ENVMETHODS_OLD = """    static JNINativeMethod envMethods[] = {
+            {"nativeSetEnv", "(Ljava/lang/String;Ljava/lang/String;I)I", (void *) native_set_env}
+    };
+"""
+
+ENVMETHODS_NEW = """    // Same process-wide PHP lock as gMethods above.
+    static JNINativeMethod envMethods[] = {
+            {"nativeSetEnv", "(Ljava/lang/String;Ljava/lang/String;I)I", (void *) locked_set_env}
+    };
+"""
+
+# --- Kotlin: one PHP thread for the whole process ---------------------------
+
+EXECUTOR_OLD = """    private val requestDataMap = ConcurrentHashMap<String, String>()
+    private val phpExecutor = java.util.concurrent.Executors.newSingleThreadExecutor()
+"""
+
+EXECUTOR_NEW = """    private val requestDataMap = ConcurrentHashMap<String, String>()
+"""
+
+COMPANION_OLD = """    companion object {
+        private const val TAG = "PHPBridge"
+        private const val MAX_REQUEST_AGE = 5 * 60 * 1000L
+"""
+
+COMPANION_NEW = """    companion object {
+        private const val TAG = "PHPBridge"
+        private const val MAX_REQUEST_AGE = 5 * 60 * 1000L
+
+        // Process-wide, not per-instance. There are two PHPBridge instances
+        // (MainActivity and LaravelEnvironment) but only one process-global,
+        // non-thread-safe PHP engine, so a per-instance executor serialised
+        // nothing. The native lock in php_bridge.c is the real guarantee; this
+        // keeps requests in FIFO order and off the callers' threads.
+        private val phpExecutor = java.util.concurrent.Executors.newSingleThreadExecutor()
+
+        /** Run [block] on the single PHP thread without blocking the caller. */
+        fun runOnPhpThread(block: () -> Unit) {
+            phpExecutor.execute(block)
+        }
+"""
+
+DESTROY_OLD = """        laravelEnv.cleanup()
+        phpBridge.shutdown()
+    }
+"""
+
+DESTROY_NEW = """        // Tearing the PHP engine down from the main thread would block on the
+        // process-wide PHP lock until any in-flight request finished, and the
+        // WebView usually has one pending when the user leaves. Hand it to the
+        // PHP thread instead; the lock keeps it ordered behind that request.
+        // laravelEnv is assigned on the async init thread, so it may never have
+        // been set if the user left during first-run extraction.
+        val envToClean = if (::laravelEnv.isInitialized) laravelEnv else null
+        val bridge = phpBridge
+        PHPBridge.runOnPhpThread {
+            envToClean?.cleanup()
+            bridge.shutdown()
+        }
+    }
+"""
+
 
 PATCHES = [
     {
@@ -118,6 +328,66 @@ PATCHES = [
         "applied": "com.google.android.play:review-ktx",
         "why": "ReviewFunctions.kt will not compile without it.",
     },
+    {
+        "name": "php_bridge.c: add the process-wide PHP engine lock",
+        "path": CPP / "php_bridge.c",
+        "old": LOCK_OLD,
+        "new": LOCK_NEW,
+        "applied": "static pthread_mutex_t g_php_lock;",
+        "why": "libphp.so is non-thread-safe and every entry point restarts the engine; "
+               "concurrent entry corrupts the Zend heap and aborts.",
+    },
+    {
+        "name": "php_bridge.c: register every native method through a locking wrapper",
+        "path": CPP / "php_bridge.c",
+        "old": TABLE_OLD,
+        "new": TABLE_NEW,
+        "applied": "locked_handle_request_once",
+        "why": "Wrapping at the JNI table leaves the upstream function bodies untouched.",
+    },
+    {
+        "name": "php_bridge.c: initialise the lock in JNI_OnLoad",
+        "path": CPP / "php_bridge.c",
+        "old": ONLOAD_OLD,
+        "new": ONLOAD_NEW,
+        "applied": "php_lock_init();",
+        "why": "JNI_OnLoad runs before any native method, and a recursive mutex "
+               "cannot be initialised statically on bionic.",
+    },
+    {
+        "name": "php_bridge.c: lock the LaravelEnvironment nativeSetEnv registration too",
+        "path": CPP / "php_bridge.c",
+        "old": ENVMETHODS_OLD,
+        "new": ENVMETHODS_NEW,
+        "applied": "Same process-wide PHP lock as gMethods above",
+        "why": "It is registered on a second class, so the gMethods edit misses it.",
+    },
+    {
+        "name": "PHPBridge: make the PHP executor process-wide",
+        "path": JAVA / "bridge/PHPBridge.kt",
+        "old": EXECUTOR_OLD,
+        "new": EXECUTOR_NEW,
+        "applied": "private val requestDataMap = ConcurrentHashMap<String, String>()\n\n    private val nativePhpScript",
+        "why": "A per-instance executor serialised nothing across the two PHPBridge instances.",
+    },
+    {
+        "name": "PHPBridge: add the shared executor and runOnPhpThread",
+        "path": JAVA / "bridge/PHPBridge.kt",
+        "old": COMPANION_OLD,
+        "new": COMPANION_NEW,
+        "applied": "fun runOnPhpThread(",
+        "why": "Pairs with the executor move above; onDestroy needs a way to shut down "
+               "off the main thread.",
+    },
+    {
+        "name": "MainActivity: shut PHP down off the main thread, and guard laravelEnv",
+        "path": JAVA / "ui/MainActivity.kt",
+        "old": DESTROY_OLD,
+        "new": DESTROY_NEW,
+        "applied": "PHPBridge.runOnPhpThread {",
+        "why": "shutdown() on the main thread would block on the PHP lock behind an "
+               "in-flight request; laravelEnv is lateinit and may never have been set.",
+    },
 ]
 
 # The Gradle line is a deletion rather than a replacement, handled separately.
@@ -162,7 +432,7 @@ def apply_text_patches() -> int:
             print(f"[ ok ] {p['name']} (already applied)")
             continue
         if p["old"] not in text:
-            print(f"[FAIL] {p['name']}\n       pattern not found in {path.relative_to(ROOT)}")
+            print(f"[FAIL] {p['name']}\n       pattern not found in {path}")
             print("       Upstream probably changed. Re-check the source before building.")
             failures += 1
             continue
@@ -198,7 +468,11 @@ def main() -> int:
         print("Run `php artisan native:install --force` first.")
         return 1
 
-    print(f"Patching {ANDROID.relative_to(ROOT)}\n")
+    try:
+        where = ANDROID.relative_to(ROOT)
+    except ValueError:
+        where = ANDROID
+    print(f"Patching {where}\n")
     failures = copy_added_files() + apply_text_patches() + strip_keep_debug_symbols()
     print()
     if failures:
