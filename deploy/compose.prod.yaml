@@ -1,0 +1,76 @@
+# driving.hackerman.ge - web build of the driving test app.
+#
+# Publishes no host ports. All ingress arrives through the pre-existing
+# `hackerman-caddy` edge container, which is attached to the external
+# `driving_edge` network and reverse-proxies by hostname, exactly as the
+# fitgeo staging stack does.
+#
+# State lives in two named volumes and nothing else: `data` holds the SQLite
+# database, `storage` holds uploaded profile images, sessions, cache and logs.
+# The image is disposable; these are not.
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "50m"
+    max-file: "3"
+
+networks:
+  # Shared with the edge Caddy. Created once by deploy/deploy-web.sh.
+  edge:
+    external: true
+    name: driving_edge
+
+services:
+  web:
+    image: driving-web:${RELEASE_SHA:?RELEASE_SHA must be set by deploy/deploy-web.sh}
+    container_name: driving-web
+    restart: unless-stopped
+    env_file: [/srv/driving/.env]
+    logging: *default-logging
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 768m
+    networks:
+      edge:
+        # Stable alias the edge Caddy proxies to.
+        aliases: [driving-web]
+    volumes:
+      - data:/data
+      - storage:/app/storage
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/up"]
+      interval: 15s
+      timeout: 5s
+      start_period: 40s
+      retries: 5
+
+  # Runs the nightly guest-account prune. Shares the same image, database and
+  # storage; serves no HTTP, so it gets its own liveness check rather than
+  # inheriting the web one it could never pass.
+  scheduler:
+    image: driving-web:${RELEASE_SHA:?RELEASE_SHA must be set by deploy/deploy-web.sh}
+    container_name: driving-scheduler
+    restart: unless-stopped
+    env_file: [/srv/driving/.env]
+    logging: *default-logging
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 256m
+    networks: [edge]
+    depends_on:
+      web: {condition: service_healthy}
+    volumes:
+      - data:/data
+      - storage:/app/storage
+    entrypoint: ["php", "/app/artisan", "schedule:work"]
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "schedule:work"]
+      interval: 60s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+
+volumes:
+  data:
+  storage:

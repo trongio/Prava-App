@@ -1,0 +1,33 @@
+# Build context for the web image. Everything the container needs is either
+# built inside it (vendor, node_modules, public/build) or mounted at runtime
+# (the SQLite database, uploaded images).
+.git
+.github
+.idea
+.vscode
+.junie
+.claude
+.ai
+node_modules
+vendor
+public/build
+public/hot
+public/storage
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+database/database.sqlite
+database/*.sqlite-shm
+database/*.sqlite-wal
+nativephp/android
+nativephp/ios
+tests
+screenshots
+docs
+.env
+.env.*
+auth.json
+credentials
+*.md
+!database/seeded.sqlite

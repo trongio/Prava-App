@@ -1,0 +1,31 @@
+# >>> driving >>>
+# Web build of the driving test app. The container publishes no ports; it is
+# reachable only over the driving_edge network by its compose alias.
+#
+# Paste this block into /home/ubuntu/hackerman/Caddyfile on aegis-cloud
+# (repo: trongio/hackerman) and reload with:
+#   docker exec hackerman-caddy caddy reload --config /etc/caddy/Caddyfile
+driving.hackerman.ge {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		X-Frame-Options "DENY"
+		-Server
+	}
+
+	# Profile photo uploads are capped at 2MB by the application; this is the
+	# matching ceiling at the edge.
+	request_body {
+		max_size 8MB
+	}
+
+	# Laravel builds absolute URLs and decides whether to mark cookies secure
+	# from the forwarded scheme, so it has to be told TLS terminated here.
+	reverse_proxy driving-web:8000 {
+		header_up X-Forwarded-Proto https
+	}
+}
+# <<< driving <<<
