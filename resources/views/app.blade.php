@@ -37,6 +37,17 @@
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
         <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
+        @if (config('app.platform') === 'web')
+            {{-- Installable web app. The device build is already a native app
+                 and must not register a service worker inside its WebView. --}}
+            <link rel="manifest" href="/manifest.webmanifest">
+            <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+            <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)">
+            <meta name="apple-mobile-web-app-capable" content="yes">
+            <meta name="apple-mobile-web-app-status-bar-style" content="default">
+            <meta name="apple-mobile-web-app-title" content="{{ config('app.name') }}">
+        @endif
+
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 

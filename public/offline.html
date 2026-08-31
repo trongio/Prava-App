@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>კავშირი არ არის</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <style>
+        :root { color-scheme: light dark; }
+
+        body {
+            margin: 0;
+            min-height: 100svh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            font-family: 'Instrument Sans', system-ui, -apple-system, sans-serif;
+            background: #fdfdfc;
+            color: #1b1b18;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body { background: #0a0a0a; color: #ededec; }
+            .hint { color: #a3a3a0; }
+        }
+
+        main { max-width: 22rem; text-align: center; }
+
+        img { width: 72px; height: 72px; margin-bottom: 1.25rem; }
+
+        h1 { font-size: 1.25rem; font-weight: 600; margin: 0 0 0.5rem; }
+
+        .hint { font-size: 0.875rem; line-height: 1.5; color: #706f6c; margin: 0 0 1.5rem; }
+
+        button {
+            font: inherit;
+            font-weight: 500;
+            padding: 0.625rem 1.5rem;
+            border: 0;
+            border-radius: 0.5rem;
+            background: #1b1b18;
+            color: #fdfdfc;
+            cursor: pointer;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            button { background: #ededec; color: #0a0a0a; }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <img src="/icons/icon-192.png" alt="">
+        <h1>კავშირი არ არის</h1>
+        <p class="hint">
+            შეამოწმე ინტერნეტ კავშირი და სცადე თავიდან.
+        </p>
+        <button type="button" onclick="location.reload()">თავიდან ცდა</button>
+    </main>
+</body>
+</html>
