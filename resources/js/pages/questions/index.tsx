@@ -850,7 +850,7 @@ export default function QuestionsIndex({
                         className="h-8 w-8 shrink-0"
                         onClick={() => {
                             // Clear sign filter by navigating without sign_id
-                            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
                             const { sign_id: _, ...restFilters } = localFilters;
                             router.get('/questions', restFilters, {
                                 preserveState: true,

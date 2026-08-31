@@ -565,7 +565,7 @@ export default function ActiveTest({ testResult, userSettings }: Props) {
                 }}
             >
                 {/* Row 1: Timer (left), Score (center), Question count (right) */}
-                <div className="flex items-center justify-between px-4 py-2">
+                <div className="mx-auto flex w-full max-w-3xl items-center justify-between px-4 py-2">
                     {/* Timer */}
                     <div
                         className={cn(
@@ -599,7 +599,7 @@ export default function ActiveTest({ testResult, userSettings }: Props) {
                 </div>
 
                 {/* Row 2: Pause (left), Auto-advance toggle (center), Skip (right) */}
-                <div className="flex items-center justify-between border-t bg-muted/30 px-3 py-1.5">
+                <div className="mx-auto flex w-full max-w-3xl items-center justify-between border-t bg-muted/30 px-3 py-1.5">
                     {/* Pause Button */}
                     <Button
                         variant="outline"
@@ -649,20 +649,22 @@ export default function ActiveTest({ testResult, userSettings }: Props) {
                 id="main-scroll-container"
                 className="min-h-0 flex-1 overflow-y-auto p-4"
             >
-                <QuestionCard
-                    question={currentQuestion}
-                    questionNumber={currentIndex + 1}
-                    shuffleSeed={testResult.configuration.shuffle_seed}
-                    answerState={answerState}
-                    isBookmarked={
-                        bookmarkedQuestions[currentQuestion.id] || false
-                    }
-                    isSubmitting={isSubmitting}
-                    onAnswer={() => {}}
-                    onBookmark={handleBookmark}
-                    onInfoClick={handleInfoClick}
-                    testMode={true}
-                />
+                <div className="mx-auto w-full max-w-3xl">
+                    <QuestionCard
+                        question={currentQuestion}
+                        questionNumber={currentIndex + 1}
+                        shuffleSeed={testResult.configuration.shuffle_seed}
+                        answerState={answerState}
+                        isBookmarked={
+                            bookmarkedQuestions[currentQuestion.id] || false
+                        }
+                        isSubmitting={isSubmitting}
+                        onAnswer={() => {}}
+                        onBookmark={handleBookmark}
+                        onInfoClick={handleInfoClick}
+                        testMode={true}
+                    />
+                </div>
             </main>
 
             {/* Bottom Navigation Bar */}
@@ -672,7 +674,7 @@ export default function ActiveTest({ testResult, userSettings }: Props) {
                     paddingBottom: 'var(--inset-bottom)',
                 }}
             >
-                <div className="flex h-14 items-center justify-between gap-1 px-2 sm:h-16 sm:gap-2 sm:px-4">
+                <div className="mx-auto flex h-14 w-full max-w-3xl items-center justify-between gap-1 px-2 sm:h-16 sm:gap-2 sm:px-4">
                     {/* Previous */}
                     <Button
                         variant="outline"

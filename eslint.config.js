@@ -23,6 +23,13 @@ export default [
             'react/react-in-jsx-scope': 'off',
             'react/prop-types': 'off',
             'react/no-unescaped-entities': 'off',
+            // Underscore-prefixed parameters are deliberately unused: they
+            // exist to keep a signature compatible with the interface being
+            // stood in for (see resources/js/native-shim.ts).
+            '@typescript-eslint/no-unused-vars': [
+                'error',
+                { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+            ],
         },
         settings: {
             react: {
