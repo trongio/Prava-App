@@ -1,4 +1,15 @@
-# მართვის მოწმობა - Prava
+# მართვის მოწმობა - Prava (desktop branch)
+
+> **You are on the `desktop` branch.** It is generated from `main` by
+> `deploy/make-desktop-branch.sh` and differs only in the build target:
+> `nativephp/desktop` replaces `nativephp/mobile` (the two conflict outright in
+> Composer), `#nativephp` points at `resources/js/native-shim.ts`, and the
+> mobile Vite plugin is gone. Application changes belong on `main`; regenerate
+> this branch rather than editing it by hand.
+>
+> Build with `php artisan native:build linux` or `php artisan native:build win`.
+> Auth here is the same device profile picker the Android app uses, since a
+> desktop install is likewise one machine's local database.
 
 Georgian driving-theory practice app: the full official question bank for every licence
 category, per-category exam rules, road signs, and progress tracking. Built with Laravel 12

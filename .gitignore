@@ -10,6 +10,10 @@
 /storage/*.key
 /storage/pail
 /vendor
+
+# NativePHP for Desktop build output: the Electron runtime, the bundled static
+# PHP and the packaged installers. Hundreds of MB, all reproducible.
+/nativephp/electron
 .DS_Store
 .env
 .env.backup

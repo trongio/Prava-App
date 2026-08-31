@@ -3,7 +3,7 @@
     "private": true,
     "type": "module",
     "imports": {
-        "#nativephp": "./vendor/nativephp/mobile/resources/dist/native.js"
+        "#nativephp": "./resources/js/native-shim.ts"
     },
     "scripts": {
         "build": "vite build",
