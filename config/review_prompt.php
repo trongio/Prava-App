@@ -17,6 +17,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Public listing URL
+    |--------------------------------------------------------------------------
+    |
+    | The same listing as an ordinary link. The market:// scheme above only
+    | resolves on a device with the Play Store installed, so anything a desktop
+    | browser has to open - the web landing page, the README - uses this.
+    |
+    */
+
+    'store_web_url' => env('STORE_WEB_URL', 'https://play.google.com/store/apps/details?id=com.prava.trongio'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Trigger thresholds
     |--------------------------------------------------------------------------
     |

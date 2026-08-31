@@ -12,6 +12,22 @@ it('shows the landing page instead of the device profile picker', function () {
         ->assertDontSee('Existing Person');
 });
 
+it('advertises the play store listing and the author links', function () {
+    config([
+        'review_prompt.store_web_url' => 'https://play.google.com/store/apps/details?id=com.prava.trongio',
+        'author.github' => 'https://github.com/trongio',
+        'author.linkedin' => null,
+    ]);
+
+    $this->get('/')->assertInertia(fn ($page) => $page
+        ->component('auth/welcome')
+        ->where('storeUrl', 'https://play.google.com/store/apps/details?id=com.prava.trongio')
+        ->where('author.github', 'https://github.com/trongio')
+        // Unset links are filtered out rather than rendered dead.
+        ->missing('author.linkedin')
+    );
+});
+
 it('does not expose the device profile listing or password-free login', function () {
     $user = User::factory()->create();
 

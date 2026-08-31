@@ -1,9 +1,15 @@
 import { Head, Link, router } from '@inertiajs/react';
-import { LogIn, ShieldCheck, UserPlus } from 'lucide-react';
+import { Github, Linkedin, LogIn, ShieldCheck, UserPlus } from 'lucide-react';
 import { useState } from 'react';
 
 import AppLogoIcon from '@/components/app-logo-icon';
 import { Button } from '@/components/ui/button';
+
+interface Author {
+    name?: string;
+    github?: string;
+    linkedin?: string;
+}
 
 /**
  * Landing page for the public web build.
@@ -13,7 +19,13 @@ import { Button } from '@/components/ui/button';
  * Wayfinder output is generated per build, so importing them would break the
  * device build where those routes are not registered.
  */
-export default function Welcome() {
+export default function Welcome({
+    storeUrl,
+    author = {},
+}: {
+    storeUrl: string;
+    author?: Author;
+}) {
     const [startingGuest, setStartingGuest] = useState(false);
 
     const startGuestSession = () => {
@@ -87,6 +99,68 @@ export default function Welcome() {
                         სამუდამოდ.
                     </p>
                 </div>
+
+                {/* Android app. The QR is the point of this block on a desktop
+                    screen; on a phone the visitor can just tap through, so the
+                    code is hidden there rather than shrunk. */}
+                <a
+                    href={storeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex w-full max-w-sm items-center gap-4 rounded-xl border p-4 transition-colors hover:bg-muted/50"
+                >
+                    <img
+                        src="/play-store-qr.png"
+                        alt=""
+                        width={88}
+                        height={88}
+                        className="hidden shrink-0 rounded-md bg-white p-1 sm:block"
+                    />
+                    <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium">Android აპლიკაცია</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                            ითამაშე ოფლაინაც. დააინსტალირე Google Play-დან
+                            <span className="hidden sm:inline">
+                                {' '}
+                                ან დაასკანერე კოდი
+                            </span>
+                            .
+                        </p>
+                        <span className="mt-2 inline-block text-xs font-medium text-primary underline underline-offset-4">
+                            Google Play
+                        </span>
+                    </div>
+                </a>
+
+                {(author.github || author.linkedin) && (
+                    <footer className="flex flex-col items-center gap-2 text-xs text-muted-foreground">
+                        {author.name && <span>შექმნილია: {author.name}</span>}
+                        <div className="flex items-center gap-4">
+                            {author.github && (
+                                <a
+                                    href={author.github}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-1.5 transition-colors hover:text-foreground"
+                                >
+                                    <Github className="h-3.5 w-3.5" />
+                                    GitHub
+                                </a>
+                            )}
+                            {author.linkedin && (
+                                <a
+                                    href={author.linkedin}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-1.5 transition-colors hover:text-foreground"
+                                >
+                                    <Linkedin className="h-3.5 w-3.5" />
+                                    LinkedIn
+                                </a>
+                            )}
+                        </div>
+                    </footer>
+                )}
             </div>
         </>
     );

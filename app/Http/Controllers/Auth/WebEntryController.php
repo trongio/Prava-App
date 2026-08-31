@@ -21,6 +21,13 @@ class WebEntryController extends Controller
             return redirect()->route('dashboard');
         }
 
-        return Inertia::render('auth/welcome');
+        return Inertia::render('auth/welcome', [
+            'storeUrl' => config('review_prompt.store_web_url'),
+            'author' => array_filter([
+                'name' => config('author.name'),
+                'github' => config('author.github'),
+                'linkedin' => config('author.linkedin'),
+            ]),
+        ]);
     }
 }
