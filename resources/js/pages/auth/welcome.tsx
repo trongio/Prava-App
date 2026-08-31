@@ -2,7 +2,6 @@ import { Head, Link, router } from '@inertiajs/react';
 import { Github, Linkedin, LogIn, ShieldCheck, UserPlus } from 'lucide-react';
 import { useState } from 'react';
 
-import AppLogoIcon from '@/components/app-logo-icon';
 import { Button } from '@/components/ui/button';
 
 interface Author {
@@ -39,7 +38,15 @@ export default function Welcome({
 
             <div className="flex min-h-svh flex-col items-center justify-center gap-8 bg-background p-6">
                 <div className="flex flex-col items-center gap-4 text-center">
-                    <AppLogoIcon className="size-14 fill-current text-foreground" />
+                    {/* The app's own icon, not the framework mark: this is
+                        the first thing a visitor arriving from a search sees. */}
+                    <img
+                        src="/icons/icon-192.png"
+                        alt=""
+                        width={64}
+                        height={64}
+                        className="rounded-2xl"
+                    />
                     <div className="space-y-2">
                         <h1 className="text-2xl font-semibold">
                             მართვის მოწმობის ტესტები
