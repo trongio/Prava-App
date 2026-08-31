@@ -21,14 +21,25 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # One architecture per job. `native:build linux` with no arch builds
+        # both, and the AppImage filename carries no arch, so the second one
+        # silently overwrites the first.
         include:
           - os: ubuntu-latest
             target: linux
+            arch: x64
+            artifacts: |
+              nativephp/electron/dist/*.AppImage
+              nativephp/electron/dist/*.deb
+          - os: ubuntu-latest
+            target: linux
+            arch: arm64
             artifacts: |
               nativephp/electron/dist/*.AppImage
               nativephp/electron/dist/*.deb
           - os: windows-latest
             target: win
+            arch: x64
             artifacts: |
               nativephp/electron/dist/*.exe
 
@@ -63,11 +74,11 @@ jobs:
       - name: Build the desktop app
         env:
           NATIVEPHP_APP_VERSION: ${{ github.ref_type == 'tag' && github.ref_name || '0.0.0-dev' }}
-        run: php artisan native:build ${{ matrix.target }}
+        run: php artisan native:build ${{ matrix.target }} ${{ matrix.arch }}
 
       - uses: actions/upload-artifact@v4
         with:
-          name: driving-desktop-${{ matrix.target }}
+          name: driving-desktop-${{ matrix.target }}-${{ matrix.arch }}
           path: ${{ matrix.artifacts }}
           if-no-files-found: error
           retention-days: 14

@@ -241,9 +241,12 @@ The script swaps the packages, drops the private NativePHP repository (the deskt
 on Packagist, so no licence credentials are needed), points the `#nativephp` import at
 `resources/js/native-shim.ts`, and removes the mobile Vite plugin.
 
-Linux produces an AppImage and a `.deb` for x64 and arm64. Windows is built by the
-`windows-latest` job in `.github/workflows/desktop-build.yml` rather than cross-compiled,
-which would need wine plus 32-bit NSIS.
+Linux produces an AppImage and a `.deb`. Pass the architecture explicitly
+(`php artisan native:build linux x64`): with no arch it builds both, and the AppImage
+filename carries no architecture, so the second one silently overwrites the first.
+
+Windows is built by the `windows-latest` job in `.github/workflows/desktop-build.yml`
+rather than cross-compiled, which would need wine plus 32-bit NSIS.
 
 ## Project Structure
 
