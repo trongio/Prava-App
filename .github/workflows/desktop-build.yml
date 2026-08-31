@@ -1,0 +1,73 @@
+name: desktop build
+
+# Builds the Windows and Linux desktop apps from the `desktop` branch, which
+# swaps nativephp/mobile for nativephp/desktop (the two conflict outright, so
+# they cannot share a branch - see deploy/make-desktop-branch.sh).
+#
+# Windows is built on a Windows runner rather than cross-compiled: doing it
+# from Linux needs wine plus 32-bit NSIS, which is a lot of moving parts for
+# something a hosted runner does natively.
+
+on:
+  push:
+    branches:
+      - desktop
+    tags:
+      - 'desktop-v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: linux
+            artifacts: |
+              nativephp/electron/dist/*.AppImage
+              nativephp/electron/dist/*.deb
+          - os: windows-latest
+            target: win
+            artifacts: |
+              nativephp/electron/dist/*.exe
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          # NativePHP for desktop v2 requires 8.3 or newer.
+          php-version: '8.3'
+          extensions: pdo_sqlite, zip, intl
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # The desktop branch pulls everything from Packagist, so no NativePHP
+      # licence credentials are needed here.
+      - name: Install dependencies
+        run: |
+          composer install --no-interaction --no-progress --prefer-dist
+          npm ci --no-audit --no-fund
+
+      - name: Type check and build the frontend
+        run: |
+          npx tsc --noEmit
+          npm run build
+
+      - name: Build the desktop app
+        env:
+          NATIVEPHP_APP_VERSION: ${{ github.ref_type == 'tag' && github.ref_name || '0.0.0-dev' }}
+        run: php artisan native:build ${{ matrix.target }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: driving-desktop-${{ matrix.target }}
+          path: ${{ matrix.artifacts }}
+          if-no-files-found: error
+          retention-days: 14
