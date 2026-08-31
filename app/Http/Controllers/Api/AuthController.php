@@ -18,7 +18,8 @@ class AuthController extends Controller
      */
     public function users(): JsonResponse
     {
-        $users = User::select(['id', 'name', 'profile_image', 'has_password'])
+        $users = User::selectable()
+            ->select(['id', 'name', 'profile_image', 'has_password'])
             ->orderBy('name')
             ->get()
             ->map(fn (User $user) => [
@@ -41,7 +42,7 @@ class AuthController extends Controller
             'password' => ['nullable', 'string'],
         ]);
 
-        $user = User::findOrFail($request->user_id);
+        $user = User::selectable()->findOrFail($request->user_id);
 
         // If user has a password, verify it
         if ($user->has_password) {

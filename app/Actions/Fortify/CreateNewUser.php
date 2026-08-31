@@ -21,6 +21,12 @@ class CreateNewUser implements CreatesNewUsers
     {
         Validator::make($input, [
             ...$this->profileRules(),
+            // Fortify authenticates by email, so unlike the device build's
+            // profile picker the address is mandatory and must be unique.
+            'email' => array_map(
+                fn ($rule) => $rule === 'nullable' ? 'required' : $rule,
+                $this->emailRules(),
+            ),
             'password' => $this->passwordRules(),
         ])->validate();
 
@@ -28,6 +34,7 @@ class CreateNewUser implements CreatesNewUsers
             'name' => $input['name'],
             'email' => $input['email'],
             'password' => $input['password'],
+            'has_password' => true,
         ]);
     }
 }

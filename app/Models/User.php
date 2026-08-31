@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -41,6 +42,7 @@ class User extends Authenticatable
         'question_filter_preferences',
         'default_license_type_id',
         'test_auto_advance',
+        'is_guest',
     ];
 
     /**
@@ -76,11 +78,24 @@ class User extends Authenticatable
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
             'has_password' => 'boolean',
+            'is_guest' => 'boolean',
             'question_filter_preferences' => 'array',
             'test_auto_advance' => 'boolean',
             'review_prompt_dismissed_at' => 'datetime',
             'review_prompt_last_shown_at' => 'datetime',
         ];
+    }
+
+    /**
+     * Real, named accounts. Guests are throwaway web sessions and must never
+     * be listed anywhere a visitor can see or sign into them.
+     *
+     * @param  Builder<User>  $query
+     * @return Builder<User>
+     */
+    public function scopeSelectable(Builder $query): Builder
+    {
+        return $query->where('is_guest', false);
     }
 
     public function getProfileImageUrlAttribute(): ?string

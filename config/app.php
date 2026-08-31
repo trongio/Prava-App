@@ -30,6 +30,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Application Platform
+    |--------------------------------------------------------------------------
+    |
+    | The same codebase ships as a device-local NativePHP app and as a public
+    | web app. "native" keeps the device behaviour (offline profile picker,
+    | store review prompt); "web" switches on Fortify accounts and guests.
+    |
+    */
+
+    'platform' => env('APP_PLATFORM', 'native'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Debug Mode
     |--------------------------------------------------------------------------
     |

@@ -29,8 +29,11 @@ export interface LicenseType {
     children?: LicenseType[];
 }
 
+export type Platform = 'native' | 'web';
+
 export interface SharedData {
     name: string;
+    platform: Platform;
     auth: Auth;
     sidebarOpen: boolean;
     licenseTypes: LicenseType[];
@@ -50,6 +53,7 @@ export interface User {
     avatar?: string;
     profile_image_url?: string | null;
     has_password?: boolean;
+    is_guest?: boolean;
     default_license_type_id?: number | null;
     email_verified_at: string | null;
     created_at: string;

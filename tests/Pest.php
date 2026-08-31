@@ -1,5 +1,9 @@
 <?php
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+use Tests\WebPlatformTestCase;
+
 /*
 |--------------------------------------------------------------------------
 | Test Case
@@ -11,13 +15,19 @@
 |
 */
 
-pest()->extend(Tests\TestCase::class)
-    ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
+pest()->extend(TestCase::class)
+    ->use(RefreshDatabase::class)
     ->in('Feature');
 
-pest()->extend(Tests\TestCase::class)
-    ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
+pest()->extend(TestCase::class)
+    ->use(RefreshDatabase::class)
     ->in('Browser');
+
+// The public web build boots with APP_PLATFORM=web, which changes which routes
+// and Fortify features exist. That has to be set before the app is created.
+pest()->extend(WebPlatformTestCase::class)
+    ->use(RefreshDatabase::class)
+    ->in('Web');
 
 /*
 |--------------------------------------------------------------------------

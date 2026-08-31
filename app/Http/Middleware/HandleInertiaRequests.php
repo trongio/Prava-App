@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\LicenseType;
+use App\Support\Platform;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -39,6 +40,9 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            // Lets the frontend hide device-only affordances (camera capture,
+            // secure storage, the Play Store review prompt) on the web.
+            'platform' => Platform::current(),
             'auth' => [
                 'user' => $request->user(),
             ],

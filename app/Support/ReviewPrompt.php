@@ -24,6 +24,11 @@ class ReviewPrompt
      */
     public static function shouldShow(User $user, TestResult $testResult): bool
     {
+        // There is no app store listing to send a browser to.
+        if (Platform::isWeb()) {
+            return false;
+        }
+
         if (! $testResult->isPassed()) {
             return false;
         }

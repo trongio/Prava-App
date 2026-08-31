@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Auth\GuestSessionController;
+use App\Http\Controllers\Auth\GuestUpgradeController;
+use App\Http\Controllers\Auth\WebEntryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\QuestionBrowserController;
@@ -10,12 +13,30 @@ use App\Http\Controllers\TestHistoryController;
 use App\Http\Controllers\TestTemplateController;
 use App\Http\Controllers\UserSelectionController;
 use App\Support\NativeMediaFile;
+use App\Support\Platform;
 use Illuminate\Support\Facades\Route;
 
-// User Selection (Login/Register)
-Route::get('/', [UserSelectionController::class, 'index'])->name('home');
-Route::post('/login', [UserSelectionController::class, 'login'])->name('login');
-Route::post('/register', [UserSelectionController::class, 'store'])->name('register');
+if (Platform::isWeb()) {
+    // Public web build: Fortify owns login/register/password reset. Anyone who
+    // does not want an account can start a throwaway guest session instead.
+    Route::get('/', [WebEntryController::class, 'index'])->name('home');
+    Route::post('/guest', [GuestSessionController::class, 'store'])
+        ->middleware('throttle:5,1')
+        ->name('guest.store');
+    Route::get('/guest/upgrade', [GuestUpgradeController::class, 'create'])
+        ->middleware('auth')
+        ->name('guest.upgrade.create');
+    Route::post('/guest/upgrade', [GuestUpgradeController::class, 'store'])
+        ->middleware(['auth', 'throttle:6,1'])
+        ->name('guest.upgrade');
+} else {
+    // Device build: the database is local to one phone, so picking a profile
+    // is the whole login. Registering the same URIs on the web would list
+    // every account on the server and let anyone sign in as any of them.
+    Route::get('/', [UserSelectionController::class, 'index'])->name('home');
+    Route::post('/login', [UserSelectionController::class, 'login'])->name('login');
+    Route::post('/register', [UserSelectionController::class, 'store'])->name('register');
+}
 Route::get('/auth/logout', function () {
     // Revoke all Sanctum tokens for the user
     if (auth()->check()) {
@@ -32,7 +53,8 @@ Route::get('/auth/logout', function () {
 // Convert native camera/gallery image to a base64 data URL for preview
 // (GET to avoid NativePHP POST interception). The supplied path is resolved
 // and validated as an image inside an allowed device location to prevent
-// arbitrary file disclosure / path traversal.
+// arbitrary file disclosure / path traversal. Device build only: there is no
+// device filesystem to preview from on the web.
 Route::get('/native-file/preview', function () {
     $resolved = NativeMediaFile::resolveImage(request()->query('path'));
 
@@ -49,7 +71,7 @@ Route::get('/native-file/preview', function () {
     return response()->json([
         'dataUrl' => "data:{$resolved['mime']};base64,".base64_encode($contents),
     ]);
-})->name('native.file.preview');
+})->name('native.file.preview')->middleware('native.only');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -93,9 +115,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('signs', [SignsController::class, 'index'])->name('signs.index');
     Route::get('signs/{sign}', [SignsController::class, 'show'])->name('signs.show');
 
-    // Play Store rating prompt (dismissal is permanent)
-    Route::post('review-prompt/dismiss', [ReviewPromptController::class, 'dismiss'])->name('review-prompt.dismiss');
-    Route::post('review-prompt/rate', [ReviewPromptController::class, 'rate'])->name('review-prompt.rate');
+    // Play Store rating prompt (dismissal is permanent). Device build only.
+    Route::middleware('native.only')->group(function () {
+        Route::post('review-prompt/dismiss', [ReviewPromptController::class, 'dismiss'])->name('review-prompt.dismiss');
+        Route::post('review-prompt/rate', [ReviewPromptController::class, 'rate'])->name('review-prompt.rate');
+    });
 
     // Profile image update
     Route::post('/profile/image', [UserSelectionController::class, 'updateImage'])->name('profile.image.update');

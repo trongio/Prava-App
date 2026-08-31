@@ -3,9 +3,12 @@
 use App\Http\Controllers\Api\AuthController;
 use Illuminate\Support\Facades\Route;
 
-// Public auth routes with web middleware for session support
-// This allows Auth::login() to persist sessions for Inertia navigation in NativePHP WebView
-Route::middleware('web')->group(function () {
+// Public auth routes with web middleware for session support.
+// This allows Auth::login() to persist sessions for Inertia navigation in the
+// NativePHP WebView. Device build only: these list every account and sign in
+// by id without a password, which is correct for one phone's local database
+// and a full account takeover on a shared web server.
+Route::middleware(['web', 'native.only'])->group(function () {
     Route::get('/users', [AuthController::class, 'users']);
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'register']);

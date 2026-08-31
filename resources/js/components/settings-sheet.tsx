@@ -1,5 +1,5 @@
 import { Transition } from '@headlessui/react';
-import { router, useForm, usePage } from '@inertiajs/react';
+import { Link, router, useForm, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import {
     ArrowLeft,
@@ -20,16 +20,9 @@ import {
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
 
 // NativePHP imports for camera access
-import {
-    browser,
-    camera,
-    Events,
-    isMobile,
-    off,
-    on,
-    secureStorage,
-} from '#nativephp';
+import { camera, Events, isMobile, off, on, secureStorage } from '#nativephp';
 import { type Appearance, useAppearance } from '@/hooks/use-appearance';
+import { useOpenExternal } from '@/hooks/use-open-external';
 import { cn } from '@/lib/utils';
 import { logout } from '@/routes/auth';
 import { type LicenseType, type SharedData } from '@/types';
@@ -322,7 +315,8 @@ function MainView({
     onNavigate: (view: SettingsView) => void;
     onClose: () => void;
 }) {
-    const { licenseTypes } = usePage<SharedData>().props;
+    const { licenseTypes, platform } = usePage<SharedData>().props;
+    const openExternal = useOpenExternal();
 
     const handleLogout = () => {
         window.location.href = logout.url();
@@ -338,10 +332,10 @@ function MainView({
             const { data } = await axios.post('/review-prompt/rate');
 
             if (!data?.native) {
-                browser.open(data?.store_url);
+                openExternal(data?.store_url);
             }
         } catch {
-            browser.open(
+            openExternal(
                 'https://play.google.com/store/apps/details?id=com.prava.trongio',
             );
         }
@@ -400,26 +394,49 @@ function MainView({
                 </div>
             </div>
 
-            {/* Rate the app. Always available, unlike the one-shot prompt on
-                the results screen, so anyone who dismissed that can still rate. */}
-            <button
-                type="button"
-                onClick={handleRateApp}
-                className="flex w-full items-center gap-3 border-t px-4 py-3 text-sm font-medium transition-colors hover:bg-muted/50"
-            >
-                <Star className="h-5 w-5 text-amber-500" />
-                <div className="min-w-0 flex-1 text-left">
-                    <span>შეფასება</span>
-                    <p className="text-xs text-muted-foreground">Google Play</p>
-                </div>
-                <ExternalLink className="h-4 w-4 text-muted-foreground" />
-            </button>
+            {/* Guests keep their history only until the session goes stale,
+                so give them a standing way out of that. */}
+            {user.is_guest && (
+                <Link
+                    href="/guest/upgrade"
+                    className="flex w-full items-center gap-3 border-t px-4 py-3 text-sm font-medium transition-colors hover:bg-muted/50"
+                >
+                    <ShieldCheck className="h-5 w-5 text-primary" />
+                    <div className="min-w-0 flex-1 text-left">
+                        <span>შედეგების შენახვა</span>
+                        <p className="text-xs text-muted-foreground">
+                            შექმენი ანგარიში
+                        </p>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </Link>
+            )}
+
+            {/* Rate the app. Always available on the device, unlike the
+                one-shot prompt on the results screen, so anyone who dismissed
+                that can still rate. There is no store listing on the web. */}
+            {platform === 'native' && (
+                <button
+                    type="button"
+                    onClick={handleRateApp}
+                    className="flex w-full items-center gap-3 border-t px-4 py-3 text-sm font-medium transition-colors hover:bg-muted/50"
+                >
+                    <Star className="h-5 w-5 text-amber-500" />
+                    <div className="min-w-0 flex-1 text-left">
+                        <span>შეფასება</span>
+                        <p className="text-xs text-muted-foreground">
+                            Google Play
+                        </p>
+                    </div>
+                    <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                </button>
+            )}
 
             {/* GitHub contribute link */}
             <button
                 type="button"
                 onClick={() =>
-                    browser.open('https://github.com/trongio/Prava-App')
+                    openExternal('https://github.com/trongio/Prava-App')
                 }
                 className="flex w-full items-center gap-3 border-t px-4 py-3 text-sm font-medium transition-colors hover:bg-muted/50"
             >
@@ -441,7 +458,7 @@ function MainView({
             <button
                 type="button"
                 onClick={() =>
-                    browser.open(
+                    openExternal(
                         'https://raw.githubusercontent.com/trongio/Prava-App/refs/heads/main/PRIVACY_POLICY.md',
                     )
                 }

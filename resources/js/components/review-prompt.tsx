@@ -2,7 +2,6 @@ import axios from 'axios';
 import { Star } from 'lucide-react';
 import { useCallback, useState } from 'react';
 
-import { browser } from '#nativephp';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -12,6 +11,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { useOpenExternal } from '@/hooks/use-open-external';
 
 interface Props {
     storeUrl: string;
@@ -32,6 +32,7 @@ interface Props {
  */
 export function ReviewPrompt({ storeUrl }: Props) {
     const [isOpen, setIsOpen] = useState(true);
+    const openExternal = useOpenExternal();
 
     const retire = useCallback(() => {
         setIsOpen(false);
@@ -51,12 +52,12 @@ export function ReviewPrompt({ storeUrl }: Props) {
             const { data } = await axios.post('/review-prompt/rate');
 
             if (!data?.native) {
-                browser.open(data?.store_url ?? storeUrl);
+                openExternal(data?.store_url ?? storeUrl);
             }
         } catch {
-            browser.open(storeUrl);
+            openExternal(storeUrl);
         }
-    }, [storeUrl]);
+    }, [openExternal, storeUrl]);
 
     return (
         <Dialog

@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\User;
+
 return [
 
     /*
@@ -12,6 +14,19 @@ return [
     | as required, but they're a perfect start for most applications.
     |
     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | Guest Account Retention
+    |--------------------------------------------------------------------------
+    |
+    | How many days an unused guest account created by the web build is kept
+    | before app:prune-guest-users deletes it. Activity is measured from the
+    | guest's most recent test.
+    |
+    */
+
+    'guest_retention_days' => (int) env('GUEST_RETENTION_DAYS', 30),
 
     'defaults' => [
         'guard' => env('AUTH_GUARD', 'web'),
@@ -62,7 +77,7 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', App\Models\User::class),
+            'model' => env('AUTH_MODEL', User::class),
         ],
 
         // 'users' => [

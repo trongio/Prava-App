@@ -130,7 +130,10 @@ return [
     |
     */
 
-    'views' => false,
+    // The web build renders Fortify's login/register/reset screens through
+    // Inertia (see FortifyServiceProvider). The device build never shows them:
+    // it authenticates by picking a local profile instead.
+    'views' => env('APP_PLATFORM', 'native') === 'web',
 
     /*
     |--------------------------------------------------------------------------
@@ -143,8 +146,11 @@ return [
     |
     */
 
-    'features' => [
+    'features' => array_merge([
         Features::updateProfileInformation(),
-    ],
+    ], env('APP_PLATFORM', 'native') === 'web' ? [
+        Features::registration(),
+        Features::resetPasswords(),
+    ] : []),
 
 ];
