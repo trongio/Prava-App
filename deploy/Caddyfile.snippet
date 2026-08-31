@@ -16,15 +16,6 @@ driving.hackerman.ge {
 		-Server
 	}
 
-	# Product screenshots, kept here so they can be embedded elsewhere. CORS is
-	# open on this path only: it is what lets another site read the pixels
-	# (canvas, share composers) rather than just display them.
-	@press path /press/*
-	header @press {
-		Access-Control-Allow-Origin "*"
-		Cache-Control "public, max-age=86400"
-	}
-
 	# Profile photo uploads are capped at 2MB by the application; this is the
 	# matching ceiling at the edge.
 	request_body {
