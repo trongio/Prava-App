@@ -78,8 +78,10 @@ npx tsc --noEmit
 npm run build
 
 if [ "$BUILD" = "1" ]; then
-    say "Building the Linux artifacts (downloads Electron and a static PHP, ~300MB)"
-    php artisan native:build linux
+    # An explicit arch matters: with none, both are built and the AppImage
+    # filename carries no architecture, so arm64 overwrites x64.
+    say "Building the Linux x64 artifacts (downloads Electron and a static PHP, ~300MB)"
+    php artisan native:build linux x64
     ls -la nativephp/electron/dist/ | grep -vE '^d|unpacked'
 fi
 
