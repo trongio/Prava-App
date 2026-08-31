@@ -82,7 +82,7 @@ return new class extends Migration
             // Get actual database path from the PDO connection
             // This works on NativePHP where database_path() returns wrong location
             $pdo = DB::connection()->getPdo();
-            $dbList = $pdo->query('PRAGMA database_list')->fetch(\PDO::FETCH_ASSOC);
+            $dbList = $pdo->query('PRAGMA database_list')->fetch(PDO::FETCH_ASSOC);
             $actualDbPath = $dbList['file'] ?? null;
 
             if (! $actualDbPath || ! is_writable(dirname($actualDbPath))) {
@@ -93,8 +93,20 @@ return new class extends Migration
 
             Log::info('Actual database path from PDO', ['path' => $actualDbPath]);
 
+            // Checkpoint and drop any write-ahead log first. Under WAL the -wal
+            // file left by the connection that created the migrations table is
+            // replayed on the next open, which silently restores the empty
+            // database over whatever was copied in and leaves every later
+            // migration failing with "no such table". DELETE mode flushes and
+            // removes it; the configured journal mode is re-applied by the
+            // reconnect below.
+            DB::unprepared('PRAGMA journal_mode = DELETE');
+
             // Disconnect before file operations
             DB::disconnect();
+
+            @unlink($actualDbPath.'-wal');
+            @unlink($actualDbPath.'-shm');
 
             // Copy seeded database over the current one
             $bytes = @copy($seededPath, $actualDbPath);
