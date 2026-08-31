@@ -14,7 +14,7 @@
  * signed-in user, and a shared or borrowed browser must not be able to replay
  * someone else's dashboard from disk.
  */
-const CACHE_VERSION = 'v2';
+const CACHE_VERSION = 'v3';
 const IMAGE_CACHE = `driving-images-${CACHE_VERSION}`;
 const STATIC_CACHE = `driving-static-${CACHE_VERSION}`;
 const OFFLINE_URL = '/offline.html';
@@ -31,7 +31,12 @@ const IMAGE_PATHS = [
 /** Content-hashed or otherwise fixed assets belonging to the installed app. */
 const STATIC_PATHS = ['/build/assets/', '/icons/'];
 
-const STATIC_FILES = ['/manifest.webmanifest', '/favicon.svg', '/favicon.ico'];
+const STATIC_FILES = [
+    '/manifest.webmanifest',
+    '/favicon.ico',
+    '/favicon-96.png',
+    '/apple-touch-icon.png',
+];
 
 const PRECACHE = [OFFLINE_URL, '/manifest.webmanifest', '/icons/icon-192.png'];
 
