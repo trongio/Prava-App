@@ -270,6 +270,50 @@ DESTROY_NEW = """        // Tearing the PHP engine down from the main thread wou
 """
 
 
+# --- Laravel's own caches ---------------------------------------------------
+# The shipped PHP runtime has no OPcache (no opcache.* ini strings in libphp.so,
+# and function_exists('opcache_get_status') is false on device), so PHP recompiles
+# from source on every request and we cannot change that from here. What we can
+# do is give it less to do.
+
+ARTISAN_OLD = """        phpBridge.runArtisanCommand("optimize:clear")
+        phpBridge.runArtisanCommand("storage:unlink")
+        phpBridge.runArtisanCommand("storage:link")
+        phpBridge.runArtisanCommand("migrate --force")
+    }
+"""
+
+ARTISAN_NEW = """        phpBridge.runArtisanCommand("optimize:clear")
+        phpBridge.runArtisanCommand("storage:unlink")
+        phpBridge.runArtisanCommand("storage:link")
+        phpBridge.runArtisanCommand("migrate --force")
+
+        // Without this, every request re-parses all of config/, which is the
+        // bulk of kernel_boot: 65.0ms -> 51.5ms median on an SM-S908E.
+        //
+        // They have to be built here: on the device, and after extraction. A cache
+        // built on the build machine bakes in absolute paths that do not exist on
+        // the device, which is exactly why optimize:clear runs above. That clear
+        // also wipes the previous launch's cache, so this re-runs every launch.
+        //
+        // Rebuilding it on every launch, after optimize:clear, is deliberate: it
+        // makes a stale cache impossible, including across app updates, because
+        // the cache can only ever be built from the bundle that is on disk right
+        // now. Persisting it across launches would be faster still and would
+        // reintroduce exactly that staleness risk.
+        //
+        // route:cache is deliberately absent: routes/web.php registers closures
+        // (/auth/logout, /native-file/preview) and route:cache refuses to
+        // serialise those, failing the whole command.
+        //
+        // event:cache is deliberately absent too: measured on an SM-S908E it cost
+        // 223ms of extra startup to save 1.2ms per request, because this app
+        // discovers almost no listeners (events.php was 111 bytes).
+        phpBridge.runArtisanCommand("config:cache")
+    }
+"""
+
+
 PATCHES = [
     {
         "name": "NativeActionCoordinator: commit without state-loss check",
@@ -387,6 +431,15 @@ PATCHES = [
         "applied": "PHPBridge.runOnPhpThread {",
         "why": "shutdown() on the main thread would block on the PHP lock behind an "
                "in-flight request; laravelEnv is lateinit and may never have been set.",
+    },
+    {
+        "name": "LaravelEnvironment: cache config on the device",
+        "path": JAVA / "bridge/LaravelEnvironment.kt",
+        "old": ARTISAN_OLD,
+        "new": ARTISAN_NEW,
+        "applied": 'runArtisanCommand("config:cache")',
+        "why": "There is no OPcache in the shipped runtime, so cutting the work per "
+               "request is the only lever; kernel_boot is the bulk of request time.",
     },
 ]
 
