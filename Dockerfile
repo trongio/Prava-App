@@ -13,7 +13,7 @@
 #     --secret id=composer_auth,src=$HOME/.config/composer/auth.json \
 #     -t driving-web:<sha> .
 
-ARG FRANKENPHP_IMAGE=dunglas/frankenphp:1.12.7-php8.3.33-bookworm
+ARG FRANKENPHP_IMAGE=dunglas/frankenphp:1.13.2-php8.3.36-bookworm
 
 # ---------------------------------------------------------------------------
 # Builder: PHP dependencies, then the Vite bundle.
